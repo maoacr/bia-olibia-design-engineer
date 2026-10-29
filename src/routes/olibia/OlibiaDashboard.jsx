@@ -3,6 +3,7 @@ import { CHANNELS, MONTHLY_GOAL, MONTH_NAMES, PERIOD_IDS, STAGES, TEAM, periods 
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { opportunitiesWithMovement } from './movement.js';
 import { ThemeToggle } from '../../shared/theme.jsx';
+import { niceScale } from '../../shared/scale.js';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
@@ -29,54 +30,90 @@ function Bars({ items, max, highlight = null }) {
     );
   });
 }
-function Chart({ values, labels, goal = false, highlight = null }) {
+/**
+ * Grafico de barras con escala derivada del dato.
+ *
+ * El starter calculaba la altura como `185 - valor * 15` con la grilla fija en
+ * 0/5/10. Al filtrar, los canales mostraban valores de 0 a 2 sobre una escala
+ * que llegaba a 10: cuatro quintos del panel en aire vacio. El ancho de barra
+ * tambien era fijo (36px) mientras el paso dependia de cuantas barras hubiera,
+ * asi que con tres quedaban huecos enormes y con seis se apretaban.
+ */
+const PLOT = { top: 18, bottom: 182, left: 38, right: 524 };
+const AXIS_LABEL_Y = 203;
+
+function Chart({ values, labels, label, goal = null, highlight = null }) {
+  // La meta entra en el dominio para que la linea siempre quede dentro del area.
+  const { max, ticks } = niceScale(Math.max(...values, goal ?? 0));
+  const y = value => PLOT.bottom - (value / max) * (PLOT.bottom - PLOT.top);
+
+  const band = (PLOT.right - PLOT.left) / values.length;
+  const barWidth = Math.min(band * 0.52, 48);
+  const center = i => PLOT.left + band * (i + 0.5);
+
   return (
-    <svg
-      className="chart"
-      viewBox="0 0 540 220"
-      role="img"
-      aria-label={
-        goal ? 'Cierres por mes y meta de diez cierres' : 'Oportunidades abiertas por canal'
-      }
-    >
-      {[0, 5, 10].map(n => (
-        <g key={n}>
-          <line x1="35" x2="525" y1={185 - n * 15} y2={185 - n * 15} stroke="var(--chart-grid)" />
-          <text x="10" y={189 - n * 15} fontSize="11" fill="currentColor">
-            {n}
+    <svg className="chart" viewBox="0 0 540 220" role="img" aria-label={label}>
+      {ticks.map(tick => (
+        <g key={tick}>
+          <line
+            x1={PLOT.left}
+            x2={PLOT.right}
+            y1={y(tick)}
+            y2={y(tick)}
+            stroke="var(--chart-grid)"
+          />
+          <text
+            x={PLOT.left - 8}
+            y={y(tick) + 4}
+            fontSize="11"
+            textAnchor="end"
+            fill="currentColor"
+          >
+            {tick}
           </text>
         </g>
       ))}
-      {goal && (
-        <line x1="35" x2="525" y1="35" y2="35" stroke="var(--chart-axis)" strokeDasharray="5 5" />
+
+      {goal != null && (
+        <line
+          x1={PLOT.left}
+          x2={PLOT.right}
+          y1={y(goal)}
+          y2={y(goal)}
+          stroke="var(--chart-axis)"
+          strokeDasharray="5 5"
+        />
       )}
-      {values.map((n, i) => {
+
+      {values.map((value, i) => {
         const focused = highlight != null && labels[i] === highlight;
         return (
           <g key={labels[i]} className={focused ? 'bar-group bar-group--focus' : 'bar-group'}>
-            <rect
-              x={55 + i * (460 / values.length)}
-              y={185 - n * 15}
-              width="36"
-              height={n * 15}
-              className="bar"
-            >
-              <title>
-                {labels[i]}: {n}
-              </title>
-            </rect>
+            <title>
+              {labels[i]}: {value}
+            </title>
+            {value > 0 && (
+              <rect
+                x={center(i) - barWidth / 2}
+                y={y(value)}
+                width={barWidth}
+                height={PLOT.bottom - y(value)}
+                rx="3"
+                className="bar"
+              />
+            )}
             <text
-              x={73 + i * (460 / values.length)}
-              y={177 - n * 15}
+              x={center(i)}
+              y={y(value) - 7}
               fontSize="12"
               textAnchor="middle"
               fill="currentColor"
             >
-              {n}
+              {value}
             </text>
             <text
-              x={73 + i * (460 / values.length)}
-              y="207"
+              x={center(i)}
+              y={AXIS_LABEL_Y}
               fontSize="11"
               textAnchor="middle"
               fill="currentColor"
@@ -306,8 +343,9 @@ export default function OlibiaDashboard() {
               <Chart
                 values={d.history.map(h => h.closed)}
                 labels={d.history.map(h => h.month)}
+                label={`Cierres por mes del equipo, con la meta de ${MONTHLY_GOAL} cierres`}
                 highlight={d.history[d.history.length - 1].month}
-                goal
+                goal={MONTHLY_GOAL}
               />
               <div className="legend">Barras: cierres del mes · Línea discontinua: meta de 10</div>
             </section>
@@ -327,6 +365,7 @@ export default function OlibiaDashboard() {
               <Chart
                 values={CHANNELS.map(c => rows.filter(o => o.channel === c).length)}
                 labels={CHANNELS}
+                label="Oportunidades abiertas por canal de origen"
                 highlight={channel || null}
               />
             </section>
@@ -334,9 +373,10 @@ export default function OlibiaDashboard() {
               <h2>Cierres por ejecutivo · Total del periodo</h2>
               <Bars
                 items={d.closesByOwner.map(({ owner, closed }) => [owner, closed])}
-                max={4}
+                max={Math.max(d.closed, 1)}
                 highlight={owner || null}
               />
+              <p className="muted">Participación en los {d.closed} cierres del periodo</p>
             </section>
           </div>
           <section className="panel">
