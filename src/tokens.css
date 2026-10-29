@@ -139,6 +139,10 @@
   --chart-axis: var(--text-muted);
   --chart-bar: var(--zinc-bar);
   --chart-bar-on: var(--accent);
+
+  --glow: 0 0 16px rgb(8 221 188 / 0.28);
+  --glow-soft: 0 0 24px rgb(8 221 188 / 0.14);
+  --glow-svg: drop-shadow(0 0 5px rgb(8 221 188 / 0.5));
   --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 24px -12px rgb(0 0 0 / 0.7);
 }
 
@@ -179,6 +183,11 @@
   --chart-axis: var(--ink-500);
   --chart-bar: var(--paper-bar);
   --chart-bar-on: var(--accent);
+
+  /* En claro la profundidad viene de la sombra, no del halo. */
+  --glow: 0 1px 3px rgb(5 129 110 / 0.3);
+  --glow-soft: none;
+  --glow-svg: none;
   --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);
 }
 
@@ -216,6 +225,10 @@
     --chart-axis: var(--ink-500);
     --chart-bar: var(--paper-bar);
     --chart-bar-on: var(--accent);
+
+    --glow: 0 1px 3px rgb(5 129 110 / 0.3);
+    --glow-soft: none;
+    --glow-svg: none;
     --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);
   }
 }

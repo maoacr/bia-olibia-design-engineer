@@ -537,25 +537,36 @@ export default function OlibiaDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map(o => (
-                    <tr key={o.id}>
-                      <td>{o.company}</td>
-                      <td>
-                        <span className="badge">{o.stage}</span>
-                      </td>
-                      <td>
-                        <MovementTag movement={o.movement} />
-                      </td>
-                      <td>${o.value} M</td>
-                      <td>{o.owner}</td>
-                      <td>{o.nextContact}</td>
-                      <td>
-                        <button aria-label={`Ver ${o.company}`} onClick={() => setSelected(o)}>
-                          Ver
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {rows.map(o => {
+                    const followed = done[`${period}:${o.id}`];
+                    return (
+                      <tr key={o.id} className={followed ? 'is-followed' : undefined}>
+                        <td>
+                          {o.company}
+                          {followed && (
+                            <span className="followed-tag" title="Seguimiento realizado">
+                              <span aria-hidden="true">✓</span>
+                              <span className="sr-only">Seguimiento realizado</span>
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <span className="badge">{o.stage}</span>
+                        </td>
+                        <td>
+                          <MovementTag movement={o.movement} />
+                        </td>
+                        <td>${o.value} M</td>
+                        <td>{o.owner}</td>
+                        <td>{o.nextContact}</td>
+                        <td>
+                          <button aria-label={`Ver ${o.company}`} onClick={() => setSelected(o)}>
+                            Ver
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
               {!rows.length && (

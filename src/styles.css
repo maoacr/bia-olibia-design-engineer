@@ -980,3 +980,52 @@ td:nth-child(3) {
     visibility: visible;
   }
 }
+
+/* ─── Profundidad de marca ─────────────────────────────────────────── */
+
+/* El halo se aplica solo sobre lo que ya es acento, que despues de reservar
+   el color son muy pocas cosas. Si brillara todo, volveriamos al problema de
+   origen: un acento omnipresente que el ojo normaliza y deja de leer. */
+
+.chart .bar-group--focus .bar {
+  filter: var(--glow-svg);
+}
+
+.row--focus .fill,
+.movement__tile.is-selected {
+  box-shadow: var(--glow);
+}
+
+.menu__link.is-active {
+  box-shadow: var(--glow-soft);
+}
+
+/* La marca es el unico lugar donde el halo no responde a una seleccion:
+   es la firma de la identidad, no una señal de estado. */
+.brand {
+  text-shadow: var(--glow-soft);
+}
+
+/* ─── Rastro del seguimiento ───────────────────────────────────────── */
+
+/* Marcar seguimiento abria y cerraba el detalle sin dejar nada a la vista:
+   al volver a la lista no habia forma de saber a quien ya se contacto. */
+
+.followed-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--signal-good);
+  color: var(--text-on-accent);
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+tbody tr.is-followed td:first-child {
+  color: var(--text-secondary);
+}
