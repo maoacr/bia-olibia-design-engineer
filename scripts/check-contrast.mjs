@@ -15,7 +15,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CSS = fs.readFileSync(path.join(ROOT, 'src/tokens.css'), 'utf8');
@@ -47,8 +47,8 @@ function block(pattern) {
 
 const primitives = block(/^:root \{/m);
 const themes = {
-  oscuro: {...primitives, ...block(/^:root,\n:root\[data-theme='dark'\] \{/m)},
-  claro: {...primitives, ...block(/^:root\[data-theme='light'\] \{/m)},
+  oscuro: { ...primitives, ...block(/^:root,\n:root\[data-theme='dark'\] \{/m) },
+  claro: { ...primitives, ...block(/^:root\[data-theme='light'\] \{/m) },
 };
 
 function resolve(value, scope, depth = 0) {
@@ -91,6 +91,11 @@ const PAIRS = [
   ['signal-negative', 'surface-panel', 4.5],
   ['signal-neutral', 'surface-panel', 4.5],
   ['chart-axis', 'surface-panel', 4.5],
+  // Las barras transmiten informacion: 3:1 segun WCAG 1.4.11.
+  ['chart-bar', 'surface-panel', 3],
+  ['chart-bar', 'surface-raised', 3],
+  ['chart-bar-on', 'surface-panel', 3],
+  ['chart-bar-on', 'surface-raised', 3],
   ['focus-ring', 'surface-base', 3],
   ['focus-ring', 'surface-panel', 3],
   ['border-control', 'surface-base', 3],

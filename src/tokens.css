@@ -39,6 +39,7 @@
   --zinc-700: #2a2a2a;
   --zinc-600: #404040;
   --zinc-control: #727272;
+  --zinc-bar: #6a6a6a;
   --zinc-400: #a1a1aa;
 
   --paper-0: #fafafa;
@@ -47,6 +48,7 @@
   --paper-3: #e4e4e7;
   --paper-4: #d4d4d8;
   --paper-control: #828282;
+  --paper-bar: #8c8c8c;
   --ink-900: #18181b;
   --ink-600: #52525b;
   --ink-500: #6b6b76;
@@ -135,6 +137,8 @@
 
   --chart-grid: var(--zinc-700);
   --chart-axis: var(--text-muted);
+  --chart-bar: var(--zinc-bar);
+  --chart-bar-on: var(--accent);
   --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 24px -12px rgb(0 0 0 / 0.7);
 }
 
@@ -173,6 +177,8 @@
 
   --chart-grid: var(--paper-3);
   --chart-axis: var(--ink-500);
+  --chart-bar: var(--paper-bar);
+  --chart-bar-on: var(--accent);
   --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);
 }
 
@@ -208,6 +214,8 @@
 
     --chart-grid: var(--paper-3);
     --chart-axis: var(--ink-500);
+    --chart-bar: var(--paper-bar);
+    --chart-bar-on: var(--accent);
     --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);
   }
 }

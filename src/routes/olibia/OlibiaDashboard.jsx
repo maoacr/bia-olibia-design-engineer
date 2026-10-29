@@ -6,18 +6,30 @@ import { ThemeToggle } from '../../shared/theme.jsx';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
-function Bars({ items, max }) {
-  return items.map(([name, n]) => (
-    <div className="row" key={name}>
-      <span>{name}</span>
-      <div className="track">
-        <div className="fill" style={{ width: `${(n / max) * 100}%` }} />
+/**
+ * El acento no decora: marca lo que el usuario esta interrogando. Si hay un
+ * filtro activo, esa barra se enciende y el resto queda de contexto.
+ *
+ * El realce no se apoya solo en el color. En tema claro el acento y el gris
+ * neutro tienen luminancia parecida —no existe un gris que pase 3:1 contra el
+ * blanco y a la vez se separe del teal—, asi que la barra interrogada lleva
+ * ademas peso tipografico y texto a color pleno.
+ */
+function Bars({ items, max, highlight = null }) {
+  return items.map(([name, n]) => {
+    const focused = highlight != null && name === highlight;
+    return (
+      <div className={focused ? 'row row--focus' : 'row'} key={name}>
+        <span>{name}</span>
+        <div className="track">
+          <div className="fill" style={{ width: `${(n / max) * 100}%` }} />
+        </div>
+        <strong>{n}</strong>
       </div>
-      <strong>{n}</strong>
-    </div>
-  ));
+    );
+  });
 }
-function Chart({ values, labels, goal = false }) {
+function Chart({ values, labels, goal = false, highlight = null }) {
   return (
     <svg
       className="chart"
@@ -38,39 +50,42 @@ function Chart({ values, labels, goal = false }) {
       {goal && (
         <line x1="35" x2="525" y1="35" y2="35" stroke="var(--chart-axis)" strokeDasharray="5 5" />
       )}
-      {values.map((n, i) => (
-        <g key={labels[i]}>
-          <rect
-            x={55 + i * (460 / values.length)}
-            y={185 - n * 15}
-            width="36"
-            height={n * 15}
-            fill="var(--accent)"
-          >
-            <title>
-              {labels[i]}: {n}
-            </title>
-          </rect>
-          <text
-            x={73 + i * (460 / values.length)}
-            y={177 - n * 15}
-            fontSize="12"
-            textAnchor="middle"
-            fill="currentColor"
-          >
-            {n}
-          </text>
-          <text
-            x={73 + i * (460 / values.length)}
-            y="207"
-            fontSize="11"
-            textAnchor="middle"
-            fill="currentColor"
-          >
-            {labels[i]}
-          </text>
-        </g>
-      ))}
+      {values.map((n, i) => {
+        const focused = highlight != null && labels[i] === highlight;
+        return (
+          <g key={labels[i]} className={focused ? 'bar-group bar-group--focus' : 'bar-group'}>
+            <rect
+              x={55 + i * (460 / values.length)}
+              y={185 - n * 15}
+              width="36"
+              height={n * 15}
+              className="bar"
+            >
+              <title>
+                {labels[i]}: {n}
+              </title>
+            </rect>
+            <text
+              x={73 + i * (460 / values.length)}
+              y={177 - n * 15}
+              fontSize="12"
+              textAnchor="middle"
+              fill="currentColor"
+            >
+              {n}
+            </text>
+            <text
+              x={73 + i * (460 / values.length)}
+              y="207"
+              fontSize="11"
+              textAnchor="middle"
+              fill="currentColor"
+            >
+              {labels[i]}
+            </text>
+          </g>
+        );
+      })}
     </svg>
   );
 }
@@ -291,6 +306,7 @@ export default function OlibiaDashboard() {
               <Chart
                 values={d.history.map(h => h.closed)}
                 labels={d.history.map(h => h.month)}
+                highlight={d.history[d.history.length - 1].month}
                 goal
               />
               <div className="legend">Barras: cierres del mes · Línea discontinua: meta de 10</div>
@@ -300,6 +316,7 @@ export default function OlibiaDashboard() {
               <Bars
                 items={STAGES.map(n => [n, rows.filter(o => o.stage === n).length])}
                 max={Math.max(rows.length, 1)}
+                highlight={stage || null}
               />
               <p className="muted">Oportunidades abiertas según los filtros</p>
             </section>
@@ -310,11 +327,16 @@ export default function OlibiaDashboard() {
               <Chart
                 values={CHANNELS.map(c => rows.filter(o => o.channel === c).length)}
                 labels={CHANNELS}
+                highlight={channel || null}
               />
             </section>
             <section className="panel">
               <h2>Cierres por ejecutivo · Total del periodo</h2>
-              <Bars items={d.closesByOwner.map(({ owner, closed }) => [owner, closed])} max={4} />
+              <Bars
+                items={d.closesByOwner.map(({ owner, closed }) => [owner, closed])}
+                max={4}
+                highlight={owner || null}
+              />
             </section>
           </div>
           <section className="panel">

@@ -316,11 +316,47 @@ h2 {
   overflow: hidden;
 }
 
+/* Barra de contexto. El acento se reserva para lo que el usuario interroga. */
 .fill {
-  background: var(--accent);
+  background: var(--chart-bar);
   height: 100%;
   border-radius: inherit;
-  transition: width var(--duration-slow) var(--ease);
+  transition:
+    width var(--duration-slow) var(--ease),
+    background-color var(--duration-base) var(--ease);
+}
+
+/* Barra interrogada: color, peso y texto pleno. Tres canales, no solo color:
+   en tema claro el acento y el gris neutro tienen luminancia parecida, asi que
+   el realce no puede depender del matiz. */
+.row--focus .fill {
+  background: var(--chart-bar-on);
+}
+
+.row--focus span:first-child,
+.row--focus strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Mismo criterio dentro del SVG. */
+.chart .bar {
+  fill: var(--chart-bar);
+  transition: fill var(--duration-base) var(--ease);
+}
+
+.chart .bar-group--focus .bar {
+  fill: var(--chart-bar-on);
+}
+
+.chart .bar-group text {
+  opacity: 0.8;
+  transition: opacity var(--duration-base) var(--ease);
+}
+
+.chart .bar-group--focus text {
+  opacity: 1;
+  font-weight: 600;
 }
 
 .row strong {
