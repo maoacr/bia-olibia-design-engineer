@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CHANNELS, MONTHLY_GOAL, MONTH_NAMES, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { opportunitiesWithMovement } from './movement.js';
+import { ThemeToggle } from '../../shared/theme.jsx';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
@@ -28,13 +29,15 @@ function Chart({ values, labels, goal = false }) {
     >
       {[0, 5, 10].map(n => (
         <g key={n}>
-          <line x1="35" x2="525" y1={185 - n * 15} y2={185 - n * 15} stroke="#ddd" />
-          <text x="10" y={189 - n * 15} fontSize="11">
+          <line x1="35" x2="525" y1={185 - n * 15} y2={185 - n * 15} stroke="var(--chart-grid)" />
+          <text x="10" y={189 - n * 15} fontSize="11" fill="currentColor">
             {n}
           </text>
         </g>
       ))}
-      {goal && <line x1="35" x2="525" y1="35" y2="35" stroke="#999" strokeDasharray="5 5" />}
+      {goal && (
+        <line x1="35" x2="525" y1="35" y2="35" stroke="var(--chart-axis)" strokeDasharray="5 5" />
+      )}
       {values.map((n, i) => (
         <g key={labels[i]}>
           <rect
@@ -42,7 +45,7 @@ function Chart({ values, labels, goal = false }) {
             y={185 - n * 15}
             width="36"
             height={n * 15}
-            fill="#6c8ebf"
+            fill="var(--accent)"
           >
             <title>
               {labels[i]}: {n}
@@ -53,10 +56,17 @@ function Chart({ values, labels, goal = false }) {
             y={177 - n * 15}
             fontSize="12"
             textAnchor="middle"
+            fill="currentColor"
           >
             {n}
           </text>
-          <text x={73 + i * (460 / values.length)} y="207" fontSize="11" textAnchor="middle">
+          <text
+            x={73 + i * (460 / values.length)}
+            y="207"
+            fontSize="11"
+            textAnchor="middle"
+            fill="currentColor"
+          >
             {labels[i]}
           </text>
         </g>
@@ -126,7 +136,10 @@ export default function OlibiaDashboard() {
           <span className="brand">olibia</span>
           <small>Gestión comercial</small>
         </div>
-        <span className="muted">Equipo comercial</span>
+        <div className="top-actions">
+          <span className="muted">Equipo comercial</span>
+          <ThemeToggle />
+        </div>
       </header>
       <div className="shell">
         <aside>
@@ -280,7 +293,7 @@ export default function OlibiaDashboard() {
                 labels={d.history.map(h => h.month)}
                 goal
               />
-              <div className="legend">Azul: cierres · Línea discontinua: meta</div>
+              <div className="legend">Barras: cierres del mes · Línea discontinua: meta de 10</div>
             </section>
             <section className="panel">
               <h2>Oportunidades por etapa</h2>

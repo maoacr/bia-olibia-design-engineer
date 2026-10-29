@@ -4,6 +4,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Olibia · Gestión comercial</title>
+    <script>
+      // Aplica el tema guardado antes del primer render. Sin esto, la pagina
+      // pinta el tema por defecto y recien despues corrige: un parpadeo visible.
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
