@@ -80,6 +80,19 @@
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
+  /* ── Escala tipografica ──────────────────────────────────────────
+     Los valores son los de pantalla chica; mas abajo se recalibran hacia
+     arriba. Los componentes nombran el rol —etiqueta, cuerpo, control— y
+     nunca un tamaño, asi que la densidad del tablero se ajusta en un solo
+     lugar en vez de en treinta reglas sueltas.
+
+     Todo en rem: quien agranda la letra del navegador recibe un texto
+     proporcionalmente mayor, cosa que un valor en px le negaria. */
+  --text-xs: 0.75rem; /* 12px · contadores, notas al pie, metadatos */
+  --text-sm: 0.8125rem; /* 13px · etiquetas, distintivos */
+  --text-md: 0.875rem; /* 14px · tabla, texto auxiliar */
+  --text-body: 1rem; /* 16px · cuerpo, opciones de menu */
+
   /* Escala de espacio, base 4 */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -272,6 +285,20 @@
    Movimiento reducido — el media query del starter existia pero no
    reducia nada, porque no habia una sola transicion. Ahora si hay.
    ═══════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════
+   En escritorio la densidad importa mas que el tamaño: hay mas contenido
+   a la vista y la pantalla esta mas lejos. La escala baja un escalon.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 53rem) {
+  :root {
+    --text-xs: 0.6875rem; /* 11px */
+    --text-sm: 0.75rem; /* 12px */
+    --text-md: 0.8125rem; /* 13px */
+    --text-body: 0.875rem; /* 14px */
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   :root {
