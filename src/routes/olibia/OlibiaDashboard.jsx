@@ -4,6 +4,7 @@ import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
 import MovementBar, { MovementTag, movementSentence } from './Movement.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
+import { useFilterParams } from './useFilterParams.js';
 import { niceScale } from '../../shared/scale.js';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
@@ -128,17 +129,20 @@ function Chart({ values, labels, label, goal = null, highlight = null }) {
   );
 }
 export default function OlibiaDashboard() {
-  const [period, setPeriod] = useState('oct'),
-    [query, setQuery] = useState(''),
-    [selected, setSelected] = useState(null),
+  const { filters, update, reset } = useFilterParams();
+  const { period, query, stage, owner, channel, minimum, movement } = filters;
+
+  const [selected, setSelected] = useState(null),
     [done, setDone] = useState({}),
-    [notice, setNotice] = useState('');
-  const [stage, setStage] = useState(''),
-    [owner, setOwner] = useState(''),
-    [channel, setChannel] = useState(''),
-    [minimum, setMinimum] = useState(''),
-    [movement, setMovement] = useState(''),
+    [notice, setNotice] = useState(''),
     [banner, setBanner] = useState(true);
+
+  const setQuery = value => update({ query: value }, { replace: true });
+  const setStage = value => update({ stage: value });
+  const setOwner = value => update({ owner: value });
+  const setChannel = value => update({ channel: value });
+  const setMinimum = value => update({ minimum: value });
+  const setMovement = value => update({ movement: value });
   const d = periods[period];
   const all = opportunitiesWithMovement(d);
   const scoped = filterOpportunities(all, { query, stage, owner, channel, minimum });
@@ -186,25 +190,10 @@ export default function OlibiaDashboard() {
   const cause = emptyCause();
 
   function releaseFilter(key) {
-    const setters = {
-      query: setQuery,
-      stage: setStage,
-      owner: setOwner,
-      channel: setChannel,
-      minimum: setMinimum,
-      movement: setMovement,
-    };
-    setters[key]('');
+    update({ [key]: '' });
   }
 
-  function clearFilters() {
-    setStage(EMPTY_FILTERS.stage);
-    setOwner(EMPTY_FILTERS.owner);
-    setChannel(EMPTY_FILTERS.channel);
-    setMinimum(EMPTY_FILTERS.minimum);
-    setQuery(EMPTY_FILTERS.query);
-    setMovement(EMPTY_FILTERS.movement);
-  }
+  const clearFilters = reset;
 
   function exportCSV() {
     const header = [
@@ -256,18 +245,18 @@ export default function OlibiaDashboard() {
                 value={period}
                 onChange={e => {
                   const next = e.target.value;
-                  setPeriod(next);
                   // El movimiento no existe como dimension si el periodo no
                   // tiene uno anterior: no es que no haya resultados, es que la
                   // pregunta no aplica. Mantener el filtro dejaria la pantalla
                   // vacia y, peor, sin control visible para salir, porque la
                   // tira pasa a mostrar el mensaje en lugar de los recuentos.
                   if (!periods[next].previous && movement) {
-                    setMovement('');
+                    update({ period: next, movement: '' });
                     setNotice(
                       `Se quitó el filtro de movimiento: ${periods[next].label} no tiene un mes previo con el cual compararse.`,
                     );
                   } else {
+                    update({ period: next });
                     setNotice('');
                   }
                 }}
