@@ -1,20 +1,24 @@
 {
-  "name": "olibia-design-engineer-starter",
+  "name": "bia-olibia-design-engineer",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Prueba tecnica Design Engineer · Bia/Olibia",
   "scripts": {
-    "build": "node build.mjs",
-    "start": "node server.mjs"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "esbuild": "0.28.2",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "react-router-dom": "^7.18.5"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.5"
+  }
 }

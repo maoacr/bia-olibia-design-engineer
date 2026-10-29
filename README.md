@@ -7,17 +7,16 @@ Requiere Node.js 20 o superior.
 
 ```sh
 npm ci
-npm run build
-npm start
+npm run dev
 ```
 
-Abre http://localhost:3000. También puedes abrir `dist/index.html` directamente: contiene React, CSS y JavaScript y funciona sin conexión.
+Abre la URL que imprime Vite (por defecto http://localhost:5173). Para revisar el build de producción: `npm run build && npm run preview`.
 
 ## Estructura
-- `src/App.jsx`: componentes React y estado de la interfaz.
-- `src/data.js`: datos ficticios de dos periodos.
+- `src/main.jsx`: punto de entrada y rutas.
+- `src/routes/olibia/`: dashboard comercial (tarea 1).
 - `src/styles.css`: estilos de partida.
-- `build.mjs`: compilación y generación de un HTML autónomo.
+- `vite.config.js`: configuración de build y servidor de desarrollo.
 
 Puedes cambiar composición, gráficos, componentes, estilos y librerías. Conserva el significado de los datos y las acciones útiles. Las instrucciones completas están en el PDF de la prueba.
 
