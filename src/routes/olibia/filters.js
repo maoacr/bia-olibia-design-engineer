@@ -6,10 +6,17 @@
  * Ahora el canal es un campo del dato y este modulo solo filtra.
  */
 
-export const EMPTY_FILTERS = { query: '', stage: '', owner: '', channel: '', minimum: '' };
+export const EMPTY_FILTERS = {
+  query: '',
+  stage: '',
+  owner: '',
+  channel: '',
+  minimum: '',
+  movement: '',
+};
 
 export function filterOpportunities(opportunities, filters = {}) {
-  const { query, stage, owner, channel, minimum } = { ...EMPTY_FILTERS, ...filters };
+  const { query, stage, owner, channel, minimum, movement } = { ...EMPTY_FILTERS, ...filters };
   const search = query.trim().toLowerCase();
 
   return opportunities.filter(
@@ -18,6 +25,7 @@ export function filterOpportunities(opportunities, filters = {}) {
       (!stage || opportunity.stage === stage) &&
       (!owner || opportunity.owner === owner) &&
       (!channel || opportunity.channel === channel) &&
-      (!minimum || opportunity.value >= Number(minimum)),
+      (!minimum || opportunity.value >= Number(minimum)) &&
+      (!movement || opportunity.movement?.status === movement),
   );
 }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { CHANNELS, MONTHLY_GOAL, MONTH_NAMES, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
-import { opportunitiesWithMovement } from './movement.js';
+import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
+import MovementBar, { MovementTag, movementSentence } from './Movement.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { niceScale } from '../../shared/scale.js';
 
@@ -136,10 +137,14 @@ export default function OlibiaDashboard() {
     [owner, setOwner] = useState(''),
     [channel, setChannel] = useState(''),
     [minimum, setMinimum] = useState(''),
+    [movement, setMovement] = useState(''),
     [banner, setBanner] = useState(true);
   const d = periods[period];
   const all = opportunitiesWithMovement(d);
-  const rows = filterOpportunities(all, { query, stage, owner, channel, minimum });
+  const scoped = filterOpportunities(all, { query, stage, owner, channel, minimum });
+  const rows = filterOpportunities(scoped, { movement });
+  const previous = previousPeriodOf(d);
+  const summary = movementSummary(scoped);
   const total = rows.reduce((sum, o) => sum + o.value, 0);
   const negotiation = rows.filter(o => o.stage === NEGOTIATION);
   const key = selected ? `${period}:${selected.id}` : '';
@@ -158,6 +163,7 @@ export default function OlibiaDashboard() {
     setChannel(EMPTY_FILTERS.channel);
     setMinimum(EMPTY_FILTERS.minimum);
     setQuery(EMPTY_FILTERS.query);
+    setMovement(EMPTY_FILTERS.movement);
   }
 
   function exportCSV() {
@@ -209,8 +215,21 @@ export default function OlibiaDashboard() {
                 id="period"
                 value={period}
                 onChange={e => {
-                  setPeriod(e.target.value);
-                  setNotice('');
+                  const next = e.target.value;
+                  setPeriod(next);
+                  // El movimiento no existe como dimension si el periodo no
+                  // tiene uno anterior: no es que no haya resultados, es que la
+                  // pregunta no aplica. Mantener el filtro dejaria la pantalla
+                  // vacia y, peor, sin control visible para salir, porque la
+                  // tira pasa a mostrar el mensaje en lugar de los recuentos.
+                  if (!periods[next].previous && movement) {
+                    setMovement('');
+                    setNotice(
+                      `Se quitó el filtro de movimiento: ${periods[next].label} no tiene un mes previo con el cual compararse.`,
+                    );
+                  } else {
+                    setNotice('');
+                  }
                 }}
               >
                 {PERIOD_IDS.map(id => (
@@ -243,6 +262,12 @@ export default function OlibiaDashboard() {
               </button>
             </section>
           )}
+          <MovementBar
+            summary={summary}
+            previousLabel={previous?.label}
+            active={movement}
+            onSelect={setMovement}
+          />
           <section className="panel filter-panel">
             <h2>Filtrar oportunidades abiertas</h2>
             <div className="filter-grid">
@@ -397,6 +422,7 @@ export default function OlibiaDashboard() {
                     {[
                       'Empresa',
                       'Etapa',
+                      'Movimiento',
                       'Valor mensual · COP M',
                       'Responsable',
                       'Próximo contacto',
@@ -412,6 +438,9 @@ export default function OlibiaDashboard() {
                       <td>{o.company}</td>
                       <td>
                         <span className="badge">{o.stage}</span>
+                      </td>
+                      <td>
+                        <MovementTag movement={o.movement} />
                       </td>
                       <td>${o.value} M</td>
                       <td>{o.owner}</td>
@@ -451,6 +480,7 @@ export default function OlibiaDashboard() {
             <div className="detail-grid">
               {[
                 ['Etapa', selected.stage],
+                ['Movimiento', movementSentence(selected.movement)],
                 ['Valor mensual estimado', `$${selected.value} millones COP`],
                 ['Responsable', selected.owner],
                 ['Próximo contacto', `${selected.nextContact} ${d.year}`],

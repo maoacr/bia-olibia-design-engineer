@@ -614,3 +614,136 @@ td:nth-child(3) {
     white-space: nowrap;
   }
 }
+
+/* ─── Movimiento entre periodos ────────────────────────────────────── */
+
+.movement {
+  margin-bottom: var(--space-5);
+}
+
+.movement__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.movement__head h2 {
+  margin: 0;
+}
+
+.movement__clear {
+  border: none;
+  background: none;
+  padding: var(--space-1) var(--space-2);
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.movement__clear:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+
+.movement__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-3);
+}
+
+/* Cada recuento es un control: filtra la tabla. El borde izquierdo lleva el
+   tono del estado, asi el color informa sin tener que bañar el bloque. */
+.movement__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--signal-neutral);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+.movement__tile--attention {
+  border-left-color: var(--signal-attention);
+}
+.movement__tile--good {
+  border-left-color: var(--signal-good);
+}
+.movement__tile--negative {
+  border-left-color: var(--signal-negative);
+}
+
+.movement__tile:disabled {
+  opacity: 0.45;
+}
+
+/* El estado seleccionado no se apoya solo en el color: tambien cambia el
+   fondo y el peso del recuento. */
+.movement__tile.is-selected {
+  background: var(--surface-hover);
+  border-color: var(--border-control);
+}
+
+.movement__count {
+  font-size: 26px;
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.movement__tile.is-selected .movement__count {
+  color: var(--accent);
+}
+
+.movement__label {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.movement__detail {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Indicador en la tabla. El punto da un segundo canal ademas del color del
+   texto, para que el estado no dependa solo del matiz. */
+.move-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.move-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--signal-neutral);
+  flex-shrink: 0;
+}
+
+.move-tag--attention {
+  color: var(--signal-attention);
+  font-weight: 600;
+}
+.move-tag--attention::before {
+  background: var(--signal-attention);
+}
+
+.move-tag--good::before {
+  background: var(--signal-good);
+}
+
+.move-tag--negative {
+  color: var(--signal-negative);
+}
+.move-tag--negative::before {
+  background: var(--signal-negative);
+}
