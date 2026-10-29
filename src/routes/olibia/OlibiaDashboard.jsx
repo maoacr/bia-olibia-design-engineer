@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CHANNELS, MONTHLY_GOAL, MONTH_NAMES, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
+import { opportunitiesWithMovement } from './movement.js';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
@@ -75,7 +76,7 @@ export default function OlibiaDashboard() {
     [minimum, setMinimum] = useState(''),
     [banner, setBanner] = useState(true);
   const d = periods[period];
-  const all = d.opportunities;
+  const all = opportunitiesWithMovement(d);
   const rows = filterOpportunities(all, { query, stage, owner, channel, minimum });
   const total = rows.reduce((sum, o) => sum + o.value, 0);
   const negotiation = rows.filter(o => o.stage === NEGOTIATION);
