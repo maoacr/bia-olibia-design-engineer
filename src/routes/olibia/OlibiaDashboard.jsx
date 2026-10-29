@@ -225,29 +225,6 @@ export default function OlibiaDashboard() {
     <>
       <header className="top">
         <div className="top-brand">
-          <button
-            type="button"
-            className="menu-toggle"
-            aria-expanded={menuOpen}
-            aria-controls="menu-principal"
-            onClick={() => setMenuOpen(open => !open)}
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-              {[7, 12, 17].map(y => (
-                <line
-                  key={y}
-                  x1="4"
-                  x2="20"
-                  y1={y}
-                  y2={y}
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                />
-              ))}
-            </svg>
-            <span className="sr-only">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
-          </button>
           <span className="brand">olibia</span>
           <small>Gestión comercial</small>
         </div>
@@ -256,6 +233,35 @@ export default function OlibiaDashboard() {
           <ThemeToggle />
         </div>
       </header>
+
+      {/* Fuera del header a proposito: backdrop-filter crea un bloque
+          contenedor para los descendientes con position fixed, asi que aqui
+          dentro el boton se anclaba al borde inferior de la cabecera en lugar
+          de al de la ventana. */}
+      <button
+        type="button"
+        className="menu-toggle"
+        aria-expanded={menuOpen}
+        aria-controls="menu-principal"
+        onClick={() => setMenuOpen(open => !open)}
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          {[7, 12, 17].map(y => (
+            <line
+              key={y}
+              x1="4"
+              x2="20"
+              y1={y}
+              y2={y}
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          ))}
+        </svg>
+        <span className="sr-only">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
+      </button>
+
       <div className="shell">
         {/* En pantalla chica el menu se despliega sobre el contenido; al
             elegir una opcion se cierra solo, porque dejarlo abierto taparia

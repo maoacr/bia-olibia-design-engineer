@@ -1,10 +1,20 @@
 /**
- * Estilos del dashboard.
+ * Estilos del dashboard — escritos mobile-first.
  *
- * Misma estructura que el starter: este paso cambia la piel, no la
- * composicion. Ningun color vive aqui — todos salen de los roles semanticos
- * de tokens.css, que es lo que permite que el cambio de tema no toque una
- * sola regla de este archivo.
+ * Las reglas base son las de pantalla chica y la complejidad se agrega hacia
+ * arriba con `min-width`. Asi el dispositivo mas debil recibe el CSS mas
+ * corto y no hay que deshacer en una media query lo que se declaro arriba.
+ *
+ * La experiencia, en cambio, sigue pensada para escritorio, como pide el
+ * enunciado: un tablero comercial con una tabla de seis columnas se usa
+ * sentado. Mobile-first aqui es una decision de cascada, no de prioridad de
+ * producto.
+ *
+ * Puntos de quiebre, en rem para que respeten el tamaño de fuente del
+ * sistema: 30rem (480px) · 40rem (640px) · 53rem (848px) · 69rem (1104px).
+ *
+ * Ningun color vive en este archivo: todos salen de los roles semanticos de
+ * tokens.css.
  */
 
 *,
@@ -30,6 +40,38 @@ body {
     color var(--duration-base) var(--ease);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Tipografia fluida: evita el salto brusco de tamaño al cruzar un punto de
+   quiebre, y de paso ahorra reglas en las media queries. */
+h1 {
+  font-size: clamp(1.375rem, 1.15rem + 1.1vw, 1.625rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-2);
+}
+
+h2 {
+  font-size: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-4);
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
 /* ─── Controles ────────────────────────────────────────────────────── */
 
 button,
@@ -49,6 +91,9 @@ input {
 
 button {
   cursor: pointer;
+  /* Area tactil: por debajo de 44px el dedo falla. En escritorio no molesta
+     porque el relleno ya llevaba a un tamaño similar. */
+  min-height: 44px;
 }
 
 button:hover:not(:disabled),
@@ -85,26 +130,33 @@ a:focus-visible {
   backdrop-filter: blur(var(--blur-md));
   -webkit-backdrop-filter: blur(var(--blur-md));
   border-bottom: 1px solid var(--border);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
 }
 
-/* Sin backdrop-filter, superficie solida: nunca texto sobre fondo impredecible. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .top {
     background: var(--surface-panel);
   }
 }
 
+.top-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
 .brand {
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
+  text-shadow: var(--glow-soft);
   /* Color solido primero: si background-clip no esta soportado, el nombre de
-     la marca seguiria siendo legible en vez de quedar transparente. */
+     la marca sigue siendo legible en vez de quedar transparente. */
   color: var(--accent);
 }
 
@@ -117,7 +169,9 @@ a:focus-visible {
   }
 }
 
+/* El subtitulo de la marca es lo primero que sobra cuando falta ancho. */
 .top small {
+  display: none;
   margin-left: var(--space-4);
   color: var(--text-secondary);
 }
@@ -126,6 +180,10 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+}
+
+.top-actions > .muted {
+  display: none;
 }
 
 .theme-toggle {
@@ -141,80 +199,185 @@ a:focus-visible {
   color: var(--accent);
 }
 
+.theme-toggle__label {
+  display: none;
+}
+
 /* ─── Estructura ───────────────────────────────────────────────────── */
 
 .shell {
   display: flex;
-  min-height: calc(100vh - 62px);
+  min-height: calc(100vh - 58px);
 }
 
-aside {
-  width: 232px;
-  flex-shrink: 0;
-  padding: var(--space-5) var(--space-4);
-  border-right: 1px solid var(--border);
-  background: var(--surface-panel);
-}
-
-aside div {
-  padding: var(--space-3) var(--space-2);
-}
-
-/* El tablero aprovecha el ancho disponible, pero no sin limite: pasada cierta
-   medida una fila de la tabla obliga a barrer con la cabeza para seguirla, y
-   los paneles se vuelven cavernas. El sobrante se reparte a los dos lados en
-   lugar de amontonarse contra un borde. */
 main {
   flex: 1;
   min-width: 0;
-  padding: var(--space-5);
+  padding: var(--space-4);
+  /* Deja aire para que el boton flotante del menu no tape el pie. */
+  padding-bottom: calc(var(--space-8) + 3rem);
   max-width: 1680px;
   margin-inline: auto;
 }
 
-/* Medida de lectura. El limite del contenedor no alcanza para la prosa: a
-   1600px el resumen llegaba a 178 caracteres por linea, y la nota al pie a
-   234. Pasados ~75 el ojo pierde el renglon al volver a la izquierda. Las
-   tablas y las graficas no tienen este problema y conservan todo el ancho. */
-.ai-widget p,
-.banner p,
-.scope-note,
-.foot,
-.toolbar .muted {
-  max-width: 72ch;
+/* ─── Menu: hoja inferior en pantalla chica ────────────────────────── */
+
+/* El acceso va en la zona del pulgar. En un telefono de 430px, la esquina
+   superior izquierda es el punto mas dificil de alcanzar con una mano. */
+.menu-toggle {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  box-shadow:
+    var(--glow),
+    0 4px 16px rgb(0 0 0 / 0.3);
 }
 
-h1 {
-  font-size: 24px;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-  margin: 0 0 var(--space-2);
+.menu-toggle:hover:not(:disabled) {
+  background: var(--accent-strong);
+  border-color: transparent;
 }
 
-h2 {
-  font-size: 15px;
+aside {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 25;
+  max-height: 75vh;
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-4) var(--space-7);
+  background: var(--surface-panel);
+  border-top: 1px solid var(--border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-panel);
+  transform: translateY(100%);
+  visibility: hidden;
+  transition:
+    transform var(--duration-base) var(--ease),
+    visibility var(--duration-base);
+}
+
+aside.is-open {
+  transform: none;
+  visibility: visible;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.menu__group {
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: -0.01em;
-  margin: 0 0 var(--space-5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: var(--space-4) 0 var(--space-2);
+  padding-inline: var(--space-3);
 }
 
-.muted {
+.menu__group:first-child {
+  margin-top: 0;
+}
+
+.menu__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu__link,
+.menu__section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
   color: var(--text-secondary);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+
+.menu__section {
+  color: var(--text-primary);
+  margin-top: var(--space-2);
+}
+
+.menu__link:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* La opcion activa no se distingue solo por color: tambien cambia el fondo y
+   el peso, que es lo que la hace legible sin depender del matiz. */
+.menu__link.is-active {
+  background: var(--surface-hover);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: var(--glow-soft);
+}
+
+.menu__link--nested {
+  padding-left: var(--space-5);
+  font-size: 12px;
+}
+
+.menu__count {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  background: var(--surface-base);
+  border-radius: var(--radius-full);
+  padding: 1px var(--space-2);
+  min-width: 20px;
+  text-align: center;
+}
+
+.menu__link.is-active .menu__count {
+  color: var(--accent);
+}
+
+.menu__foot {
+  margin-top: var(--space-5);
+  padding-inline: var(--space-3);
+}
+
+.menu__reset {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 /* ─── Barra de herramientas y filtros ──────────────────────────────── */
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  gap: var(--space-5);
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
   margin-bottom: var(--space-5);
 }
 
 .filters {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
@@ -223,17 +386,22 @@ h2 {
   margin-bottom: var(--space-5);
 }
 
+/* Grid en vez de flex: las columnas se reparten solas segun el ancho, sin
+   tener que fijar una base y corregirla despues. */
 .filter-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
   gap: var(--space-3);
-  flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: end;
+}
+
+/* El boton no es un campo: no debe estirarse para ocupar una columna. */
+.filter-grid > button {
+  justify-self: start;
 }
 
 .filter-grid label {
   display: flex;
-  flex: 1;
-  min-width: 150px;
   flex-direction: column;
   gap: var(--space-2);
   font-size: 12px;
@@ -246,22 +414,82 @@ h2 {
   margin: var(--space-4) 0 0;
 }
 
-/* ─── Superficies ──────────────────────────────────────────────────── */
+/* ─── Superficies y jerarquia ──────────────────────────────────────── */
+
+/* Tres pesos, sin recurrir a mas color: lo que encuadra la lectura, lo que
+   la desarrolla y lo que solo sirve para operar. Alguien con pocos minutos
+   tiene que poder saltear el tercero sin perderse nada. */
 
 .card,
 .panel {
   background: var(--surface-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  padding: var(--space-4);
   box-shadow: var(--shadow-panel);
+}
+
+.panel--lead {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+
+.panel--lead h2 {
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.0625rem);
+}
+
+/* Los controles no son contenido: sin sombra, sin relleno de panel y con el
+   titulo en segundo plano, para que no compitan con los datos. */
+.panel--control {
+  background: none;
+  box-shadow: none;
+  border-style: dashed;
+  padding: var(--space-4);
+}
+
+.panel--control h2 {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* ─── Indicadores agrupados por alcance ────────────────────────────── */
+
+.kpi-groups {
+  display: grid;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.kpi-group__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-3);
+}
+
+.kpi-group__hint {
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
 }
 
 .kpis {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-4);
-  margin: var(--space-5) 0;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: 0;
 }
 
 .card {
@@ -270,7 +498,7 @@ h2 {
 }
 
 .value {
-  font-size: 30px;
+  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 1.875rem);
   font-weight: 650;
   letter-spacing: -0.03em;
   color: var(--text-primary);
@@ -280,17 +508,10 @@ h2 {
 
 /* ─── Graficas ─────────────────────────────────────────────────────── */
 
-.charts {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
-}
-
+.charts,
 .split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
+  gap: var(--space-4);
   margin-bottom: var(--space-5);
 }
 
@@ -312,24 +533,29 @@ h2 {
   color: var(--text-secondary);
 }
 
+/* Grid, no flex: asi las tres columnas quedan alineadas entre filas sin
+   fijar un ancho inventado en la etiqueta. El layout manda aqui, no el
+   contenido. */
 .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 5.5rem) 1fr auto;
   align-items: center;
   gap: var(--space-3);
   margin-bottom: var(--space-3);
 }
 
 .row span:first-child {
-  width: 90px;
   font-size: 12px;
   color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .track {
   height: 18px;
   background: var(--surface-raised);
   border-radius: var(--radius-full);
-  flex: 1;
   overflow: hidden;
 }
 
@@ -348,12 +574,22 @@ h2 {
    el realce no puede depender del matiz. */
 .row--focus .fill {
   background: var(--chart-bar-on);
+  box-shadow: var(--glow);
 }
 
 .row--focus span:first-child,
 .row--focus strong {
   color: var(--text-primary);
   font-weight: 600;
+}
+
+.row strong {
+  min-width: 1.75rem;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 
 /* Mismo criterio dentro del SVG. */
@@ -364,6 +600,7 @@ h2 {
 
 .chart .bar-group--focus .bar {
   fill: var(--chart-bar-on);
+  filter: var(--glow-svg);
 }
 
 .chart .bar-group text {
@@ -376,20 +613,12 @@ h2 {
   font-weight: 600;
 }
 
-.row strong {
-  width: 30px;
-  font-size: 12px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-}
-
 /* ─── Tabla ────────────────────────────────────────────────────────── */
 
 .tabletools {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
@@ -411,7 +640,7 @@ table {
 
 th,
 td {
-  padding: var(--space-3) var(--space-3);
+  padding: var(--space-3);
   border-bottom: 1px solid var(--border);
   font-size: 13px;
 }
@@ -433,7 +662,7 @@ tbody tr:hover {
   background: var(--surface-raised);
 }
 
-td:nth-child(3) {
+td:nth-child(4) {
   font-variant-numeric: tabular-nums;
 }
 
@@ -451,12 +680,54 @@ td:nth-child(3) {
   font-size: 11px;
   color: var(--text-muted);
   margin-top: var(--space-5);
+  max-width: 72ch;
+}
+
+/* Marcar seguimiento abria y cerraba el detalle sin dejar nada a la vista:
+   al volver a la lista no habia forma de saber a quien ya se contacto. */
+.followed-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--signal-good);
+  color: var(--text-on-accent);
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+tbody tr.is-followed td:first-child {
+  color: var(--text-secondary);
+}
+
+/* ─── Estado vacio ─────────────────────────────────────────────────── */
+
+/* Decir "no se encontraron oportunidades" deja a la persona sin saber si se
+   rompio algo o si fue culpa suya. Esto nombra el filtro responsable y
+   ofrece la salida en un clic. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6) 0 var(--space-4);
+}
+
+.empty__title {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 60ch;
 }
 
 /* ─── Aviso comercial ──────────────────────────────────────────────── */
 
 .banner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
   border: 1px solid var(--border);
@@ -468,12 +739,13 @@ td:nth-child(3) {
 }
 
 .banner div {
-  flex: 1;
+  flex: 1 1 100%;
 }
 
 .banner p {
   margin: var(--space-2) 0 0;
   color: var(--text-secondary);
+  max-width: 72ch;
 }
 
 /* ─── Resumen AI ───────────────────────────────────────────────────── */
@@ -484,8 +756,8 @@ td:nth-child(3) {
 
 .ai-heading {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-3);
 }
 
@@ -496,113 +768,11 @@ td:nth-child(3) {
 .ai-widget p {
   line-height: 1.6;
   color: var(--text-secondary);
+  max-width: 72ch;
 }
 
 .ai-widget strong {
   color: var(--text-primary);
-}
-
-/* ─── Detalle ──────────────────────────────────────────────────────── */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgb(0 0 0 / 0.6);
-  backdrop-filter: blur(var(--blur-sm));
-  -webkit-backdrop-filter: blur(var(--blur-sm));
-  display: grid;
-  place-items: center;
-  padding: var(--space-5);
-  z-index: 50;
-}
-
-.modal article {
-  background: var(--surface-panel);
-  border: 1px solid var(--border);
-  padding: var(--space-6);
-  width: min(520px, 100%);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-panel);
-}
-
-.modal header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.modal h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.modal button {
-  margin-top: var(--space-3);
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-  margin: var(--space-5) 0;
-}
-
-.detail-grid small {
-  display: block;
-  color: var(--text-muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-2);
-}
-
-/* ─── Adaptacion a pantallas chicas ────────────────────────────────── */
-
-@media (max-width: 850px) {
-  aside {
-    display: none;
-  }
-  main {
-    padding: var(--space-4);
-  }
-  .charts,
-  .split,
-  .detail-grid {
-    grid-template-columns: 1fr;
-  }
-  .kpis {
-    grid-template-columns: 1fr 1fr;
-  }
-  .toolbar,
-  .tabletools {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .top small {
-    display: none;
-  }
-  .filters {
-    flex-wrap: wrap;
-  }
-  .banner {
-    flex-wrap: wrap;
-  }
-  .banner div {
-    flex-basis: 100%;
-  }
-  .ai-heading {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .theme-toggle__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 }
 
 /* ─── Movimiento entre periodos ────────────────────────────────────── */
@@ -637,7 +807,7 @@ td:nth-child(3) {
 
 .movement__tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
   gap: var(--space-3);
 }
 
@@ -675,10 +845,11 @@ td:nth-child(3) {
 .movement__tile.is-selected {
   background: var(--surface-hover);
   border-color: var(--border-control);
+  box-shadow: var(--glow);
 }
 
 .movement__count {
-  font-size: 26px;
+  font-size: clamp(1.375rem, 1.15rem + 1.1vw, 1.625rem);
   font-weight: 650;
   line-height: 1.1;
   letter-spacing: -0.03em;
@@ -738,294 +909,175 @@ td:nth-child(3) {
   background: var(--signal-negative);
 }
 
-/* ─── Jerarquia de superficies ─────────────────────────────────────── */
+/* ─── Detalle ──────────────────────────────────────────────────────── */
 
-/* Tres pesos, sin recurrir a mas color: lo que encuadra la lectura, lo que
-   la desarrolla y lo que solo sirve para operar. Alguien con pocos minutos
-   tiene que poder saltear el tercero sin perderse nada. */
-
-.panel--lead {
-  background: var(--surface-raised);
-  border-color: var(--border-strong);
-}
-
-.panel--lead h2 {
-  font-size: 17px;
-}
-
-/* Los controles no son contenido: sin sombra, sin relleno de panel y con el
-   titulo en segundo plano, para que no compitan con los datos. */
-.panel--control {
-  background: none;
-  box-shadow: none;
-  border-style: dashed;
-  padding: var(--space-4);
-}
-
-.panel--control h2 {
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-bottom: var(--space-3);
-}
-
-/* ─── Indicadores agrupados por alcance ────────────────────────────── */
-
-.kpi-groups {
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
+  place-items: end stretch;
+  z-index: 50;
 }
 
-.kpi-group__title {
+.modal article {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+  padding: var(--space-5);
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-panel);
+}
+
+.modal header {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-  font-size: 12px;
-  font-weight: 600;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.modal h2 {
+  margin: 0;
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.25rem);
+}
+
+.modal button {
+  margin-top: var(--space-3);
+}
+
+.detail-grid {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-5) 0;
+}
+
+.detail-grid small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-secondary);
-  margin: 0 0 var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
-.kpi-group__hint {
-  font-size: 11px;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--text-muted);
-}
+/* ═══════════════════════════════════════════════════════════════════
+   30rem · hay ancho para pares de columnas
+   ═══════════════════════════════════════════════════════════════════ */
 
-.kpi-groups .kpis {
-  grid-template-columns: 1fr 1fr;
-  margin: 0;
-}
+@media (min-width: 30rem) {
+  .detail-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 
-/* ─── Estado vacio ─────────────────────────────────────────────────── */
+  .theme-toggle__label {
+    display: inline;
+  }
 
-/* Decir "no se encontraron oportunidades" deja a la persona sin saber si se
-   rompio algo o si fue culpa suya. Esto nombra el filtro responsable y
-   ofrece la salida en un clic. */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-6) 0 var(--space-4);
-}
+  .modal {
+    place-items: center;
+    padding: var(--space-5);
+  }
 
-.empty__title {
-  margin: 0;
-  color: var(--text-secondary);
-  max-width: 60ch;
-}
-
-@media (max-width: 1100px) {
-  .kpi-groups {
-    grid-template-columns: 1fr;
+  .modal article {
+    width: min(520px, 100%);
+    border-radius: var(--radius-lg);
   }
 }
 
-/* ─── Menu vertical ────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   40rem · entran los textos secundarios y los encabezados en linea
+   ═══════════════════════════════════════════════════════════════════ */
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
+@media (min-width: 40rem) {
+  main {
+    padding: var(--space-5);
+    padding-bottom: calc(var(--space-8) + 3rem);
+  }
 
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
+  .top small,
+  .top-actions > .muted {
+    display: inline;
+  }
 
-.menu__group {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin: var(--space-4) 0 var(--space-2);
-  padding-inline: var(--space-3);
-}
-
-.menu__group:first-child {
-  margin-top: 0;
-}
-
-.menu__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.menu__link,
-.menu__section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition:
-    background-color var(--duration-fast) var(--ease),
-    color var(--duration-fast) var(--ease);
-}
-
-.menu__section {
-  color: var(--text-primary);
-  margin-top: var(--space-2);
-}
-
-.menu__link:hover {
-  background: var(--surface-hover);
-  color: var(--text-primary);
-}
-
-/* La opcion activa no se distingue solo por color: tambien cambia el fondo y
-   el peso, que es lo que la hace legible sin depender del matiz. */
-.menu__link.is-active {
-  background: var(--surface-hover);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.menu__link--nested {
-  padding-left: var(--space-5);
-  font-size: 12px;
-}
-
-.menu__count {
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-  background: var(--surface-base);
-  border-radius: var(--radius-full);
-  padding: 1px var(--space-2);
-  min-width: 20px;
-  text-align: center;
-}
-
-.menu__link.is-active .menu__count {
-  color: var(--accent);
-}
-
-.menu__foot {
-  margin-top: var(--space-5);
-  padding-inline: var(--space-3);
-}
-
-.menu__reset {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-/* El boton solo existe donde el menu no cabe al costado. */
-.menu-toggle {
-  display: none;
-  border: none;
-  background: none;
-  padding: var(--space-2);
-  color: var(--text-secondary);
-}
-
-.top-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-@media (max-width: 850px) {
-  .menu-toggle {
-    display: inline-flex;
+  .tabletools,
+  .ai-heading {
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
   }
 
-  /* El starter hacia `display: none` y la navegacion desaparecia entera.
-     Aqui se despliega sobre el contenido en lugar de dejar de existir. */
+  .toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+
+  .banner div {
+    flex: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   53rem · cabe el menu al costado: deja de ser una hoja inferior
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 53rem) {
+  .menu-toggle {
+    display: none;
+  }
+
   aside {
-    display: block;
-    position: fixed;
-    inset: 62px 0 auto 0;
-    z-index: 20;
-    max-height: calc(100vh - 62px);
-    overflow-y: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    width: 100%;
-    transform: translateY(-101%);
-    visibility: hidden;
-    transition:
-      transform var(--duration-base) var(--ease),
-      visibility var(--duration-base);
-  }
-
-  aside.is-open {
+    position: static;
+    width: 232px;
+    flex-shrink: 0;
+    max-height: none;
+    overflow: visible;
     transform: none;
     visibility: visible;
+    padding: var(--space-5) var(--space-4);
+    border-top: none;
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  main {
+    /* Sin boton flotante, el pie no necesita despeje. */
+    padding-bottom: var(--space-5);
+  }
+
+  .menu__link,
+  .menu__section {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .charts {
+    grid-template-columns: 1.35fr 1fr;
+    gap: var(--space-5);
+  }
+
+  .split {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+  }
+
+  .card,
+  .panel {
+    padding: var(--space-5);
   }
 }
 
-/* ─── Profundidad de marca ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   69rem · los dos grupos de indicadores conviven en una fila
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* El halo se aplica solo sobre lo que ya es acento, que despues de reservar
-   el color son muy pocas cosas. Si brillara todo, volveriamos al problema de
-   origen: un acento omnipresente que el ojo normaliza y deja de leer. */
-
-.chart .bar-group--focus .bar {
-  filter: var(--glow-svg);
-}
-
-.row--focus .fill,
-.movement__tile.is-selected {
-  box-shadow: var(--glow);
-}
-
-.menu__link.is-active {
-  box-shadow: var(--glow-soft);
-}
-
-/* La marca es el unico lugar donde el halo no responde a una seleccion:
-   es la firma de la identidad, no una señal de estado. */
-.brand {
-  text-shadow: var(--glow-soft);
-}
-
-/* ─── Rastro del seguimiento ───────────────────────────────────────── */
-
-/* Marcar seguimiento abria y cerraba el detalle sin dejar nada a la vista:
-   al volver a la lista no habia forma de saber a quien ya se contacto. */
-
-.followed-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: var(--space-2);
-  border-radius: var(--radius-full);
-  background: var(--signal-good);
-  color: var(--text-on-accent);
-  font-size: 10px;
-  line-height: 1;
-  vertical-align: middle;
-}
-
-tbody tr.is-followed td:first-child {
-  color: var(--text-secondary);
+@media (min-width: 69rem) {
+  .kpi-groups {
+    grid-template-columns: 1fr 1fr;
+  }
 }
