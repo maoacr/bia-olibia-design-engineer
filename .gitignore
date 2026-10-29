@@ -1,0 +1,12 @@
+# dependencias
+node_modules/
+
+# artefactos de build
+dist/
+
+# sistema operativo
+.DS_Store
+
+# logs
+*.log
+npm-debug.log*
