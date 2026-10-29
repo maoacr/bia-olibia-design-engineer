@@ -160,11 +160,28 @@ aside div {
   padding: var(--space-3) var(--space-2);
 }
 
+/* El tablero aprovecha el ancho disponible, pero no sin limite: pasada cierta
+   medida una fila de la tabla obliga a barrer con la cabeza para seguirla, y
+   los paneles se vuelven cavernas. El sobrante se reparte a los dos lados en
+   lugar de amontonarse contra un borde. */
 main {
   flex: 1;
   min-width: 0;
   padding: var(--space-5);
-  max-width: 1600px;
+  max-width: 1680px;
+  margin-inline: auto;
+}
+
+/* Medida de lectura. El limite del contenedor no alcanza para la prosa: a
+   1600px el resumen llegaba a 178 caracteres por linea, y la nota al pie a
+   234. Pasados ~75 el ojo pierde el renglon al volver a la izquierda. Las
+   tablas y las graficas no tienen este problema y conservan todo el ancho. */
+.ai-widget p,
+.banner p,
+.scope-note,
+.foot,
+.toolbar .muted {
+  max-width: 72ch;
 }
 
 h1 {
