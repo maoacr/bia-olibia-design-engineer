@@ -2,6 +2,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import OlibiaDashboard from './routes/olibia/OlibiaDashboard.jsx';
+import '@fontsource-variable/inter';
+import './tokens.css';
 import './styles.css';
 
 createRoot(document.getElementById('root')).render(

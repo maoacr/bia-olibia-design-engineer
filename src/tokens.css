@@ -1,0 +1,270 @@
+/**
+ * Tokens de diseño — dos capas.
+ *
+ * CAPA 1 · primitivas de marca
+ *   Los colores crudos de Bia, tomados de su identidad publica (bia.app).
+ *   Es la unica capa que cambia entre marcas.
+ *
+ * CAPA 2 · roles semanticos
+ *   Lo unico que los componentes tienen permitido nombrar. Cambiar de tema
+ *   (oscuro/claro) es redefinir el mapeo de capa 1 a capa 2; cambiar de marca
+ *   es redefinir la capa 1. Ningun componente nombra un color crudo.
+ *
+ * El modo oscuro es el canonico, igual que en el producto real: el teal de
+ * marca da 10:1 sobre el panel oscuro y 1.7:1 sobre blanco. Es luz, no
+ * pintura. El modo claro se deriva oscureciendo el acento hasta AA.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════
+   CAPA 1 · PRIMITIVAS DE MARCA
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Acento de Bia y su gradiente, tal como los usa el sitio */
+  --bia-teal: #08ddbc;
+  --bia-sheen: #17ffdb;
+  --bia-gradient: linear-gradient(135deg, #08ddbc, #17ffdb);
+
+  /* El neon no alcanza AA sobre fondo claro (1.74:1). Bajado a ~27% de
+     luminosidad conserva el matiz y pasa como texto. */
+  --bia-teal-ink: #05816e;
+  --bia-sheen-ink: #04624f;
+
+  /* Neutrales. El sitio usa gris neutro, sin matiz: nada de azul-violeta. */
+  --zinc-950: #0a0a0a;
+  --zinc-900: #0f0f0f;
+  --zinc-850: #1a1a1a;
+  --zinc-800: #1f1f1f;
+  --zinc-750: #27272a;
+  --zinc-700: #2a2a2a;
+  --zinc-600: #404040;
+  --zinc-control: #727272;
+  --zinc-400: #a1a1aa;
+
+  --paper-0: #fafafa;
+  --paper-1: #ffffff;
+  --paper-2: #f4f4f5;
+  --paper-3: #e4e4e7;
+  --paper-4: #d4d4d8;
+  --paper-control: #828282;
+  --ink-900: #18181b;
+  --ink-600: #52525b;
+  --ink-500: #6b6b76;
+
+  /* Colores de apoyo presentes en la identidad.
+     El ambar es clave: el rango cian-verde pertenece al acento de marca, asi
+     que no puede significar tambien "va bien". El ambar, su opuesto
+     cromatico, es lo que salta sobre una pantalla dominada por teal. */
+  --support-amber: #f59e0b;
+  --support-amber-ink: #8a5a00;
+  --support-red: #f36d68;
+  --support-red-ink: #a11f1a;
+  --support-violet: #8b5cf6;
+  --support-blue: #3b82f6;
+  --support-cyan: #06b6d4;
+
+  /* Vidrio. Bia no usa paneles translucidos que dejan ver el fondo: usa una
+     capa blanca muy tenue mas desenfoque. El contraste queda alto y estable. */
+  --glass-subtle: rgb(255 255 255 / 0.03);
+  --glass-soft: rgb(255 255 255 / 0.05);
+  --glass-strong: rgb(255 255 255 / 0.1);
+  --glass-edge: rgb(255 255 255 / 0.1);
+  --blur-sm: 8px;
+  --blur-md: 12px;
+  --blur-lg: 20px;
+  --blur-xl: 24px;
+
+  /* Tipografia: Inter, la que usa el producto real */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Escala de espacio, base 4 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* Movimiento. Se neutraliza entero bajo prefers-reduced-motion. */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CAPA 2 · ROLES SEMANTICOS — tema oscuro (canonico)
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --surface-base: var(--zinc-950);
+  --surface-panel: var(--zinc-850);
+  --surface-raised: var(--zinc-800);
+  --surface-hover: var(--zinc-750);
+  --surface-glass: var(--glass-soft);
+  --border: var(--zinc-700);
+  --border-strong: var(--zinc-600);
+  --border-control: var(--zinc-control);
+  --border-glass: var(--glass-edge);
+
+  --text-primary: #ffffff;
+  --text-secondary: var(--zinc-400);
+  --text-muted: #86868f;
+  --text-on-accent: var(--zinc-950);
+
+  --accent: var(--bia-teal);
+  --accent-strong: var(--bia-sheen);
+  --accent-gradient: var(--bia-gradient);
+  --focus-ring: var(--bia-sheen);
+
+  --signal-good: var(--bia-teal);
+  --signal-attention: var(--support-amber);
+  --signal-negative: var(--support-red);
+  --signal-neutral: var(--zinc-400);
+
+  --chart-grid: var(--zinc-700);
+  --chart-axis: var(--text-muted);
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 24px -12px rgb(0 0 0 / 0.7);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CAPA 2 · tema claro — derivado y verificado contra AA
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --surface-base: var(--paper-0);
+  --surface-panel: var(--paper-1);
+  --surface-raised: var(--paper-2);
+  --surface-hover: var(--paper-3);
+  --surface-glass: rgb(255 255 255 / 0.72);
+  --border: var(--paper-3);
+  --border-strong: var(--paper-4);
+  --border-control: var(--paper-control);
+  --border-glass: rgb(24 24 27 / 0.08);
+
+  --text-primary: var(--ink-900);
+  --text-secondary: var(--ink-600);
+  --text-muted: var(--ink-500);
+  --text-on-accent: #ffffff;
+
+  /* Aqui el neon no entra: no alcanza AA sobre fondo claro. */
+  --accent: var(--bia-teal-ink);
+  --accent-strong: var(--bia-sheen-ink);
+  --accent-gradient: linear-gradient(135deg, var(--bia-teal-ink), var(--bia-sheen-ink));
+  --focus-ring: var(--bia-teal-ink);
+
+  --signal-good: var(--bia-teal-ink);
+  --signal-attention: var(--support-amber-ink);
+  --signal-negative: var(--support-red-ink);
+  --signal-neutral: var(--ink-600);
+
+  --chart-grid: var(--paper-3);
+  --chart-axis: var(--ink-500);
+  --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);
+}
+
+/* Sin eleccion explicita, manda la preferencia del sistema operativo. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+
+    --surface-base: var(--paper-0);
+    --surface-panel: var(--paper-1);
+    --surface-raised: var(--paper-2);
+    --surface-hover: var(--paper-3);
+    --surface-glass: rgb(255 255 255 / 0.72);
+    --border: var(--paper-3);
+    --border-strong: var(--paper-4);
+    --border-control: var(--paper-control);
+    --border-glass: rgb(24 24 27 / 0.08);
+
+    --text-primary: var(--ink-900);
+    --text-secondary: var(--ink-600);
+    --text-muted: var(--ink-500);
+    --text-on-accent: #ffffff;
+
+    --accent: var(--bia-teal-ink);
+    --accent-strong: var(--bia-sheen-ink);
+    --accent-gradient: linear-gradient(135deg, var(--bia-teal-ink), var(--bia-sheen-ink));
+    --focus-ring: var(--bia-teal-ink);
+
+    --signal-good: var(--bia-teal-ink);
+    --signal-attention: var(--support-amber-ink);
+    --signal-negative: var(--support-red-ink);
+    --signal-neutral: var(--ink-600);
+
+    --chart-grid: var(--paper-3);
+    --chart-axis: var(--ink-500);
+    --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Vidrio — se usa para capas que FLOTAN sobre contenido (barras, menus,
+   overlays), nunca para las que CONTIENEN datos densos. El vidrio
+   comunica elevacion; no decora.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass {
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border: 1px solid var(--border-glass);
+}
+
+/* Si el navegador no soporta backdrop-filter, se cae a superficie solida
+   en lugar de dejar texto sobre un fondo impredecible. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--surface-panel);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Acento por marca — CAPA 1 redefinida; los componentes no se enteran
+   ═══════════════════════════════════════════════════════════════════ */
+
+[data-brand='olibia'] {
+  --accent: var(--support-cyan);
+  --accent-strong: var(--bia-sheen);
+}
+
+[data-brand='bia'] {
+  --accent: var(--bia-teal);
+  --accent-strong: var(--bia-sheen);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Movimiento reducido — el media query del starter existia pero no
+   reducia nada, porque no habia una sola transicion. Ahora si hay.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0.01ms;
+    --duration-base: 0.01ms;
+    --duration-slow: 0.01ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
