@@ -144,6 +144,7 @@ export default function OlibiaDashboard() {
   const scoped = filterOpportunities(all, { query, stage, owner, channel, minimum });
   const rows = filterOpportunities(scoped, { movement });
   const previous = previousPeriodOf(d);
+  const filtersActive = Boolean(query || stage || owner || channel || minimum || movement);
   const summary = movementSummary(scoped);
   const total = rows.reduce((sum, o) => sum + o.value, 0);
   const negotiation = rows.filter(o => o.stage === NEGOTIATION);
@@ -156,6 +157,45 @@ export default function OlibiaDashboard() {
   const closedDeltaNote = `${closedDelta > 0 ? '+' : '−'}${Math.abs(closedDelta)} frente a ${
     MONTH_NAMES[previousMonth.month]
   }`;
+
+  // Cuando no queda nada visible, probar a soltar cada filtro por separado
+  // dice cual es el responsable. Septiembre, por ejemplo, no tiene ninguna
+  // oportunidad en Negociacion: sin esto la pantalla queda en blanco y la
+  // persona no sabe si se rompio algo, si no hay datos o si fue culpa suya.
+  const activeFilters = { query, stage, owner, channel, minimum, movement };
+  const FILTER_NAMES = {
+    query: 'la búsqueda',
+    stage: 'la etapa',
+    owner: 'el responsable',
+    channel: 'el canal',
+    minimum: 'el valor mínimo',
+    movement: 'el movimiento',
+  };
+
+  function emptyCause() {
+    if (rows.length || !filtersActive) return null;
+    const culprits = Object.keys(activeFilters).filter(key => {
+      if (!activeFilters[key]) return false;
+      return filterOpportunities(all, { ...activeFilters, [key]: '' }).length > 0;
+    });
+    if (culprits.length !== 1) return null;
+    const key = culprits[0];
+    return { key, name: FILTER_NAMES[key], value: activeFilters[key] };
+  }
+
+  const cause = emptyCause();
+
+  function releaseFilter(key) {
+    const setters = {
+      query: setQuery,
+      stage: setStage,
+      owner: setOwner,
+      channel: setChannel,
+      minimum: setMinimum,
+      movement: setMovement,
+    };
+    setters[key]('');
+  }
 
   function clearFilters() {
     setStage(EMPTY_FILTERS.stage);
@@ -262,13 +302,91 @@ export default function OlibiaDashboard() {
               </button>
             </section>
           )}
+          {/* Los cuatro indicadores se veian identicos pero dos responden a los
+              filtros y dos no. El starter avisaba con una nota al pie; aqui lo
+              resuelve la estructura, que es la unica forma de que no haya que
+              leer un disclaimer para saber que mira cada numero. */}
+          <div className="kpi-groups">
+            {[
+              {
+                title: 'Lo que estás viendo',
+                hint: filtersActive ? 'con los filtros aplicados' : 'sin filtros aplicados',
+                cards: [
+                  ['Oportunidades abiertas', rows.length, `de ${all.length} en el periodo`],
+                  ['Valor del pipeline', `$${total} M`, 'COP millones / mes'],
+                ],
+              },
+              {
+                title: `${d.label} · equipo completo`,
+                hint: 'no cambia con los filtros',
+                cards: [
+                  ['Cierres del mes', d.closed, closedDeltaNote],
+                  [
+                    'Meta comercial',
+                    `${Math.round((d.closed / MONTHLY_GOAL) * 100)}%`,
+                    `de ${MONTHLY_GOAL} cierres mensuales`,
+                  ],
+                ],
+              },
+            ].map(({ title, hint, cards }) => (
+              <section className="kpi-group" key={title} aria-label={title}>
+                <h2 className="kpi-group__title">
+                  {title} <span className="kpi-group__hint">{hint}</span>
+                </h2>
+                <div className="kpis">
+                  {cards.map(([label, value, note]) => (
+                    <div className="card" key={label}>
+                      {label}
+                      <div className="value">{value}</div>
+                      <div className="muted">{note}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
           <MovementBar
             summary={summary}
             previousLabel={previous?.label}
             active={movement}
             onSelect={setMovement}
           />
-          <section className="panel filter-panel">
+          <section className="panel ai-widget" aria-label="Resumen AI">
+            <div className="ai-heading">
+              <h2>Resumen AI</h2>
+              <span className="badge">Vista de demostración</span>
+            </div>
+            <div aria-live="polite">
+              {rows.length ? (
+                <>
+                  <p>
+                    Hay <strong>{rows.length} oportunidades abiertas</strong> en esta vista, por un
+                    valor mensual estimado de <strong>${total} millones COP</strong>.{' '}
+                    {negotiation.length
+                      ? `${negotiation.length} están en negociación y concentran $${negotiation.reduce((sum, o) => sum + o.value, 0)} millones COP del pipeline.`
+                      : 'Ninguna de las oportunidades visibles está en negociación.'}
+                  </p>
+                  <p>
+                    <strong>Siguiente paso sugerido:</strong> revisar{' '}
+                    {negotiation.length
+                      ? 'las negociaciones pendientes'
+                      : 'las próximas fechas de contacto'}{' '}
+                    y confirmar responsables.
+                  </p>
+                </>
+              ) : (
+                <p>
+                  {cause
+                    ? `Ninguna oportunidad de ${d.label} tiene ${cause.name} "${cause.value}".`
+                    : 'No hay oportunidades con esta combinación de filtros.'}
+                </p>
+              )}
+            </div>
+            <p className="scope-note">
+              Resumen simulado a partir de los datos visibles; no utiliza un servicio de AI.
+            </p>
+          </section>
+          <section className="panel panel--control filter-panel">
             <h2>Filtrar oportunidades abiertas</h2>
             <div className="filter-grid">
               <label>
@@ -313,55 +431,6 @@ export default function OlibiaDashboard() {
               cierres muestran el total del periodo.
             </p>
           </section>
-          <section className="panel ai-widget" aria-label="Resumen AI">
-            <div className="ai-heading">
-              <h2>Resumen AI</h2>
-              <span className="badge">Vista de demostración</span>
-            </div>
-            <div aria-live="polite">
-              {rows.length ? (
-                <>
-                  <p>
-                    Hay <strong>{rows.length} oportunidades abiertas</strong> en esta vista, por un
-                    valor mensual estimado de <strong>${total} millones COP</strong>.{' '}
-                    {negotiation.length
-                      ? `${negotiation.length} están en negociación y concentran $${negotiation.reduce((sum, o) => sum + o.value, 0)} millones COP del pipeline.`
-                      : 'Ninguna de las oportunidades visibles está en negociación.'}
-                  </p>
-                  <p>
-                    <strong>Siguiente paso sugerido:</strong> revisar{' '}
-                    {negotiation.length
-                      ? 'las negociaciones pendientes'
-                      : 'las próximas fechas de contacto'}{' '}
-                    y confirmar responsables.
-                  </p>
-                </>
-              ) : (
-                <p>No hay oportunidades con estos filtros. Prueba ampliando la selección.</p>
-              )}
-            </div>
-            <p className="scope-note">
-              Resumen simulado a partir de los datos visibles; no utiliza un servicio de AI.
-            </p>
-          </section>
-          <div className="kpis">
-            {[
-              ['Oportunidades abiertas', rows.length, 'Según los filtros'],
-              ['Valor del pipeline', `$${total} M`, 'COP millones / mes'],
-              ['Cierres del mes', d.closed, closedDeltaNote],
-              [
-                'Meta comercial',
-                `${Math.round((d.closed / MONTHLY_GOAL) * 100)}%`,
-                `De ${MONTHLY_GOAL} cierres mensuales`,
-              ],
-            ].map(([label, value, note]) => (
-              <div className="card" key={label}>
-                {label}
-                <div className="value">{value}</div>
-                <div className="muted">{note}</div>
-              </div>
-            ))}
-          </div>
           <div className="charts">
             <section className="panel">
               <h2>Cierres por mes · Equipo completo</h2>
@@ -454,7 +523,20 @@ export default function OlibiaDashboard() {
                   ))}
                 </tbody>
               </table>
-              {!rows.length && <p>No se encontraron oportunidades.</p>}
+              {!rows.length && (
+                <div className="empty">
+                  <p className="empty__title">
+                    {cause
+                      ? `No hay oportunidades con ${cause.name} "${cause.value}" en ${d.label}.`
+                      : 'No hay oportunidades con esta combinación de filtros.'}
+                  </p>
+                  {cause ? (
+                    <button onClick={() => releaseFilter(cause.key)}>Quitar {cause.name}</button>
+                  ) : (
+                    <button onClick={clearFilters}>Limpiar todos los filtros</button>
+                  )}
+                </div>
+              )}
             </div>
           </section>
           <p role="status">{notice}</p>

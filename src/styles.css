@@ -747,3 +747,96 @@ td:nth-child(3) {
 .move-tag--negative::before {
   background: var(--signal-negative);
 }
+
+/* ─── Jerarquia de superficies ─────────────────────────────────────── */
+
+/* Tres pesos, sin recurrir a mas color: lo que encuadra la lectura, lo que
+   la desarrolla y lo que solo sirve para operar. Alguien con pocos minutos
+   tiene que poder saltear el tercero sin perderse nada. */
+
+.panel--lead {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+
+.panel--lead h2 {
+  font-size: 17px;
+}
+
+/* Los controles no son contenido: sin sombra, sin relleno de panel y con el
+   titulo en segundo plano, para que no compitan con los datos. */
+.panel--control {
+  background: none;
+  box-shadow: none;
+  border-style: dashed;
+  padding: var(--space-4);
+}
+
+.panel--control h2 {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* ─── Indicadores agrupados por alcance ────────────────────────────── */
+
+.kpi-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.kpi-group__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-3);
+}
+
+.kpi-group__hint {
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+.kpi-groups .kpis {
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+}
+
+/* ─── Estado vacio ─────────────────────────────────────────────────── */
+
+/* Decir "no se encontraron oportunidades" deja a la persona sin saber si se
+   rompio algo o si fue culpa suya. Esto nombra el filtro responsable y
+   ofrece la salida en un clic. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6) 0 var(--space-4);
+}
+
+.empty__title {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 60ch;
+}
+
+@media (max-width: 1100px) {
+  .kpi-groups {
+    grid-template-columns: 1fr;
+  }
+}

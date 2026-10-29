@@ -28,7 +28,10 @@ export default function MovementBar({ summary, previousLabel, active, onSelect }
   // nada se haya movido. Decirlo es mas honesto que mostrar cuatro ceros.
   if (!previousLabel) {
     return (
-      <section className="panel movement" aria-label="Movimiento respecto al periodo anterior">
+      <section
+        className="panel panel--lead movement"
+        aria-label="Movimiento respecto al periodo anterior"
+      >
         <h2>Movimiento</h2>
         <p className="muted">
           Este es el periodo más antiguo disponible, así que no hay un mes previo con el cual
@@ -41,7 +44,10 @@ export default function MovementBar({ summary, previousLabel, active, onSelect }
   const shown = KINDS.filter(kind => summary[kind.status] > 0 || kind.status !== REGRESSED);
 
   return (
-    <section className="panel movement" aria-label="Movimiento respecto al periodo anterior">
+    <section
+      className="panel panel--lead movement"
+      aria-label="Movimiento respecto al periodo anterior"
+    >
       <div className="movement__head">
         <h2>Qué cambió frente a {previousLabel}</h2>
         {active && (
