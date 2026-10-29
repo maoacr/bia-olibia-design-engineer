@@ -1,6 +1,6 @@
 import React from 'react';
-import {createRoot} from 'react-dom/client';
-import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import OlibiaDashboard from './routes/olibia/OlibiaDashboard';
 import './styles.css';
 
@@ -12,5 +12,5 @@ createRoot(document.getElementById('root')).render(
         <Route path="/olibia" element={<OlibiaDashboard />} />
       </Routes>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
