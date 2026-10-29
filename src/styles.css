@@ -149,7 +149,7 @@ a:focus-visible {
 }
 
 aside {
-  width: 200px;
+  width: 232px;
   flex-shrink: 0;
   padding: var(--space-5) var(--space-4);
   border-right: 1px solid var(--border);
@@ -557,16 +557,6 @@ td:nth-child(3) {
   margin-bottom: var(--space-2);
 }
 
-.menu-placeholder {
-  border: 1px dashed var(--border-control);
-  border-radius: var(--radius-md);
-  background: var(--surface-raised);
-  line-height: 1.6;
-  padding: var(--space-4) var(--space-3) !important;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
 /* ─── Adaptacion a pantallas chicas ────────────────────────────────── */
 
 @media (max-width: 850px) {
@@ -838,5 +828,155 @@ td:nth-child(3) {
 @media (max-width: 1100px) {
   .kpi-groups {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Menu vertical ────────────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.menu__group {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: var(--space-4) 0 var(--space-2);
+  padding-inline: var(--space-3);
+}
+
+.menu__group:first-child {
+  margin-top: 0;
+}
+
+.menu__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu__link,
+.menu__section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+
+.menu__section {
+  color: var(--text-primary);
+  margin-top: var(--space-2);
+}
+
+.menu__link:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* La opcion activa no se distingue solo por color: tambien cambia el fondo y
+   el peso, que es lo que la hace legible sin depender del matiz. */
+.menu__link.is-active {
+  background: var(--surface-hover);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.menu__link--nested {
+  padding-left: var(--space-5);
+  font-size: 12px;
+}
+
+.menu__count {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  background: var(--surface-base);
+  border-radius: var(--radius-full);
+  padding: 1px var(--space-2);
+  min-width: 20px;
+  text-align: center;
+}
+
+.menu__link.is-active .menu__count {
+  color: var(--accent);
+}
+
+.menu__foot {
+  margin-top: var(--space-5);
+  padding-inline: var(--space-3);
+}
+
+.menu__reset {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* El boton solo existe donde el menu no cabe al costado. */
+.menu-toggle {
+  display: none;
+  border: none;
+  background: none;
+  padding: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.top-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (max-width: 850px) {
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* El starter hacia `display: none` y la navegacion desaparecia entera.
+     Aqui se despliega sobre el contenido en lugar de dejar de existir. */
+  aside {
+    display: block;
+    position: fixed;
+    inset: 62px 0 auto 0;
+    z-index: 20;
+    max-height: calc(100vh - 62px);
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    transform: translateY(-101%);
+    visibility: hidden;
+    transition:
+      transform var(--duration-base) var(--ease),
+      visibility var(--duration-base);
+  }
+
+  aside.is-open {
+    transform: none;
+    visibility: visible;
   }
 }

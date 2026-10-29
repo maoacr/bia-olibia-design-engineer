@@ -5,9 +5,13 @@ import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './
 import MovementBar, { MovementTag, movementSentence } from './Movement.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useFilterParams } from './useFilterParams.js';
+import SideMenu from './SideMenu.jsx';
 import { niceScale } from '../../shared/scale.js';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
+
+/** Concordancia de numero: "1 oportunidad abierta", no "1 oportunidades abiertas". */
+const plural = (count, singular, many) => `${count} ${count === 1 ? singular : many}`;
 
 /**
  * El acento no decora: marca lo que el usuario esta interrogando. Si hay un
@@ -135,7 +139,8 @@ export default function OlibiaDashboard() {
   const [selected, setSelected] = useState(null),
     [done, setDone] = useState({}),
     [notice, setNotice] = useState(''),
-    [banner, setBanner] = useState(true);
+    [banner, setBanner] = useState(true),
+    [menuOpen, setMenuOpen] = useState(false);
 
   const setQuery = value => update({ query: value }, { replace: true });
   const setStage = value => update({ stage: value });
@@ -219,7 +224,30 @@ export default function OlibiaDashboard() {
   return (
     <>
       <header className="top">
-        <div>
+        <div className="top-brand">
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-expanded={menuOpen}
+            aria-controls="menu-principal"
+            onClick={() => setMenuOpen(open => !open)}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              {[7, 12, 17].map(y => (
+                <line
+                  key={y}
+                  x1="4"
+                  x2="20"
+                  y1={y}
+                  y2={y}
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              ))}
+            </svg>
+            <span className="sr-only">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
+          </button>
           <span className="brand">olibia</span>
           <small>Gestión comercial</small>
         </div>
@@ -229,8 +257,22 @@ export default function OlibiaDashboard() {
         </div>
       </header>
       <div className="shell">
-        <aside>
-          <div className="menu-placeholder">Diseña el menú vertical y sus opciones</div>
+        {/* En pantalla chica el menu se despliega sobre el contenido; al
+            elegir una opcion se cierra solo, porque dejarlo abierto taparia
+            justo lo que la persona acaba de pedir. */}
+        <aside
+          className={menuOpen ? 'is-open' : undefined}
+          onClick={e => {
+            if (e.target.closest('a')) setMenuOpen(false);
+          }}
+        >
+          <SideMenu
+            id="menu-principal"
+            period={period}
+            filters={filters}
+            summary={summary}
+            total={scoped.length}
+          />
         </aside>
         <main>
           <div className="toolbar">
@@ -349,10 +391,14 @@ export default function OlibiaDashboard() {
               {rows.length ? (
                 <>
                   <p>
-                    Hay <strong>{rows.length} oportunidades abiertas</strong> en esta vista, por un
-                    valor mensual estimado de <strong>${total} millones COP</strong>.{' '}
+                    Hay{' '}
+                    <strong>
+                      {plural(rows.length, 'oportunidad abierta', 'oportunidades abiertas')}
+                    </strong>{' '}
+                    en esta vista, por un valor mensual estimado de{' '}
+                    <strong>${total} millones COP</strong>.{' '}
                     {negotiation.length
-                      ? `${negotiation.length} están en negociación y concentran $${negotiation.reduce((sum, o) => sum + o.value, 0)} millones COP del pipeline.`
+                      ? `${plural(negotiation.length, 'está', 'están')} en negociación y ${negotiation.length === 1 ? 'concentra' : 'concentran'} $${negotiation.reduce((sum, o) => sum + o.value, 0)} millones COP del pipeline.`
                       : 'Ninguna de las oportunidades visibles está en negociación.'}
                   </p>
                   <p>
