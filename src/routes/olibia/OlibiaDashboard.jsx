@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { data } from './data';
-import { filterRows, channelFor } from './filters';
-const names = ['Ana López', 'Carlos Ruiz', 'Laura Díaz', 'Mateo Gil'];
+import { CHANNELS, MONTHLY_GOAL, MONTH_NAMES, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
+import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
+
+const NEGOTIATION = STAGES[STAGES.length - 1];
+
 function Bars({ items, max }) {
   return items.map(([name, n]) => (
     <div className="row" key={name}>
@@ -72,24 +74,42 @@ export default function OlibiaDashboard() {
     [channel, setChannel] = useState(''),
     [minimum, setMinimum] = useState(''),
     [banner, setBanner] = useState(true);
-  const d = data[period];
-  const rows = filterRows(d.rows, { query, stage, owner, channel, minimum });
-  const total = rows.reduce((sum, r) => sum + r[2], 0);
-  const negotiation = rows.filter(r => r[1] === 'Negociación');
-  const key = selected ? period + selected[0] : '';
+  const d = periods[period];
+  const all = d.opportunities;
+  const rows = filterOpportunities(all, { query, stage, owner, channel, minimum });
+  const total = rows.reduce((sum, o) => sum + o.value, 0);
+  const negotiation = rows.filter(o => o.stage === NEGOTIATION);
+  const key = selected ? `${period}:${selected.id}` : '';
+
+  // Variacion de cierres contra el mes anterior, derivada del historial en
+  // lugar de quedar escrita a mano en el texto del KPI.
+  const previousMonth = d.history[d.history.length - 2];
+  const closedDelta = d.closed - previousMonth.closed;
+  const closedDeltaNote = `${closedDelta > 0 ? '+' : '−'}${Math.abs(closedDelta)} frente a ${
+    MONTH_NAMES[previousMonth.month]
+  }`;
+
+  function clearFilters() {
+    setStage(EMPTY_FILTERS.stage);
+    setOwner(EMPTY_FILTERS.owner);
+    setChannel(EMPTY_FILTERS.channel);
+    setMinimum(EMPTY_FILTERS.minimum);
+    setQuery(EMPTY_FILTERS.query);
+  }
+
   function exportCSV() {
-    const blob = new Blob(
-      [
-        '\ufeff' +
-          [
-            ['Empresa', 'Etapa', 'Valor mensual COP millones', 'Responsable', 'Proximo contacto'],
-            ...rows,
-          ]
-            .map(r => r.join(';'))
-            .join('\r\n'),
-      ],
-      { type: 'text/csv;charset=utf-8' },
-    );
+    const header = [
+      'Empresa',
+      'Etapa',
+      'Canal',
+      'Valor mensual COP millones',
+      'Responsable',
+      'Proximo contacto',
+    ];
+    const body = rows.map(o => [o.company, o.stage, o.channel, o.value, o.owner, o.nextContact]);
+    const blob = new Blob(['\ufeff' + [header, ...body].map(r => r.join(';')).join('\r\n')], {
+      type: 'text/csv;charset=utf-8',
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -127,8 +147,11 @@ export default function OlibiaDashboard() {
                   setNotice('');
                 }}
               >
-                <option value="oct">Octubre 2026</option>
-                <option value="sep">Septiembre 2026</option>
+                {PERIOD_IDS.map(id => (
+                  <option key={id} value={id}>
+                    {periods[id].label}
+                  </option>
+                ))}
               </select>
               <button onClick={exportCSV}>Exportar CSV</button>
             </div>
@@ -143,11 +166,8 @@ export default function OlibiaDashboard() {
               </div>
               <button
                 onClick={() => {
-                  setStage('Negociación');
-                  setOwner('');
-                  setChannel('');
-                  setMinimum('');
-                  setQuery('');
+                  clearFilters();
+                  setStage(NEGOTIATION);
                 }}
               >
                 Ver negociaciones
@@ -164,7 +184,7 @@ export default function OlibiaDashboard() {
                 Etapa
                 <select value={stage} onChange={e => setStage(e.target.value)}>
                   <option value="">Todas las etapas</option>
-                  {['Contacto', 'Calificación', 'Propuesta', 'Negociación'].map(x => (
+                  {STAGES.map(x => (
                     <option key={x}>{x}</option>
                   ))}
                 </select>
@@ -173,7 +193,7 @@ export default function OlibiaDashboard() {
                 Responsable
                 <select value={owner} onChange={e => setOwner(e.target.value)}>
                   <option value="">Todos los responsables</option>
-                  {names.map(x => (
+                  {TEAM.map(x => (
                     <option key={x}>{x}</option>
                   ))}
                 </select>
@@ -182,7 +202,7 @@ export default function OlibiaDashboard() {
                 Canal
                 <select value={channel} onChange={e => setChannel(e.target.value)}>
                   <option value="">Todos los canales</option>
-                  {['Outbound', 'Referidos', 'Inbound'].map(x => (
+                  {CHANNELS.map(x => (
                     <option key={x}>{x}</option>
                   ))}
                 </select>
@@ -195,17 +215,7 @@ export default function OlibiaDashboard() {
                   <option value="50">Desde $50 M COP</option>
                 </select>
               </label>
-              <button
-                onClick={() => {
-                  setStage('');
-                  setOwner('');
-                  setChannel('');
-                  setMinimum('');
-                  setQuery('');
-                }}
-              >
-                Limpiar filtros
-              </button>
+              <button onClick={clearFilters}>Limpiar filtros</button>
             </div>
             <p className="scope-note">
               Aplican al pipeline, al resumen AI, a las gráficas de oportunidades y a la tabla. Los
@@ -224,7 +234,7 @@ export default function OlibiaDashboard() {
                     Hay <strong>{rows.length} oportunidades abiertas</strong> en esta vista, por un
                     valor mensual estimado de <strong>${total} millones COP</strong>.{' '}
                     {negotiation.length
-                      ? `${negotiation.length} están en negociación y concentran $${negotiation.reduce((sum, r) => sum + r[2], 0)} millones COP del pipeline.`
+                      ? `${negotiation.length} están en negociación y concentran $${negotiation.reduce((sum, o) => sum + o.value, 0)} millones COP del pipeline.`
                       : 'Ninguna de las oportunidades visibles está en negociación.'}
                   </p>
                   <p>
@@ -247,12 +257,12 @@ export default function OlibiaDashboard() {
             {[
               ['Oportunidades abiertas', rows.length, 'Según los filtros'],
               ['Valor del pipeline', `$${total} M`, 'COP millones / mes'],
+              ['Cierres del mes', d.closed, closedDeltaNote],
               [
-                'Cierres del mes',
-                d.closed,
-                period === 'oct' ? '+2 frente a septiembre' : '−1 frente a agosto',
+                'Meta comercial',
+                `${Math.round((d.closed / MONTHLY_GOAL) * 100)}%`,
+                `De ${MONTHLY_GOAL} cierres mensuales`,
               ],
-              ['Meta comercial', `${d.closed * 10}%`, 'De 10 cierres mensuales'],
             ].map(([label, value, note]) => (
               <div className="card" key={label}>
                 {label}
@@ -264,16 +274,17 @@ export default function OlibiaDashboard() {
           <div className="charts">
             <section className="panel">
               <h2>Cierres por mes · Equipo completo</h2>
-              <Chart values={d.history} labels={d.labels} goal />
+              <Chart
+                values={d.history.map(h => h.closed)}
+                labels={d.history.map(h => h.month)}
+                goal
+              />
               <div className="legend">Azul: cierres · Línea discontinua: meta</div>
             </section>
             <section className="panel">
               <h2>Oportunidades por etapa</h2>
               <Bars
-                items={['Contacto', 'Calificación', 'Propuesta', 'Negociación'].map(n => [
-                  n,
-                  rows.filter(r => r[1] === n).length,
-                ])}
+                items={STAGES.map(n => [n, rows.filter(o => o.stage === n).length])}
                 max={Math.max(rows.length, 1)}
               />
               <p className="muted">Oportunidades abiertas según los filtros</p>
@@ -283,15 +294,13 @@ export default function OlibiaDashboard() {
             <section className="panel">
               <h2>Origen de oportunidades abiertas</h2>
               <Chart
-                values={['Outbound', 'Referidos', 'Inbound'].map(
-                  c => rows.filter(r => channelFor(r, d.rows) === c).length,
-                )}
-                labels={['Outbound', 'Referidos', 'Inbound']}
+                values={CHANNELS.map(c => rows.filter(o => o.channel === c).length)}
+                labels={CHANNELS}
               />
             </section>
             <section className="panel">
               <h2>Cierres por ejecutivo · Total del periodo</h2>
-              <Bars items={names.map((n, i) => [n, d.owners[i]])} max={4} />
+              <Bars items={d.closesByOwner.map(({ owner, closed }) => [owner, closed])} max={4} />
             </section>
           </div>
           <section className="panel">
@@ -322,17 +331,17 @@ export default function OlibiaDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map(r => (
-                    <tr key={r[0]}>
-                      <td>{r[0]}</td>
+                  {rows.map(o => (
+                    <tr key={o.id}>
+                      <td>{o.company}</td>
                       <td>
-                        <span className="badge">{r[1]}</span>
+                        <span className="badge">{o.stage}</span>
                       </td>
-                      <td>${r[2]} M</td>
-                      <td>{r[3]}</td>
-                      <td>{r[4]}</td>
+                      <td>${o.value} M</td>
+                      <td>{o.owner}</td>
+                      <td>{o.nextContact}</td>
                       <td>
-                        <button aria-label={`Ver ${r[0]}`} onClick={() => setSelected(r)}>
+                        <button aria-label={`Ver ${o.company}`} onClick={() => setSelected(o)}>
                           Ver
                         </button>
                       </td>
@@ -358,17 +367,17 @@ export default function OlibiaDashboard() {
         >
           <article role="dialog" aria-modal="true" aria-labelledby="detailTitle">
             <header>
-              <h2 id="detailTitle">{selected[0]}</h2>
+              <h2 id="detailTitle">{selected.company}</h2>
               <button autoFocus onClick={() => setSelected(null)}>
                 Cerrar
               </button>
             </header>
             <div className="detail-grid">
               {[
-                ['Etapa', selected[1]],
-                ['Valor mensual estimado', `$${selected[2]} millones COP`],
-                ['Responsable', selected[3]],
-                ['Próximo contacto', `${selected[4]} 2026`],
+                ['Etapa', selected.stage],
+                ['Valor mensual estimado', `$${selected.value} millones COP`],
+                ['Responsable', selected.owner],
+                ['Próximo contacto', `${selected.nextContact} ${d.year}`],
               ].map(([label, value]) => (
                 <div key={label}>
                   <small>{label}</small>
