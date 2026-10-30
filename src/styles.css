@@ -132,23 +132,56 @@ a:focus-visible {
 
 /* ─── Cabecera ─────────────────────────────────────────────────────── */
 
+/* Llega sin fondo, sin desenfoque y sin linea: arriba del todo no hay nada
+   detras de la barra de lo que separarla, asi que cualquier superficie seria
+   un marco puesto por costumbre.
+
+   El vidrio aparece recien cuando la pagina se mueve, y entonces NO es
+   decoracion: la barra es pegajosa, el contenido le pasa por debajo y sin
+   fondo la marca se superpone con el texto que viaja atras. Comprobado:
+   "Olibia" quedaba encima de "Hotel Central", ilegibles las dos.
+
+   El borde se declara desde el principio en transparente para que al
+   aparecer no empuje el alto ni un pixel. --header-height depende de eso. */
+/* Marca el tope del documento para el observador que enciende el vidrio.
+   En absoluto y de 1px: tiene que tener area —un elemento de alto cero nunca
+   intersecta— pero no puede ocupar lugar ni correr el contenido. */
+.top-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
 .top {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--surface-glass);
-  backdrop-filter: blur(var(--blur-md));
-  -webkit-backdrop-filter: blur(var(--blur-md));
-  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-bottom: 1px solid transparent;
   padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  transition:
+    background-color var(--duration-base) var(--ease),
+    border-color var(--duration-base) var(--ease);
 }
 
+.top.is-stuck {
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border-bottom-color: var(--border);
+}
+
+/* Sin desenfoque el vidrio no separa nada: hace falta una superficie opaca,
+   y solo cuando hay algo pasando por debajo. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .top {
+  .top.is-stuck {
     background: var(--surface-panel);
   }
 }
@@ -160,8 +193,17 @@ a:focus-visible {
   min-width: 0;
 }
 
+/* Hasta 40rem la barra lleva SOLO la marca y el control de tema: el
+   subtitulo y "Equipo comercial" aparecen recien ahi. Mientras la marca
+   carga sola la identidad, 1.25rem la dejaba por debajo del h1 de la pagina
+   —20px contra 22.69px a 390px, medido—, o sea el nombre del producto
+   pesando menos que un titulo generico.
+
+   1.5rem sigue entrando en los 44px de caja que el control de tema ya le
+   impone a la barra, asi que el alto no se mueve y --header-height sigue
+   siendo cierto para `scroll-margin-top`. */
 .brand {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   /* Color solido primero: si background-clip no esta soportado, el nombre de
@@ -207,6 +249,16 @@ a:focus-visible {
   padding: 0;
   border-radius: var(--radius-full);
   color: var(--text-secondary);
+  /* El aro y el relleno no eran una decision: los heredaba de la regla base
+     de `button`. Un contenedor de 44px alrededor de un icono de 16px pesa
+     mas que el icono y compite con la marca, que es lo unico que deberia
+     mirarse en esta barra.
+
+     Los 44px se quedan: dejan de verse, no de existir. El area tactil es la
+     misma y el foco de teclado sigue dibujandose con el `outline` de la
+     regla base, que no depende del borde. */
+  background: none;
+  border-color: transparent;
 }
 
 .theme-toggle:hover:not(:disabled) {
@@ -730,6 +782,12 @@ tbody tr.is-followed td:first-child {
   .top small,
   .top-actions > .muted {
     display: inline;
+  }
+
+  /* Con el subtitulo y el rotulo de equipo en la barra, la marca deja de ser
+     lo unico que identifica la pantalla y vuelve a su tamaño de origen. */
+  .brand {
+    font-size: 1.25rem;
   }
 
   .tabletools,

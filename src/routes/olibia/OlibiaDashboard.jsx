@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CHANNELS, STAGE_SLUG, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { opportunitiesWithMovement, previousPeriodOf } from './movement.js';
@@ -24,7 +24,29 @@ export default function OlibiaDashboard() {
 
   const [selected, setSelected] = useState(null),
     [done, setDone] = useState({}),
-    [notice, setNotice] = useState('');
+    [notice, setNotice] = useState(''),
+    // La cabecera llega transparente y toma su vidrio solo cuando hay algo
+    // pasandole por debajo. Ver el porque en la seccion .top de styles.css.
+    [stuck, setStuck] = useState(false);
+
+  const sentinel = useRef(null);
+
+  // Un centinela de 1px en el tope del documento: mientras se vea, la pagina
+  // esta sin desplazar. Es un observador y no un oyente de scroll, asi que no
+  // corre una vez por cuadro mientras se baja; y va posicionado en absoluto,
+  // asi que no ocupa lugar ni corre el contenido un pixel.
+  //
+  // No sirve que la cabecera se observe a si misma con `rootMargin`: nace
+  // pegada al tope, o sea que nace recortada, y la clase quedaria puesta
+  // desde el primer cuadro. Probado.
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(([entry]) => setStuck(!entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const setQuery = value => update({ query: value }, { replace: true });
   const setStage = value => update({ stage: value });
@@ -97,7 +119,8 @@ export default function OlibiaDashboard() {
   }
   return (
     <>
-      <header className="top">
+      <div ref={sentinel} className="top-sentinel" aria-hidden="true" />
+      <header className={`top${stuck ? ' is-stuck' : ''}`}>
         <div className="top-brand">
           <span className="brand">Olibia</span>
           <small>Gestión comercial</small>
