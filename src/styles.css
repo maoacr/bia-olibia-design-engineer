@@ -1140,13 +1140,20 @@ tbody tr.is-followed td:first-child {
 }
 
 .goal__candidate {
+  /* El color de la fila vive en UNA variable. El caso vacio la cambia una vez
+     y con eso se mueven el relleno y el borde; sin ella harian falta dos
+     reglas que pueden quedar desincronizadas. */
+  --row-accent: var(--accent);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
   width: 100%;
   padding: var(--space-2) var(--space-3);
-  background: var(--surface-raised);
+  /* `background-color` y no el atajo `background`: el atajo reinicia
+     `background-image`, asi que el relleno de abajo dependeria de seguir
+     declarado despues. Una reordenacion lo borraria sin tocar su regla. */
+  background-color: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   color: var(--text-primary);
@@ -1160,7 +1167,7 @@ tbody tr.is-followed td:first-child {
      mas debil para codificar cantidad; la longitud, el mas fuerte. */
   background-image: linear-gradient(
     to left,
-    color-mix(in srgb, var(--accent) 15%, transparent) calc(var(--share, 0) * 100%),
+    color-mix(in srgb, var(--row-accent) 15%, transparent) calc(var(--share, 0) * 100%),
     transparent calc(var(--share, 0) * 100%)
   );
   transition:
@@ -1168,10 +1175,14 @@ tbody tr.is-followed td:first-child {
     border-color var(--duration-fast) var(--ease);
 }
 
+/* El realce va SOLO en el borde. Antes tambien cambiaba la superficie, y eso
+   apilaba dos oscurecedores sobre el mismo texto —el lavado proporcional y el
+   hover— hundiendo la segunda linea de la fila a 3.02:1 en oscuro y 3.46:1 en
+   claro. Medido, no supuesto. El borde en el color de la fila es realce
+   suficiente, y de paso deja el relleno legible justo cuando se lo mira. */
 .goal__candidate:hover,
 .goal__candidate.is-active {
-  background: var(--surface-hover);
-  border-color: var(--accent);
+  border-color: var(--row-accent);
 }
 
 /* Empresa arriba y el dato secundario debajo, en renglones aparte: puestos
@@ -1187,9 +1198,14 @@ tbody tr.is-followed td:first-child {
   font-weight: 550;
 }
 
+/* `--text-secondary` y no `--text-muted`: muted esta calibrado justo sobre el
+   panel desnudo (4.82:1 en oscuro, 4.57:1 ya sobre `raised`) y no le queda
+   margen para nada encima. Bajo el lavado proporcional caia a 3.36:1. La
+   jerarquia de la fila la sostienen el tamaño y el peso, no el unico color
+   que no aguanta tener algo pintado debajo. */
 .goal__candidate-owner {
   font-size: var(--text-sm);
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .goal__candidate-value {
@@ -1217,6 +1233,17 @@ tbody tr.is-followed td:first-child {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-muted);
+}
+
+/* En el mes sin negociaciones el relleno no puede medir proporcion: el total
+   en juego es cero y no hay parte de nada. Deja de medir y pasa a señalar —
+   ambar y a ancho completo, el mismo color del `$0 M` de arriba y de los
+   lugares que quedaron sin candidata. Antes esta fila era la unica pieza
+   neutra de una columna entera en alarma, y se leia como si no fuera con
+   ella. */
+.goal--alert .goal__fallback .goal__candidate {
+  --row-accent: var(--signal-attention);
+  --share: 1;
 }
 
 /* ─── Tooltip (Radix) ──────────────────────────────────────────────── */
