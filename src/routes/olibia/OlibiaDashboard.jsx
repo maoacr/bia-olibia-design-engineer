@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { CHANNELS, MONTHLY_GOAL, MONTH_NAMES, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
-import MovementBar, { MovementTag, movementSentence } from './Movement.jsx';
+import MovementBar, { MovementTag } from './Movement.jsx';
+import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useFilterParams } from './useFilterParams.js';
 import SideMenu from './SideMenu.jsx';
@@ -630,39 +631,13 @@ export default function OlibiaDashboard() {
         </main>
       </div>
       {selected && (
-        <div
-          className="modal"
-          onKeyDown={e => {
-            if (e.key === 'Escape') setSelected(null);
-          }}
-        >
-          <article role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-            <header>
-              <h2 id="detailTitle">{selected.company}</h2>
-              <button autoFocus onClick={() => setSelected(null)}>
-                Cerrar
-              </button>
-            </header>
-            <div className="detail-grid">
-              {[
-                ['Etapa', selected.stage],
-                ['Movimiento', movementSentence(selected.movement)],
-                ['Valor mensual estimado', `$${selected.value} millones COP`],
-                ['Responsable', selected.owner],
-                ['Próximo contacto', `${selected.nextContact} ${d.year}`],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <small>{label}</small>
-                  {value}
-                </div>
-              ))}
-            </div>
-            <button disabled={done[key]} onClick={() => setDone({ ...done, [key]: true })}>
-              Marcar seguimiento realizado
-            </button>
-            <p role="status">{done[key] ? 'Seguimiento registrado en esta sesión.' : ''}</p>
-          </article>
-        </div>
+        <OpportunityDetail
+          opportunity={selected}
+          year={d.year}
+          done={done[key]}
+          onFollowUp={() => setDone({ ...done, [key]: true })}
+          onClose={() => setSelected(null)}
+        />
       )}
     </>
   );
