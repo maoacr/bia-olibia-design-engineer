@@ -190,33 +190,20 @@ a:focus-visible {
   }
 }
 
-.top-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-width: 0;
-}
+/* Mismo tamaño en todos los anchos. La barra lleva unicamente la marca y el
+   control de tema, asi que la identidad nunca comparte el renglon con otra
+   cosa y no hay motivo para que encoja en pantalla grande.
 
-/* Hasta 40rem la barra lleva SOLO la marca y el control de tema: el
-   subtitulo y "Equipo comercial" aparecen recien ahi. Mientras la marca
-   carga sola la identidad, 1.25rem la dejaba por debajo del h1 de la pagina
-   —20px contra 22.69px a 390px, medido—, o sea el nombre del producto
-   pesando menos que un titulo generico.
-
-   1.5rem sigue entrando en los 44px de caja que el control de tema ya le
-   impone a la barra, asi que el alto no se mueve y --header-height sigue
-   siendo cierto para `scroll-margin-top`. */
+   El `line-height` va explicito porque de el depende el alto de la barra: con
+   el 1.5 que hereda del body, 2.5rem daria una caja de 60px y la cabecera se
+   iria a 85px. Ahi --header-height pasaria a mentir y `scroll-margin-top`
+   dejaria corridos los enlaces profundos. Con 1.1 la caja mide 44px, justo lo
+   que el control de tema ya imponia, y el alto no se mueve en ningun ancho.
+   "Olibia" no tiene trazos descendentes: la caja ajustada no le recorta nada. */
 .brand {
   font-size: 2.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  /* Explicito y ajustado porque de el depende el alto de la barra. Con el 1.5
-     que hereda del body, 2.5rem daria una caja de 60px y la cabecera se iria
-     a 85px: --header-height pasaria a mentir y `scroll-margin-top` dejaria
-     los enlaces profundos corridos. Con 1.1 la caja mide 44px, exactamente lo
-     que el control de tema ya le imponia, y el alto no se mueve.
-     "Olibia" no tiene ningun trazo descendente, asi que la caja ajustada no
-     le recorta nada. */
   line-height: 1.1;
   /* Color solido primero: si background-clip no esta soportado, el nombre de
      la marca sigue siendo legible en vez de quedar transparente. */
@@ -232,13 +219,6 @@ a:focus-visible {
   }
 }
 
-/* El subtitulo de la marca es lo primero que sobra cuando falta ancho. */
-.top small {
-  display: none;
-  margin-left: var(--space-4);
-  color: var(--text-secondary);
-}
-
 /* Fuera del flujo mientras la marca manda el centro. `.top` es pegajosa, o
    sea posicionada, asi que ya hace de referencia: no hace falta tocarle el
    `position`. */
@@ -250,10 +230,6 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-}
-
-.top-actions > .muted {
-  display: none;
 }
 
 /* Solo icono, centrado. 44px es el minimo tactil; por debajo el dedo falla
@@ -798,14 +774,9 @@ tbody tr.is-followed td:first-child {
     padding-left: calc(5.25rem + var(--space-6));
   }
 
-  .top small,
-  .top-actions > .muted {
-    display: inline;
-  }
-
-  /* Con el subtitulo y el rotulo de equipo en la barra, la marca deja de ser
-     lo unico que identifica la pantalla: vuelve a su tamaño de origen y la
-     barra reparte a los extremos. */
+  /* Desde tablet la barra reparte a los extremos: la marca a la izquierda y
+     el control de tema a la derecha. Con ancho de sobra, centrar la marca la
+     dejaria flotando lejos del contenido que encabeza. El tamaño no cambia. */
   .top {
     justify-content: space-between;
   }
@@ -813,11 +784,6 @@ tbody tr.is-followed td:first-child {
   .top-actions {
     position: static;
     transform: none;
-  }
-
-  .brand {
-    font-size: 1.25rem;
-    line-height: inherit;
   }
 
   .tabletools,

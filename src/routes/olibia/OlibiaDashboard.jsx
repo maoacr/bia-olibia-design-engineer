@@ -121,12 +121,8 @@ export default function OlibiaDashboard() {
     <>
       <div ref={sentinel} className="top-sentinel" aria-hidden="true" />
       <header className={`top${stuck ? ' is-stuck' : ''}`}>
-        <div className="top-brand">
-          <span className="brand">Olibia</span>
-          <small>Gestión comercial</small>
-        </div>
+        <span className="brand">Olibia</span>
         <div className="top-actions">
-          <span className="muted">Equipo comercial</span>
           <ThemeToggle />
         </div>
       </header>
