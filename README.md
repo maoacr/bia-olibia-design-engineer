@@ -2,7 +2,7 @@
 
 Dos experiencias sobre un mismo sistema de diseño: el tablero comercial de **Olibia** y la vista de consumo energético de **Bia**.
 
-**Demo:** _(pendiente de desplegar)_
+**Demo:** https://bia-olibia-design-engineer.vercel.app/olibia
 
 ---
 
