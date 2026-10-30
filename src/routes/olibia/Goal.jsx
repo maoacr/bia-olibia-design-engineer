@@ -208,7 +208,13 @@ export default function Goal({ period, opportunities, onSelect }) {
                               onFocus={() => setActive(o.id)}
                               onBlur={() => setActive(null)}
                             >
-                              <span className="goal__candidate-name">{o.company}</span>
+                              <span className="goal__candidate-who">
+                                <span className="goal__candidate-name">{o.company}</span>
+                                {/* El responsable llena la fila con dato
+                                    real en vez de aire, y es justo lo que
+                                    hace falta para decidir a quien avisarle. */}
+                                <span className="goal__candidate-owner">{o.owner}</span>
+                              </span>
                               <span className="goal__candidate-value">{money(o.value)}</span>
                             </button>
                           </Tooltip.Trigger>

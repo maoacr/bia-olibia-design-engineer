@@ -1137,9 +1137,6 @@ tbody tr.is-followed td:first-child {
   gap: var(--space-2);
   margin: 0;
   padding: 0;
-  /* Con tope: estiradas a toda la columna el nombre queda a medio metro de
-     su cifra y dejan de leerse como un par. */
-  max-width: 30rem;
 }
 
 .goal__candidate {
@@ -1167,8 +1164,23 @@ tbody tr.is-followed td:first-child {
   border-color: var(--accent);
 }
 
+/* Empresa y responsable como un bloque, el valor pegado al otro extremo:
+   la fila crece con el panel sin que el nombre quede flotando solo. */
+.goal__candidate-who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  min-width: 0;
+}
+
 .goal__candidate-name {
   font-weight: 550;
+}
+
+.goal__candidate-owner {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 .goal__candidate-value {
@@ -1225,6 +1237,18 @@ tbody tr.is-followed td:first-child {
   .goal__pair {
     grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-7);
+  }
+
+  /* La cifra en juego se alinea al borde derecho, el mismo donde caen los
+     valores de las candidatas. Eso le da a la columna una linea de apoyo
+     propia y equilibra el peso del 8 que ancla la izquierda. */
+  .goal__side--stake .goal__figure {
+    justify-content: flex-end;
+    text-align: right;
+    /* La sangria replica el relleno Y el borde de las filas de abajo: sin
+       ella la cifra queda 13px por fuera de la linea donde caen los valores
+       y la columna pierde justamente el apoyo que se buscaba. */
+    padding-right: calc(var(--space-3) + 1px);
   }
 
   /* Con ancho, el recuento se sienta al lado del medidor en vez de debajo:
@@ -2324,5 +2348,18 @@ tbody tr.is-followed td:first-child {
 
   .is-targeted {
     animation: dock-destino 1400ms var(--ease) forwards;
+  }
+}
+
+/* El medidor es el visual protagonista del bloque y medía 252px fijos dentro
+   de un panel de hasta 1396: los puntos crecen con la pantalla.
+
+   Va al final del archivo a proposito. Puesto antes, la definicion base de
+   --goal-dot lo pisaba por venir despues: el mismo sintoma que motivo la
+   deduplicacion de este archivo. */
+@media (min-width: 69rem) {
+  .goal__track {
+    --goal-dot: 2rem;
+    gap: var(--space-2);
   }
 }
