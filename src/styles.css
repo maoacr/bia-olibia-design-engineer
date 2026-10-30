@@ -164,7 +164,11 @@ a:focus-visible {
   padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* En movil la marca va al centro de la PANTALLA, no al centro del espacio
+     que le deja el control de tema. Por eso el control sale del flujo: si
+     empujara, la marca quedaria corrida hacia la izquierda justo lo que mide
+     el control. Desde 40rem vuelve el reparto a los extremos. */
+  justify-content: center;
   gap: var(--space-3);
   transition:
     background-color var(--duration-base) var(--ease),
@@ -203,9 +207,17 @@ a:focus-visible {
    impone a la barra, asi que el alto no se mueve y --header-height sigue
    siendo cierto para `scroll-margin-top`. */
 .brand {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  /* Explicito y ajustado porque de el depende el alto de la barra. Con el 1.5
+     que hereda del body, 2.5rem daria una caja de 60px y la cabecera se iria
+     a 85px: --header-height pasaria a mentir y `scroll-margin-top` dejaria
+     los enlaces profundos corridos. Con 1.1 la caja mide 44px, exactamente lo
+     que el control de tema ya le imponia, y el alto no se mueve.
+     "Olibia" no tiene ningun trazo descendente, asi que la caja ajustada no
+     le recorta nada. */
+  line-height: 1.1;
   /* Color solido primero: si background-clip no esta soportado, el nombre de
      la marca sigue siendo legible en vez de quedar transparente. */
   color: var(--accent);
@@ -227,7 +239,14 @@ a:focus-visible {
   color: var(--text-secondary);
 }
 
+/* Fuera del flujo mientras la marca manda el centro. `.top` es pegajosa, o
+   sea posicionada, asi que ya hace de referencia: no hace falta tocarle el
+   `position`. */
 .top-actions {
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -785,9 +804,20 @@ tbody tr.is-followed td:first-child {
   }
 
   /* Con el subtitulo y el rotulo de equipo en la barra, la marca deja de ser
-     lo unico que identifica la pantalla y vuelve a su tamaño de origen. */
+     lo unico que identifica la pantalla: vuelve a su tamaño de origen y la
+     barra reparte a los extremos. */
+  .top {
+    justify-content: space-between;
+  }
+
+  .top-actions {
+    position: static;
+    transform: none;
+  }
+
   .brand {
     font-size: 1.25rem;
+    line-height: inherit;
   }
 
   .tabletools,
