@@ -154,6 +154,12 @@
   --chart-bar-on: var(--accent);
 
   --glow: 0 0 16px rgb(8 221 188 / 0.28);
+
+  /* Boton flotante: vidrio teñido. El contraste que lo identifica como
+     control lo lleva el borde, no el relleno. */
+  --fab-fill: rgb(8 221 188 / 0.14);
+  --fab-fill-hover: rgb(8 221 188 / 0.24);
+  --fab-border: rgb(8 221 188 / 0.55);
   --glow-soft: 0 0 24px rgb(8 221 188 / 0.14);
   --glow-svg: drop-shadow(0 0 5px rgb(8 221 188 / 0.5));
   --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 24px -12px rgb(0 0 0 / 0.7);
@@ -199,6 +205,10 @@
 
   /* En claro la profundidad viene de la sombra, no del halo. */
   --glow: 0 1px 3px rgb(5 129 110 / 0.3);
+
+  --fab-fill: rgb(5 129 110 / 0.1);
+  --fab-fill-hover: rgb(5 129 110 / 0.18);
+  --fab-border: rgb(5 129 110 / 0.8);
   --glow-soft: none;
   --glow-svg: none;
   --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);
@@ -240,6 +250,10 @@
     --chart-bar-on: var(--accent);
 
     --glow: 0 1px 3px rgb(5 129 110 / 0.3);
+
+    --fab-fill: rgb(5 129 110 / 0.1);
+    --fab-fill-hover: rgb(5 129 110 / 0.18);
+    --fab-border: rgb(5 129 110 / 0.8);
     --glow-soft: none;
     --glow-svg: none;
     --shadow-panel: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -12px rgb(24 24 27 / 0.18);

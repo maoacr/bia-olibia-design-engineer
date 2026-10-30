@@ -233,6 +233,20 @@ main {
 
 /* El acceso va en la zona del pulgar. En un telefono de 430px, la esquina
    superior izquierda es el punto mas dificil de alcanzar con una mano. */
+/* Boton flotante del menu.
+
+   Antes era un disco de acento macizo. Su luminancia es 0.554 en una interfaz
+   donde el fondo esta en 0.003 y los paneles en 0.010: un salto de unas 50
+   veces, que en pantalla se lee como una linterna.
+
+   Ahora es vidrio teñido —relleno al 14% mas desenfoque—, que ademas es el
+   caso de uso que el sistema reserva para el vidrio: una capa que flota sobre
+   el contenido. El contraste que lo identifica como control lo aporta el
+   borde, no el relleno: el teal al 55% da 3.83:1 contra el fondo en el peor
+   caso, por encima del 3:1 que pide WCAG 1.4.11. El icono queda entre 7.6:1 y
+   9:1 sobre el relleno.
+
+   Resultado: luminancia 0.017 en vez de 0.554. Presente, no agresivo. */
 .menu-toggle {
   position: fixed;
   right: var(--space-4);
@@ -241,22 +255,35 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
+  /* 56px: el minimo tactil son 44, pero un boton flotante que carga toda la
+     navegacion merece el tamaño del patron. */
+  width: 3.5rem;
+  height: 3.5rem;
   min-height: 0;
   padding: 0;
-  border: none;
+  border: 1px solid var(--fab-border);
   border-radius: var(--radius-full);
-  background: var(--accent);
-  color: var(--text-on-accent);
-  box-shadow:
-    var(--glow),
-    0 4px 16px rgb(0 0 0 / 0.3);
+  background: var(--fab-fill);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  color: var(--accent);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.45);
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+}
+
+/* Sin desenfoque, relleno solido para no dejar el icono sobre lo que pase por
+   debajo. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .menu-toggle {
+    background: var(--surface-raised);
+  }
 }
 
 .menu-toggle:hover:not(:disabled) {
-  background: var(--accent-strong);
-  border-color: transparent;
+  background: var(--fab-fill-hover);
+  border-color: var(--accent);
 }
 
 aside {
