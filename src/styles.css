@@ -1669,3 +1669,255 @@ tbody tr.is-followed td:first-child {
     gap: var(--space-1);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Bloque 2 · "Que se esta cayendo?" — el recorrido sobre el embudo
+
+   Cada cuenta dibuja su viaje: circulo hueco donde estaba, circulo lleno
+   donde esta, y la barra que los une. La que no se movio es un punto solo
+   entre lineas que viajan — la unica fila sin recorrido. El recuento de la
+   tira anterior lo afirmaba; esto lo muestra.
+
+   Los centros de etapa caen en 12.5 / 37.5 / 62.5 / 87.5 % del riel, que es
+   exactamente el centro de cuatro columnas iguales: por eso las etiquetas
+   del eje y los puntos de las filas quedan alineados sin trucos.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.stall {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-5) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.stall__head {
+  margin-bottom: var(--space-4);
+}
+
+.stall__head h2 {
+  margin: 0;
+}
+
+.stall__scope {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.stall__verdict {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-body);
+  font-weight: 550;
+  color: var(--signal-attention);
+}
+
+/* Que nada este parado es una respuesta buena, no la ausencia de una mala. */
+.stall__verdict--good {
+  color: var(--signal-good);
+}
+
+.stall__note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ─── El riel ──────────────────────────────────────────────────────── */
+
+/* El eje imita la estructura de una fila, no una grilla propia: misma columna
+   de nombre, y las cuatro etapas metidas en un solo hijo que ocupa el ancho
+   exacto del riel.
+
+   La sangria replica el relleno Y el borde de la fila. Sin ella el eje mide
+   324px mientras el riel mide 306 —las filas lo meten 9px de cada lado— y las
+   etiquetas quedan 6.75px corridas respecto de los puntos. Medido, no supuesto. */
+.rail__axis {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding-inline: calc(var(--space-2) + 1px);
+  margin-bottom: var(--space-2);
+}
+
+/* En pantalla angosta el nombre pasa arriba del riel, asi que la columna
+   reservada para el en el eje no va. */
+.rail__axis .rail__name {
+  display: none;
+}
+
+/* SIN separacion entre columnas, a proposito. Los puntos de cada fila se
+   ubican en porcentajes del riel completo (12.5 / 37.5 / 62.5 / 87.5 %); si el
+   eje llevara `gap`, sus columnas serian mas angostas y las etiquetas se
+   correrian ~3px en los extremos. Cuatro columnas iguales sin separacion caen
+   exactamente en esos porcentajes. */
+.rail__stages {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.rail__stage {
+  text-align: center;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.rail__stage-long {
+  display: none;
+}
+
+.rail__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* Cada fila es el control principal del bloque: abre el detalle de esa cuenta.
+   Conserva los 44px de area tactil del boton base en vez de anularlos — en
+   escritorio apretado la fila mediria 36px, por debajo del minimo. */
+.rail__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-2);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+}
+
+.rail__row:hover {
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.rail__name {
+  font-size: var(--text-md);
+  font-weight: 550;
+}
+
+/* Tono por estado: el mismo vocabulario que la tabla y el detalle. */
+.rail__row--good {
+  --rail-tone: var(--signal-good);
+}
+.rail__row--attention {
+  --rail-tone: var(--signal-attention);
+}
+.rail__row--neutral {
+  --rail-tone: var(--signal-neutral);
+}
+.rail__row--negative {
+  --rail-tone: var(--signal-negative);
+}
+
+.rail__track {
+  position: relative;
+  display: block;
+  height: 1.25rem;
+}
+
+/* El riel de fondo recuerda que el embudo sigue existiendo detras del
+   recorrido de cada cuenta. */
+.rail__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--border);
+  transform: translateY(-50%);
+}
+
+.rail__move {
+  position: absolute;
+  top: 50%;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--rail-tone);
+  transform: translateY(-50%);
+}
+
+.rail__from,
+.rail__to {
+  position: absolute;
+  top: 50%;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: var(--radius-full);
+  transform: translate(-50%, -50%);
+}
+
+/* Hueco = donde estaba. Lleno = donde esta. La direccion del viaje la dice
+   esa diferencia, no una punta de flecha. */
+.rail__from {
+  border: 2px solid var(--rail-tone);
+  background: var(--surface-panel);
+}
+
+.rail__to {
+  background: var(--rail-tone);
+}
+
+/* Sin recorrido el punto es el unico elemento de la fila: se le da peso para
+   que no se lea como un viaje de longitud cero sino como una detencion. */
+.rail__row--attention .rail__to,
+.rail__row--negative .rail__to {
+  width: 0.875rem;
+  height: 0.875rem;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rail-tone) 22%, transparent);
+}
+
+@media (min-width: 40rem) {
+  .stall {
+    padding: var(--space-6);
+  }
+
+  /* Con ancho, el nombre vuelve a su columna. El eje declara EXACTAMENTE las
+     mismas columnas y la misma separacion que una fila, de modo que su
+     segunda celda y el riel miden igual y los centros siguen coincidiendo. */
+  .rail__axis {
+    grid-template-columns: 9.5rem 1fr;
+    gap: var(--space-2);
+  }
+
+  .rail__axis .rail__name {
+    display: block;
+  }
+
+  .rail__row {
+    grid-template-columns: 9.5rem 1fr;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .rail__stage-long {
+    display: inline;
+  }
+
+  .rail__stage-short {
+    display: none;
+  }
+}
+
+/* Punta de entrada de una cuenta nueva: apunta al punto desde fuera del riel.
+   Largo fijo, no proporcional — la cuenta no recorrio el embudo, aterrizo. */
+.rail__enter {
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-left: 5px solid var(--rail-tone);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transform: translate(-0.95rem, -50%);
+}

@@ -3,7 +3,8 @@ import { CHANNELS, STAGE_SLUG, MONTHLY_GOAL, PERIOD_IDS, STAGES, TEAM, periods }
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
 import Goal from './Goal.jsx';
-import MovementBar, { MovementTag } from './Movement.jsx';
+import { MovementTag } from './Movement.jsx';
+import Stalled from './Stalled.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useFilterParams } from './useFilterParams.js';
@@ -97,9 +98,10 @@ function Chart({ values, labels, label, goal = null, highlight = null }) {
         const focused = highlight != null && labels[i] === highlight;
         return (
           <g key={labels[i]} className={focused ? 'bar-group bar-group--focus' : 'bar-group'}>
-            <title>
-              {labels[i]}: {value}
-            </title>
+            {/* Plantilla, no dos nodos sueltos: React trata a <title> como
+                texto unico y avisa por consola si recibe un arreglo de hijos.
+                Venia del starter y ensuciaba la consola en cada pintada. */}
+            <title>{`${labels[i]}: ${value}`}</title>
             {value > 0 && (
               <rect
                 x={center(i) - barWidth / 2}
@@ -150,7 +152,6 @@ export default function OlibiaDashboard() {
   const setOwner = value => update({ owner: value });
   const setChannel = value => update({ channel: value });
   const setMinimum = value => update({ minimum: value });
-  const setMovement = value => update({ movement: value });
   const d = periods[period];
   const all = opportunitiesWithMovement(d);
   const scoped = filterOpportunities(all, { query, stage, owner, channel, minimum });
@@ -321,6 +322,9 @@ export default function OlibiaDashboard() {
               recibe `all` —el periodo completo— porque la meta es del equipo
               y no responde a los filtros. */}
           <Goal period={d} opportunities={all} onSelect={setSelected} />
+          {/* Segunda pregunta. Tambien sobre `all`: una alerta que un filtro
+              puede silenciar no sirve de alerta. */}
+          <Stalled period={d} previous={previous} opportunities={all} onSelect={setSelected} />
           {banner && (
             <section className="banner" aria-label="Aviso comercial">
               <div>
@@ -373,12 +377,6 @@ export default function OlibiaDashboard() {
               </section>
             ))}
           </div>
-          <MovementBar
-            summary={summary}
-            previousLabel={previous?.label}
-            active={movement}
-            onSelect={setMovement}
-          />
           <section className="panel ai-widget" aria-label="Resumen AI">
             <div className="ai-heading">
               <h2>Resumen AI</h2>

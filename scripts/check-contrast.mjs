@@ -111,6 +111,14 @@ const PAIRS = [
   // el gris mas tenue de la escala: es el par mas exigido de los dos temas.
   ['text-secondary', 'surface-raised', 4.5],
   ['text-muted', 'surface-raised', 4.5],
+
+  // Bloque "Que se esta cayendo?". El recorrido de cada cuenta —puntos y
+  // barra— es informacion pura, no decoracion. Y la fila cambia a superficie
+  // elevada al pasar el raton, asi que hay que medir contra las dos.
+  ['signal-good', 'surface-raised', 3],
+  ['signal-attention', 'surface-raised', 3],
+  ['signal-negative', 'surface-raised', 3],
+  ['signal-neutral', 'surface-raised', 3],
 ];
 
 let failures = 0;
