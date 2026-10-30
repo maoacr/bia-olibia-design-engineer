@@ -1115,7 +1115,7 @@ tbody tr.is-followed td:first-child {
 
   aside {
     position: static;
-    width: 232px;
+    width: var(--menu-width);
     flex-shrink: 0;
     max-height: none;
     overflow: visible;
@@ -1166,30 +1166,49 @@ tbody tr.is-followed td:first-child {
 
 /* ─── Colapsar el menu lateral ─────────────────────────────────────── */
 
-/* No existe en pantalla chica: ahi el menu ya es una hoja que se cierra sola
-   y no ocupa espacio permanente. */
+/* El control se apoya sobre el borde del panel, no en la cabecera: pertenece
+   al elemento que gobierna. No puede ir dentro del <aside> porque al ocultarlo
+   desapareceria con el. Por eso es hermano suyo y se posiciona encima de su
+   borde; al colapsar se desliza hasta el borde de la ventana y sigue a la
+   vista.
+
+   No existe por debajo de 53rem: ahi el menu ya es una hoja que se cierra
+   sola y no ocupa espacio permanente, asi que no hay nada que ganar. */
 .panel-toggle {
   display: none;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  min-height: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-}
-
-.panel-toggle:hover:not(:disabled) {
-  background: var(--surface-raised);
-  color: var(--accent);
 }
 
 @media (min-width: 53rem) {
   .panel-toggle {
+    position: fixed;
+    top: calc(var(--header-height) + var(--space-4));
+    left: calc(var(--menu-width) - 0.875rem);
+    z-index: 15;
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface-raised);
+    color: var(--text-muted);
+    transition:
+      left var(--duration-base) var(--ease),
+      background-color var(--duration-fast) var(--ease),
+      color var(--duration-fast) var(--ease);
+  }
+
+  .panel-toggle:hover:not(:disabled) {
+    background: var(--surface-hover);
+    border-color: var(--border-control);
+    color: var(--accent);
+  }
+
+  .panel-toggle.is-collapsed {
+    left: var(--space-3);
   }
 
   /* Queda a la vista mientras se recorre la pagina, para poder cambiar de
@@ -1198,6 +1217,7 @@ tbody tr.is-followed td:first-child {
     position: sticky;
     top: var(--header-height);
     align-self: flex-start;
+    width: var(--menu-width);
     height: calc(100vh - var(--header-height));
     overflow-y: auto;
     transition:
@@ -1210,5 +1230,10 @@ tbody tr.is-followed td:first-child {
     padding-inline: 0;
     border-right-width: 0;
     overflow: hidden;
+  }
+
+  /* Deja sitio al control para que no se monte sobre las opciones. */
+  .menu {
+    padding-top: var(--space-5);
   }
 }

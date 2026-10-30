@@ -226,39 +226,6 @@ export default function OlibiaDashboard() {
     <>
       <header className="top">
         <div className="top-brand">
-          {/* Colapsar el panel es distinto de abrir la navegacion, asi que
-              lleva el icono de panel lateral y no una hamburguesa. Va en el
-              extremo izquierdo, alineado con el panel que controla. */}
-          <button
-            type="button"
-            className="panel-toggle"
-            aria-expanded={!menuCollapsed}
-            aria-controls="menu-principal"
-            aria-label={menuCollapsed ? 'Mostrar el menú' : 'Ocultar el menú'}
-            title={menuCollapsed ? 'Mostrar el menú' : 'Ocultar el menú'}
-            onClick={() => setMenuCollapsed(c => !c)}
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-              <rect
-                x="3.25"
-                y="4.25"
-                width="17.5"
-                height="15.5"
-                rx="2.25"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-              />
-              <line
-                x1="9.5"
-                y1="4.25"
-                x2="9.5"
-                y2="19.75"
-                stroke="currentColor"
-                strokeWidth="1.6"
-              />
-            </svg>
-          </button>
           <span className="brand">Olibia</span>
           <small>Gestión comercial</small>
         </div>
@@ -317,6 +284,34 @@ export default function OlibiaDashboard() {
             total={scoped.length}
           />
         </aside>
+        {/* Vive con el panel que controla, no en la cabecera: se apoya sobre
+            su borde y al ocultarlo se desliza hasta el borde de la ventana.
+            No puede ir dentro del <aside> porque desapareceria con el y no
+            habria manera de volver a mostrarlo. */}
+        <button
+          type="button"
+          className={`panel-toggle${menuCollapsed ? ' is-collapsed' : ''}`}
+          aria-expanded={!menuCollapsed}
+          aria-controls="menu-principal"
+          aria-label={menuCollapsed ? 'Mostrar el menú' : 'Ocultar el menú'}
+          title={menuCollapsed ? 'Mostrar el menú' : 'Ocultar el menú'}
+          onClick={() => setMenuCollapsed(c => !c)}
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <rect
+              x="3.25"
+              y="4.25"
+              width="17.5"
+              height="15.5"
+              rx="2.25"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            />
+            <line x1="9.5" y1="4.25" x2="9.5" y2="19.75" stroke="currentColor" strokeWidth="1.6" />
+          </svg>
+        </button>
+
         <main>
           <div className="toolbar">
             <div>
