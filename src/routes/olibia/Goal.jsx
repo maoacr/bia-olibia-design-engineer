@@ -116,124 +116,142 @@ export default function Goal({ period, opportunities, onSelect }) {
           <p className="goal__scope">{period.label} · equipo completo, no cambia con los filtros</p>
         </header>
 
-        <div className="goal__meter">
-          <div
-            className="goal__track"
-            style={{ '--goal-slots': MONTHLY_GOAL }}
-            role="img"
-            aria-label={trackLabel}
-          >
-            {Array.from({ length: MONTHLY_GOAL }, (_, index) => {
-              const isClosed = index < closed;
-              const candidate = isClosed ? null : (seated[index - closed] ?? null);
-              const isActive = candidate != null && active === candidate.id;
-
-              return (
-                <span
-                  key={index}
-                  aria-hidden="true"
-                  className={[
-                    'goal__slot',
-                    isClosed ? 'is-closed' : 'is-open',
-                    candidate ? 'has-candidate' : '',
-                    isActive ? 'is-active' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  // Apuntar un lugar vacio enciende su candidata. Es un detalle
-                  // de mouse: la via con teclado es el boton de la candidata,
-                  // que hace lo mismo al recibir foco.
-                  onMouseEnter={() => candidate && setActive(candidate.id)}
-                  onMouseLeave={() => candidate && setActive(null)}
-                />
-              );
-            })}
-
-            {remaining > 0 && (
-              <span
-                aria-hidden="true"
-                className="goal__bracket"
-                style={{ gridColumn: `${closed + 1} / span ${remaining}` }}
-              />
-            )}
-          </div>
-
-          <p className="goal__count">
-            <strong>{closed}</strong>
-            <span>de {MONTHLY_GOAL} cierres</span>
-          </p>
-        </div>
-
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={period.id} className="goal__answer" {...fade}>
+          <motion.div key={period.id} {...fade}>
             <p className="goal__verdict">{verdict}</p>
 
-            {seated.length > 0 && (
-              <ul className="goal__candidates">
-                {seated.map(o => (
-                  <li key={o.id}>
-                    <Tooltip.Root>
-                      <Tooltip.Trigger asChild>
-                        <button
-                          type="button"
-                          className={`goal__candidate${active === o.id ? ' is-active' : ''}`}
-                          onClick={() => onSelect(o)}
-                          onMouseEnter={() => setActive(o.id)}
-                          onMouseLeave={() => setActive(null)}
-                          onFocus={() => setActive(o.id)}
-                          onBlur={() => setActive(null)}
-                        >
-                          <span className="goal__candidate-name">{o.company}</span>
-                          <span className="goal__candidate-value">{money(o.value)}</span>
-                        </button>
-                      </Tooltip.Trigger>
-                      <Tooltip.Portal>
-                        {/* Abre hacia abajo: por defecto Radix lo pone arriba y
-                            ahi tapa los lugares vacios, que son justamente lo
-                            que la ficha esta señalando. */}
-                        <Tooltip.Content
-                          className="tip"
-                          side="bottom"
-                          sideOffset={8}
-                          collisionPadding={12}
-                        >
-                          <strong>{o.company}</strong>
-                          <span>
-                            {o.owner} · próximo contacto {o.nextContact}
-                          </span>
-                          <span className="tip__note">
-                            Negociación es la etapa más cerca del cierre, no una garantía.
-                          </span>
-                          <Tooltip.Arrow className="tip__arrow" width={11} height={5} />
-                        </Tooltip.Content>
-                      </Tooltip.Portal>
-                    </Tooltip.Root>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* Dos columnas porque la respuesta tiene dos mitades: donde
+                estamos y con que contamos para cerrar lo que falta. Cada una
+                abre con su cifra, del mismo tamaño, porque pesan igual. */}
+            <div className="goal__pair">
+              <div className="goal__side">
+                <p className="goal__figure">
+                  <strong>{closed}</strong>
+                  <span>de {MONTHLY_GOAL} cierres</span>
+                </p>
 
-            {spare > 0 && (
-              <p className="goal__spare">
-                Hay {plural(spare, 'cuenta más', 'cuentas más')} en negociación por encima de la
-                meta.
-              </p>
-            )}
+                <div
+                  className="goal__track"
+                  style={{ '--goal-slots': MONTHLY_GOAL }}
+                  role="img"
+                  aria-label={trackLabel}
+                >
+                  {Array.from({ length: MONTHLY_GOAL }, (_, index) => {
+                    const isClosed = index < closed;
+                    const candidate = isClosed ? null : (seated[index - closed] ?? null);
+                    const isActive = candidate != null && active === candidate.id;
 
-            {inPlay > 0 && (
-              <p className="goal__inplay">
-                <strong>{money(inPlay)}</strong> en juego
-              </p>
-            )}
+                    return (
+                      <span
+                        key={index}
+                        aria-hidden="true"
+                        className={[
+                          'goal__slot',
+                          isClosed ? 'is-closed' : 'is-open',
+                          candidate ? 'has-candidate' : '',
+                          isActive ? 'is-active' : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')}
+                        // Apuntar un lugar vacio enciende su candidata. Es un
+                        // detalle de mouse: la via con teclado es el boton de
+                        // la candidata, que hace lo mismo al recibir foco.
+                        onMouseEnter={() => candidate && setActive(candidate.id)}
+                        onMouseLeave={() => candidate && setActive(null)}
+                      />
+                    );
+                  })}
 
-            {uncovered && fallback && (
-              <p className="goal__fallback">
-                Lo más avanzado está en {fallback.stage}:{' '}
-                <button type="button" className="linkish" onClick={() => onSelect(fallback)}>
-                  {fallback.company} · {money(fallback.value)}
-                </button>
-              </p>
-            )}
+                  {remaining > 0 && (
+                    <>
+                      <span
+                        aria-hidden="true"
+                        className="goal__bracket"
+                        style={{ gridColumn: `${closed + 1} / span ${remaining}` }}
+                      />
+                      {/* El corchete agrupaba los huecos sin decir cuantos
+                          eran. Ponerle el numero aprovecha el espacio que
+                          quedaba vacio y cierra la lectura del medidor. */}
+                      <span
+                        aria-hidden="true"
+                        className="goal__gap"
+                        style={{ gridColumn: `${closed + 1} / span ${remaining}` }}
+                      >
+                        faltan {remaining}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="goal__side goal__side--stake">
+                {/* El valor en juego estaba al pie, en letra chica, siendo la
+                    otra mitad de la respuesta: cuanto hay para cubrir lo que
+                    falta. En septiembre vale cero y eso tambien se dice. */}
+                <p className={`goal__figure${uncovered ? ' goal__figure--alert' : ''}`}>
+                  <strong>{money(inPlay)}</strong>
+                  <span>en juego</span>
+                </p>
+
+                {seated.length > 0 && (
+                  <ul className="goal__candidates">
+                    {seated.map(o => (
+                      <li key={o.id}>
+                        <Tooltip.Root>
+                          <Tooltip.Trigger asChild>
+                            <button
+                              type="button"
+                              className={`goal__candidate${active === o.id ? ' is-active' : ''}`}
+                              onClick={() => onSelect(o)}
+                              onMouseEnter={() => setActive(o.id)}
+                              onMouseLeave={() => setActive(null)}
+                              onFocus={() => setActive(o.id)}
+                              onBlur={() => setActive(null)}
+                            >
+                              <span className="goal__candidate-name">{o.company}</span>
+                              <span className="goal__candidate-value">{money(o.value)}</span>
+                            </button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Portal>
+                            <Tooltip.Content
+                              className="tip"
+                              side="bottom"
+                              sideOffset={8}
+                              collisionPadding={12}
+                            >
+                              <strong>{o.company}</strong>
+                              <span>
+                                {o.owner} · próximo contacto {o.nextContact}
+                              </span>
+                              <span className="tip__note">
+                                Negociación es la etapa más cerca del cierre, no una garantía.
+                              </span>
+                              <Tooltip.Arrow className="tip__arrow" width={11} height={5} />
+                            </Tooltip.Content>
+                          </Tooltip.Portal>
+                        </Tooltip.Root>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {spare > 0 && (
+                  <p className="goal__spare">
+                    Hay {plural(spare, 'cuenta más', 'cuentas más')} en negociación por encima de la
+                    meta.
+                  </p>
+                )}
+
+                {uncovered && fallback && (
+                  <p className="goal__fallback">
+                    Lo más avanzado está en {fallback.stage}:{' '}
+                    <button type="button" className="linkish" onClick={() => onSelect(fallback)}>
+                      {fallback.company} · {money(fallback.value)}
+                    </button>
+                  </p>
+                )}
+              </div>
+            </div>
           </motion.div>
         </AnimatePresence>
       </section>

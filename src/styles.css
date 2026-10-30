@@ -985,29 +985,64 @@ tbody tr.is-followed td:first-child {
   color: var(--text-muted);
 }
 
-/* ─── El medidor ───────────────────────────────────────────────────── */
+/* ─── Las dos mitades ──────────────────────────────────────────────── */
 
-.goal__meter {
+/* Donde estamos | con que contamos. Cada columna abre con su cifra, del
+   mismo tamaño, porque pesan igual: ocho de diez no dice nada sin saber si
+   hay con que cerrar los dos que faltan, y al reves tampoco. */
+.goal__pair {
   display: grid;
+  gap: var(--space-5);
+}
+
+.goal__side {
+  display: grid;
+  align-content: start;
   gap: var(--space-4);
 }
 
-/* Una sola grilla de diez columnas sostiene los lugares (fila 1) y el
-   corchete (fila 2). Asi el corchete abarca EXACTAMENTE las columnas vacias
-   sin calcular porcentajes a mano: se le da `grid-column` y encaja solo.
+.goal__figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+}
 
-   Las columnas miden lo que mide un punto, NO 1fr. Estirados a todo el ancho
-   los diez puntos se leen como diez circulos sueltos; juntos se leen como un
-   solo medidor, que es lo que son. Ademas deja el corchete pegado a los
-   huecos que agrupa en vez de abarcar columnas de aire. */
+.goal__figure strong {
+  font-size: clamp(2.25rem, 1.8rem + 2.2vw, 3.25rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.goal__figure span {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+}
+
+/* Cero en juego no es un dato neutro: es la misma alarma que los lugares
+   vacios sin candidata. */
+.goal__figure--alert strong {
+  color: var(--signal-attention);
+}
+
+/* ─── El medidor ───────────────────────────────────────────────────── */
+
+/* Una sola grilla de diez columnas sostiene los lugares (fila 1), el
+   corchete (fila 2) y su etiqueta (fila 3). Asi los tres abarcan
+   EXACTAMENTE las mismas columnas sin calcular porcentajes a mano.
+
+   Las columnas miden lo que mide un punto, NO 1fr. Estirados a todo el
+   ancho los diez puntos se leen como diez circulos sueltos; juntos se leen
+   como un solo medidor, que es lo que son. */
 .goal__track {
   --goal-dot: 1.125rem;
   display: grid;
-  /* minmax(0, ...) en vez de un ancho fijo: en pantalla angosta las diez
-     columnas se encogen juntas en lugar de desbordar el panel. El tope las
-     mantiene compactas cuando sobra espacio. */
   grid-template-columns: repeat(var(--goal-slots), minmax(0, var(--goal-dot)));
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   gap: var(--space-1);
   max-width: 100%;
   align-items: center;
@@ -1058,98 +1093,68 @@ tbody tr.is-followed td:first-child {
   border-color: var(--signal-attention);
 }
 
-/* El corchete agrupa los lugares que faltan y baja hacia la respuesta. La
-   bajada del centro es lo que convierte "dos puntos huecos" en "estos dos, y
-   la explicacion viene abajo": sin ella el corchete se lee como un subrayado. */
 .goal__bracket {
-  position: relative;
   grid-row: 2;
-  height: var(--space-3);
+  height: var(--space-2);
   margin-top: var(--space-1);
-  /* El color va en `color` y no en `border-color` para que la bajada del
-     pseudoelemento lo herede: una sola declaracion por variante. */
+  /* El color va en `color` y no en `border-color` para que la etiqueta de
+     abajo lo herede: una sola declaracion por variante. */
   color: var(--border-control);
   border: 2px solid currentColor;
   border-top: 0;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 
-.goal__bracket::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 2px;
-  height: var(--space-3);
-  background: currentColor;
-  transform: translateX(-50%);
+/* El corchete agrupaba los huecos sin decir cuantos eran. */
+.goal__gap {
+  grid-row: 3;
+  margin-top: var(--space-1);
+  text-align: center;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--border-control);
 }
 
-.goal:not(.goal--alert) .goal__bracket {
+.goal:not(.goal--alert) .goal__bracket,
+.goal:not(.goal--alert) .goal__gap {
   color: var(--accent);
 }
 
-.goal--alert .goal__bracket {
+.goal--alert .goal__bracket,
+.goal--alert .goal__gap {
   color: var(--signal-attention);
 }
 
-.goal__count {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin: 0;
-}
+/* ─── Las candidatas ───────────────────────────────────────────────── */
 
-.goal__count strong {
-  font-size: clamp(2.25rem, 1.8rem + 2.2vw, 3.25rem);
-  font-weight: 650;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.goal__count span {
-  font-size: var(--text-md);
-  color: var(--text-secondary);
-}
-
-/* ─── La respuesta ─────────────────────────────────────────────────── */
-
-.goal__answer {
-  margin-top: var(--space-4);
-}
-
-.goal__verdict {
-  margin: 0 0 var(--space-3);
-  font-size: var(--text-body);
-  font-weight: 550;
-  color: var(--text-primary);
-}
-
-.goal--alert .goal__verdict {
-  color: var(--signal-attention);
-}
-
+/* Filas y no pastillas: en una columna alinean su valor a la derecha, que es
+   como se comparan dos cifras. */
 .goal__candidates {
   list-style: none;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: var(--space-2);
   margin: 0;
   padding: 0;
+  /* Con tope: estiradas a toda la columna el nombre queda a medio metro de
+     su cifra y dejan de leerse como un par. */
+  max-width: 30rem;
 }
 
 .goal__candidate {
   display: flex;
   align-items: baseline;
-  gap: var(--space-2);
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
   padding: var(--space-2) var(--space-3);
   background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: var(--text-md);
+  text-align: left;
   cursor: pointer;
   transition:
     background var(--duration-fast) var(--ease),
@@ -1173,41 +1178,9 @@ tbody tr.is-followed td:first-child {
 
 .goal__spare,
 .goal__fallback {
-  margin: var(--space-3) 0 0;
+  margin: 0;
   font-size: var(--text-md);
   color: var(--text-secondary);
-}
-
-.goal__inplay {
-  margin: var(--space-3) 0 0;
-  font-size: var(--text-md);
-  color: var(--text-secondary);
-}
-
-.goal__inplay strong {
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Boton que se comporta como enlace dentro de un parrafo: hereda el flujo
-   del texto en vez de romperlo con una caja. */
-.linkish {
-  background: none;
-  border: 0;
-  padding: 0;
-  /* Anula los 44px del boton base: aqui estirarian el renglon del parrafo.
-     WCAG 2.5.8 exceptua expresamente los enlaces embebidos en una frase, que
-     es lo que esto es. */
-  min-height: 0;
-  font: inherit;
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-
-.linkish:hover {
-  color: var(--accent-strong);
 }
 
 /* ─── Tooltip (Radix) ──────────────────────────────────────────────── */
@@ -1247,27 +1220,22 @@ tbody tr.is-followed td:first-child {
     padding: var(--space-6);
   }
 
+  /* La columna del medidor se queda en lo que mide, y la de las candidatas
+     se lleva el resto: el espacio sobrante estaba todo de ese lado. */
+  .goal__pair {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+
   /* Con ancho, el recuento se sienta al lado del medidor en vez de debajo:
      el numero y los lugares son la misma afirmacion. Las dos columnas van a
      contenido (`auto auto`) y no a `1fr`, para que el medidor no se estire y
      empuje el numero al otro extremo de la pantalla. */
-  .goal__meter {
-    grid-template-columns: auto auto;
-    justify-content: start;
-    align-items: center;
-    gap: var(--space-6);
-  }
 
   /* Con aire, los lugares se separan: a esta distancia se cuentan de un
      vistazo sin perder la lectura de medidor unico. */
   .goal__track {
     gap: var(--space-2);
-  }
-
-  .goal__count {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-1);
   }
 }
 
