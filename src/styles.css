@@ -1921,3 +1921,239 @@ tbody tr.is-followed td:first-child {
   border-bottom: 4px solid transparent;
   transform: translate(-0.95rem, -50%);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Bloque 3 · "Donde me meto?" — lo cerrado y lo que queda, en una fila
+
+   El grafico que reemplaza mostraba una sola magnitud —cierres por
+   ejecutivo— y con eso Mateo parecia el que menos trabaja. Aqui conviven
+   las dos: un punto por cierre (el mismo simbolo que en "Vamos a llegar?")
+   y la carga abierta partida por etapa, con la rampa de color que ya usan
+   los distintivos de la tabla.
+
+   El eje nace con la sangria del relleno Y el borde de la fila. En el
+   bloque 2 eso costo 6.75px de desalineacion por no preverlo.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.load {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-5) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.load__head {
+  margin-bottom: var(--space-4);
+}
+
+.load__head h2 {
+  margin: 0;
+}
+
+.load__scope {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.load__verdict {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-body);
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+/* Que el que mas carga sea el que menos cerro no es un dato mas: es el
+   motivo por el que este bloque existe. */
+.load__verdict--attention {
+  color: var(--signal-attention);
+}
+
+/* ─── Filas ────────────────────────────────────────────────────────── */
+
+/* Dos columnas en pantalla chica: nombre | cierres arriba, carga | valor
+   abajo. Los cuatro hijos se acomodan solos en ese orden. */
+.load__axis,
+.load__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+}
+
+/* En pantalla chica el eje no encabeza nada: con la fila partida en dos
+   renglones, "cerro" cae arriba a la derecha y "carga abierta" abajo a la
+   izquierda, sueltas. Se quita. El veredicto —"Mateo Gil cerro 1 y carga
+   $96 M"— ya enseña a leer la fila, y cada fila lleva su frase para lector
+   de pantalla. */
+.load__axis {
+  display: none;
+  padding-inline: calc(var(--space-3) + 1px);
+  margin-bottom: var(--space-2);
+}
+
+.load__axis .load__closes,
+.load__axis .load__bar {
+  height: auto;
+  background: none;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.load__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.load__row {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+}
+
+.load__row:hover {
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.load__row.is-selected {
+  background: var(--surface-raised);
+  border-color: var(--accent);
+}
+
+.load__name {
+  font-size: var(--text-md);
+  font-weight: 550;
+}
+
+/* ─── Cierres: un punto por cierre ─────────────────────────────────── */
+
+/* ANCHO FIJO, no `auto`. Cada fila es su propia grilla: si esta celda midiera
+   segun su contenido, una persona con 3 cierres tendria una columna mas ancha
+   que otra con 1, la columna `1fr` de la barra quedaria distinta en cada fila
+   y las barras dejarian de ser comparables. Comparar barras es el unico
+   motivo por el que este bloque existe. */
+.load__closes {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px;
+  width: 4rem;
+  justify-content: flex-end;
+  justify-self: end;
+}
+
+.load__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+.load__none {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ─── Carga abierta ────────────────────────────────────────────────── */
+
+.load__bar {
+  display: block;
+  height: 0.75rem;
+  background: var(--surface-raised);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.load__fill {
+  display: flex;
+  height: 100%;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+/* Un tramo por oportunidad, teñido por su etapa: la barra no solo mide
+   cuanto carga cada uno, dice de que esta hecha esa carga. */
+.load__seg {
+  display: block;
+  min-width: 3px;
+}
+
+.load__seg--contacto {
+  background: var(--stage-contacto);
+}
+.load__seg--calificacion {
+  background: var(--stage-calificacion);
+}
+.load__seg--propuesta {
+  background: var(--stage-propuesta);
+}
+.load__seg--negociacion {
+  background: var(--stage-negociacion);
+}
+
+/* La cuenta trabada se raya. Rayado y no solo teñido: quien no distingue
+   el ambar igual ve que ese tramo esta marcado. */
+.load__seg.is-stalled {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 3px,
+    var(--signal-attention) 3px 6px
+  );
+}
+
+/* Mismo motivo que arriba, y aqui el culpable concreto era el ⚠: solo Mateo
+   lo lleva, asi que su celda de valor era mas ancha y su barra mas corta.
+   Dibujaba menos carga que Ana cargando mas. Medido: 93% contra 100%. */
+.load__value {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  width: 5rem;
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.load__flag {
+  color: var(--signal-attention);
+}
+
+@media (min-width: 40rem) {
+  .load {
+    padding: var(--space-6);
+  }
+
+  /* Con ancho entran las cuatro celdas en una sola fila, que es como se
+     comparan de verdad: nombre, cierres, carga y total alineados. */
+  .load__axis {
+    display: grid;
+  }
+
+  .load__axis,
+  .load__row {
+    grid-template-columns: 8rem auto 1fr auto;
+  }
+
+  .load__closes {
+    justify-self: start;
+    justify-content: flex-start;
+  }
+}

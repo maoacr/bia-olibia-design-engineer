@@ -5,6 +5,7 @@ import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './
 import Goal from './Goal.jsx';
 import { MovementTag } from './Movement.jsx';
 import Stalled from './Stalled.jsx';
+import Workload from './Workload.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useFilterParams } from './useFilterParams.js';
@@ -325,6 +326,10 @@ export default function OlibiaDashboard() {
           {/* Segunda pregunta. Tambien sobre `all`: una alerta que un filtro
               puede silenciar no sirve de alerta. */}
           <Stalled period={d} previous={previous} opportunities={all} onSelect={setSelected} />
+          {/* Tercera pregunta. Tambien sin filtrar: los cierres por ejecutivo
+              son del periodo, y la carga tiene que medirse con la misma vara
+              o se estarian comparando dos cosas distintas. */}
+          <Workload period={d} opportunities={all} activeOwner={owner} onSelectOwner={setOwner} />
           {banner && (
             <section className="banner" aria-label="Aviso comercial">
               <div>
@@ -483,26 +488,18 @@ export default function OlibiaDashboard() {
               <p className="muted">Oportunidades abiertas según los filtros</p>
             </section>
           </div>
-          <div className="split">
-            <section className="panel">
-              <h2>Origen de oportunidades abiertas</h2>
-              <Chart
-                values={CHANNELS.map(c => rows.filter(o => o.channel === c).length)}
-                labels={CHANNELS}
-                label="Oportunidades abiertas por canal de origen"
-                highlight={channel || null}
-              />
-            </section>
-            <section className="panel">
-              <h2>Cierres por ejecutivo · Total del periodo</h2>
-              <Bars
-                items={d.closesByOwner.map(({ owner, closed }) => [owner, closed])}
-                max={Math.max(d.closed, 1)}
-                highlight={owner || null}
-              />
-              <p className="muted">Participación en los {d.closed} cierres del periodo</p>
-            </section>
-          </div>
+          {/* "Cierres por ejecutivo" ya no vive aqui: mostraba una sola
+              magnitud y por eso mentia por omision. Lo contesta el bloque
+              "Donde me meto?" de arriba, con la carga al lado del cierre. */}
+          <section className="panel">
+            <h2>Origen de oportunidades abiertas</h2>
+            <Chart
+              values={CHANNELS.map(c => rows.filter(o => o.channel === c).length)}
+              labels={CHANNELS}
+              label="Oportunidades abiertas por canal de origen"
+              highlight={channel || null}
+            />
+          </section>
           <section className="panel">
             <div className="tabletools">
               <h2>Oportunidades abiertas</h2>

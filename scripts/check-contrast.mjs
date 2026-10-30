@@ -119,6 +119,15 @@ const PAIRS = [
   ['signal-attention', 'surface-raised', 3],
   ['signal-negative', 'surface-raised', 3],
   ['signal-neutral', 'surface-raised', 3],
+
+  // Bloque "Donde me meto?". La rampa de etapas deja de ser solo color de
+  // texto en un distintivo y pasa a ser RELLENO de la barra de carga: cada
+  // tramo transmite de que etapa esta hecha esa carga (1.4.11). El canal de
+  // la barra es surface-raised.
+  ['stage-contacto', 'surface-raised', 3],
+  ['stage-calificacion', 'surface-raised', 3],
+  ['stage-propuesta', 'surface-raised', 3],
+  ['stage-negociacion', 'surface-raised', 3],
 ];
 
 let failures = 0;
