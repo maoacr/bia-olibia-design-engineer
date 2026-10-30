@@ -1242,6 +1242,31 @@ tbody tr.is-followed td:first-child {
   /* La cifra en juego se alinea al borde derecho, el mismo donde caen los
      valores de las candidatas. Eso le da a la columna una linea de apoyo
      propia y equilibra el peso del 8 que ancla la izquierda. */
+  /* Toda la columna derecha apoya en el mismo borde: la cifra, el contenido
+     de cada fila y el texto del caso vacio. Con la mitad alineada a un lado
+     y la mitad al otro, la seccion no cierra. */
+  .goal__side--stake {
+    text-align: right;
+  }
+
+  .goal__side--stake .goal__candidate {
+    justify-content: flex-end;
+    gap: var(--space-4);
+  }
+
+  /* Los parrafos son de ancho completo: su texto apoya en el borde de la
+     columna, 13px por fuera de la linea donde caen las cifras. La misma
+     sangria que la cifra los pone a todos sobre la misma linea. */
+  .goal__side--stake .goal__spare,
+  .goal__side--stake .goal__fallback {
+    padding-right: calc(var(--space-3) + 1px);
+  }
+
+  .goal__side--stake .goal__candidate-who {
+    flex: 0 1 auto;
+    justify-content: flex-end;
+  }
+
   .goal__side--stake .goal__figure {
     justify-content: flex-end;
     text-align: right;

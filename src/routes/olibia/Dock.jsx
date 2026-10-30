@@ -115,7 +115,48 @@ export default function Dock({ filtersActive, onClear }) {
     llego.current = false;
   };
 
-  useEffect(() => () => apagar(), []);
+  const viaje = useRef(0);
+
+  useEffect(
+    () => () => {
+      apagar();
+      cancelAnimationFrame(viaje.current);
+    },
+    [],
+  );
+
+  /**
+   * Desplazamiento propio en vez de `behavior: 'smooth'`.
+   *
+   * La curva nativa es fija y llega al destino de golpe. Esta aplica dos
+   * principios de animacion:
+   *
+   *   SLOW IN, SLOW OUT — la curva arranca y frena despacio, y se pasa mas
+   *   tiempo en los extremos que en el medio. Un movimiento que empieza y
+   *   termina a velocidad constante se lee como mecanico.
+   *
+   *   TIMING — la duracion sale de la distancia, no es fija: un salto a la
+   *   seccion de al lado no puede tardar lo mismo que uno de punta a punta.
+   *   Acotada para que ni se sienta lento ni se vuelva un salto.
+   */
+  const viajarHasta = destino => {
+    cancelAnimationFrame(viaje.current);
+    const inicio = window.scrollY;
+    const tramo = destino - inicio;
+    if (Math.abs(tramo) < 2) return;
+
+    const ms = Math.min(850, Math.max(340, Math.abs(tramo) * 0.45));
+    const t0 = performance.now();
+    // Cubica de entrada y salida: acelera hasta la mitad y desacelera igual.
+    const suave = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+    const paso = ahora => {
+      const t = Math.min(1, (ahora - t0) / ms);
+      window.scrollTo(0, inicio + tramo * suave(t));
+      if (t < 1) viaje.current = requestAnimationFrame(paso);
+    };
+    viaje.current = requestAnimationFrame(paso);
+  };
 
   // La marca sigue a la seccion que cruza una linea fija bajo la cabecera.
   // Un observador por interseccion obliga a afinar margenes para secciones de
@@ -174,9 +215,19 @@ export default function Dock({ filtersActive, onClear }) {
   const go = id => {
     const el = document.getElementById(id);
     if (!el) return;
-    // El margen de desplazamiento lo pone el CSS: sin el, la seccion queda
-    // pegada al tope del viewport y la cabecera pegajosa le tapa el titulo.
-    el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    // El margen que deja libre la cabecera pegajosa se calcula aqui porque
+    // el desplazamiento es propio: `scroll-margin-top` solo lo respeta
+    // `scrollIntoView`, que es justo lo que se dejo de usar.
+    const cabecera = document.querySelector('.top');
+    const aire = (cabecera ? cabecera.getBoundingClientRect().height : 0) + 16;
+    const destino = Math.max(0, el.getBoundingClientRect().top + window.scrollY - aire);
+
+    if (reduceMotion) {
+      cancelAnimationFrame(viaje.current);
+      window.scrollTo(0, destino);
+    } else {
+      viajarHasta(destino);
+    }
 
     // El foco acompaña al desplazamiento: quien navega con teclado tiene que
     // quedar DENTRO de la seccion a la que pidio ir, no donde estaba.
