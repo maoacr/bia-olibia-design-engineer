@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CHANNELS, STAGE_SLUG, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
-import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
+import { opportunitiesWithMovement, previousPeriodOf } from './movement.js';
 import Goal from './Goal.jsx';
 import { MovementTag } from './Movement.jsx';
 import Stalled from './Stalled.jsx';
@@ -11,7 +11,7 @@ import Workload from './Workload.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useFilterParams } from './useFilterParams.js';
-import SideMenu from './SideMenu.jsx';
+import Dock from './Dock.jsx';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
@@ -25,9 +25,7 @@ export default function OlibiaDashboard() {
   const [selected, setSelected] = useState(null),
     [done, setDone] = useState({}),
     [notice, setNotice] = useState(''),
-    [banner, setBanner] = useState(true),
-    [menuOpen, setMenuOpen] = useState(false),
-    [menuCollapsed, setMenuCollapsed] = useState(false);
+    [banner, setBanner] = useState(true);
 
   const setQuery = value => update({ query: value }, { replace: true });
   const setStage = value => update({ stage: value });
@@ -40,7 +38,6 @@ export default function OlibiaDashboard() {
   const rows = filterOpportunities(scoped, { movement });
   const previous = previousPeriodOf(d);
   const filtersActive = Boolean(query || stage || owner || channel || minimum || movement);
-  const summary = movementSummary(scoped);
   const total = rows.reduce((sum, o) => sum + o.value, 0);
   const negotiation = rows.filter(o => o.stage === NEGOTIATION);
   const key = selected ? `${period}:${selected.id}` : '';
@@ -112,56 +109,11 @@ export default function OlibiaDashboard() {
         </div>
       </header>
 
-      {/* Fuera del header a proposito: backdrop-filter crea un bloque
-          contenedor para los descendientes con position fixed, asi que aqui
-          dentro el boton se anclaba al borde inferior de la cabecera en lugar
-          de al de la ventana. */}
-      <button
-        type="button"
-        className="menu-toggle"
-        aria-expanded={menuOpen}
-        aria-controls="menu-principal"
-        onClick={() => setMenuOpen(open => !open)}
-      >
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-          {[7, 12, 17].map(y => (
-            <line
-              key={y}
-              x1="4"
-              x2="20"
-              y1={y}
-              y2={y}
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          ))}
-        </svg>
-        <span className="sr-only">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
-      </button>
-
       <div className="shell">
         {/* En pantalla chica el menu se despliega sobre el contenido; al
             elegir una opcion se cierra solo, porque dejarlo abierto taparia
             justo lo que la persona acaba de pedir. */}
-        <aside
-          className={
-            `${menuOpen ? 'is-open' : ''}${menuCollapsed ? ' is-collapsed' : ''}`.trim() ||
-            undefined
-          }
-          onClick={e => {
-            if (e.target.closest('a')) setMenuOpen(false);
-          }}
-        >
-          <SideMenu
-            id="menu-principal"
-            period={period}
-            filters={filters}
-            summary={summary}
-            collapsed={menuCollapsed}
-            onToggle={() => setMenuCollapsed(c => !c)}
-          />
-        </aside>
+        <Dock filtersActive={filtersActive} onClear={clearFilters} />
         <main>
           <div className="toolbar">
             <div>
@@ -273,7 +225,7 @@ export default function OlibiaDashboard() {
               </section>
             ))}
           </div>
-          <section className="panel ai-widget" aria-label="Resumen AI">
+          <section className="panel ai-widget" id="q-explorar" aria-label="Resumen AI">
             <div className="ai-heading">
               <h2>Resumen AI</h2>
               <span className="badge">Vista de demostración</span>

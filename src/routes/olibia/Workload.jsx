@@ -76,7 +76,7 @@ export default function Workload({ period, opportunities, activeOwner, onSelectO
 
   return (
     <Tooltip.Provider delayDuration={200} skipDelayDuration={400}>
-      <section className="load" aria-labelledby="load-question">
+      <section className="load" id="q-equipo" aria-labelledby="load-question">
         <header className="load__head">
           <h2 id="load-question">¿Dónde me meto?</h2>
           <p className="load__scope">{period.label} · equipo completo, no cambia con los filtros</p>

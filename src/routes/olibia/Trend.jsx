@@ -67,7 +67,7 @@ export default function Trend({ period, onSelectPeriod }) {
 
   return (
     <Tooltip.Provider delayDuration={200} skipDelayDuration={400}>
-      <section className="trend" aria-labelledby="trend-question">
+      <section className="trend" id="q-tendencia" aria-labelledby="trend-question">
         <header className="trend__head">
           <h2 id="trend-question">¿Cómo venimos?</h2>
           <p className="trend__scope">

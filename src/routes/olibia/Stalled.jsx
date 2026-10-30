@@ -60,7 +60,7 @@ export default function Stalled({ period, previous, opportunities, onSelect }) {
 
   if (!previous) {
     return (
-      <section className="stall stall--void" aria-labelledby="stall-question">
+      <section className="stall stall--void" id="q-trabadas" aria-labelledby="stall-question">
         <header className="stall__head">
           <h2 id="stall-question">¿Qué se está cayendo?</h2>
           <p className="stall__scope">{period.label}</p>
@@ -114,6 +114,7 @@ export default function Stalled({ period, previous, opportunities, onSelect }) {
     <Tooltip.Provider delayDuration={200} skipDelayDuration={400}>
       <section
         className={`stall${healthy ? ' stall--healthy' : ''}`}
+        id="q-trabadas"
         aria-labelledby="stall-question"
       >
         <header className="stall__head">

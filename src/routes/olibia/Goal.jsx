@@ -108,6 +108,7 @@ export default function Goal({ period, opportunities, onSelect }) {
     <Tooltip.Provider delayDuration={200} skipDelayDuration={400}>
       <section
         className={`goal${uncovered ? ' goal--alert' : ''}${reached ? ' goal--reached' : ''}`}
+        id="q-meta"
         aria-labelledby="goal-question"
       >
         <header className="goal__head">

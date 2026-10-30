@@ -89,7 +89,7 @@ export default function Origin({ period, opportunities, activeChannel, onSelectC
 
   return (
     <Tooltip.Provider delayDuration={200} skipDelayDuration={400}>
-      <section className="origin" aria-labelledby="origin-question">
+      <section className="origin" id="q-origen" aria-labelledby="origin-question">
         <header className="origin__head">
           <h2 id="origin-question">¿De dónde viene el valor?</h2>
           <p className="origin__scope">
