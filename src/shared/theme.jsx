@@ -108,7 +108,6 @@ export function ThemeToggle() {
       title={`Cambiar a tema ${goingTo}`}
     >
       {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-      <span className="theme-toggle__label">Tema {goingTo}</span>
     </button>
   );
 }

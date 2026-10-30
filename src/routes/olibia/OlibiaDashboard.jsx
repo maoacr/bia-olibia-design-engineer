@@ -225,7 +225,7 @@ export default function OlibiaDashboard() {
     <>
       <header className="top">
         <div className="top-brand">
-          <span className="brand">olibia</span>
+          <span className="brand">Olibia</span>
           <small>Gestión comercial</small>
         </div>
         <div className="top-actions">

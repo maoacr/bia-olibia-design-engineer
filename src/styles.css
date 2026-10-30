@@ -195,21 +195,22 @@ a:focus-visible {
   display: none;
 }
 
+/* Solo icono, centrado. 44px es el minimo tactil; por debajo el dedo falla
+   aunque en escritorio el raton no lo note. */
 .theme-toggle {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-height: 0;
+  padding: 0;
   border-radius: var(--radius-full);
-  padding: var(--space-2) var(--space-3);
   color: var(--text-secondary);
 }
 
 .theme-toggle:hover:not(:disabled) {
   color: var(--accent);
-}
-
-.theme-toggle__label {
-  display: none;
 }
 
 /* ─── Estructura ───────────────────────────────────────────────────── */
@@ -1056,10 +1057,6 @@ tbody tr.is-followed td:first-child {
 @media (min-width: 30rem) {
   .detail-grid {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .theme-toggle__label {
-    display: inline;
   }
 
   .modal {
