@@ -121,7 +121,8 @@ export default function OlibiaDashboard() {
     <>
       <div ref={sentinel} className="top-sentinel" aria-hidden="true" />
       <header className={`top${stuck ? ' is-stuck' : ''}`}>
-        <span className="brand">Olibia</span>
+        {/* El nivel 1 del documento. Ver el porque en la seccion .brand. */}
+        <h1 className="brand">Olibia</h1>
         <div className="top-actions">
           <ThemeToggle />
         </div>
@@ -133,42 +134,36 @@ export default function OlibiaDashboard() {
             justo lo que la persona acaba de pedir. */}
         <Dock filtersActive={filtersActive} onClear={clearFilters} />
         <main>
-          <div className="toolbar">
-            <div>
-              <h1>Dashboard comercial</h1>
-              <span className="muted">Resumen de resultados y oportunidades</span>
-            </div>
-            <div className="filters">
-              <label htmlFor="period">Periodo</label>
-              <select
-                id="period"
-                value={period}
-                onChange={e => {
-                  const next = e.target.value;
-                  // El movimiento no existe como dimension si el periodo no
-                  // tiene uno anterior: no es que no haya resultados, es que la
-                  // pregunta no aplica. Mantener el filtro dejaria la pantalla
-                  // vacia y, peor, sin control visible para salir, porque la
-                  // tira pasa a mostrar el mensaje en lugar de los recuentos.
-                  if (!periods[next].previous && movement) {
-                    update({ period: next, movement: '' });
-                    setNotice(
-                      `Se quitó el filtro de movimiento: ${periods[next].label} no tiene un mes previo con el cual compararse.`,
-                    );
-                  } else {
-                    update({ period: next });
-                    setNotice('');
-                  }
-                }}
-              >
-                {PERIOD_IDS.map(id => (
-                  <option key={id} value={id}>
-                    {periods[id].label}
-                  </option>
-                ))}
-              </select>
-              <button onClick={exportCSV}>Exportar CSV</button>
-            </div>
+          <div className="filters">
+            <label htmlFor="period">Periodo</label>
+            <select
+              id="period"
+              value={period}
+              onChange={e => {
+                const next = e.target.value;
+                // El movimiento no existe como dimension si el periodo no
+                // tiene uno anterior: no es que no haya resultados, es que la
+                // pregunta no aplica. Mantener el filtro dejaria la pantalla
+                // vacia y, peor, sin control visible para salir, porque la
+                // tira pasa a mostrar el mensaje en lugar de los recuentos.
+                if (!periods[next].previous && movement) {
+                  update({ period: next, movement: '' });
+                  setNotice(
+                    `Se quitó el filtro de movimiento: ${periods[next].label} no tiene un mes previo con el cual compararse.`,
+                  );
+                } else {
+                  update({ period: next });
+                  setNotice('');
+                }
+              }}
+            >
+              {PERIOD_IDS.map(id => (
+                <option key={id} value={id}>
+                  {periods[id].label}
+                </option>
+              ))}
+            </select>
+            <button onClick={exportCSV}>Exportar CSV</button>
           </div>
           {/* La primera pregunta de quien es dueño del numero va primero, y
               recibe `all` —el periodo completo— porque la meta es del equipo

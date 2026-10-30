@@ -201,6 +201,17 @@ a:focus-visible {
    que el control de tema ya imponia, y el alto no se mueve en ningun ancho.
    "Olibia" no tiene trazos descendentes: la caja ajustada no le recorta nada. */
 .brand {
+  /* Es el h1 de la pagina. El titulo que habia antes —"Dashboard comercial"—
+     no decia nada que la estructura no dijera sola: debajo hay nueve h2 que
+     preguntan "¿Vamos a llegar?", "¿Qué se está cayendo?"... Pero borrarlo sin
+     mas dejaba la pagina con cero h1 y nueve h2, o sea a quien navega por
+     encabezados sin ancla de nivel 1. El h1 que hacia falta ya estaba en
+     pantalla: es la marca.
+
+     `margin: 0` no es cosmetico: la regla base de h1 trae
+     `margin: 0 0 var(--space-2)` y .brand no la pisaba por si sola. Esos 8px
+     se sumarian al alto de la barra y --header-height dejaria de ser cierto. */
+  margin: 0;
   font-size: 2.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -303,19 +314,15 @@ main {
 
 /* ─── Barra de herramientas y filtros ──────────────────────────────── */
 
-.toolbar {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-
+/* Los controles del periodo ya no comparten renglon con un titulo, asi que
+   no hace falta un contenedor que los empareje: el margen que daba .toolbar
+   pasa aca. */
 .filters {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-2);
+  margin-bottom: var(--space-5);
 }
 
 .filter-panel,
@@ -791,13 +798,6 @@ tbody tr.is-followed td:first-child {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .toolbar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-5);
   }
 }
 
