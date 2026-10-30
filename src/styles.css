@@ -1070,6 +1070,7 @@ tbody tr.is-followed td:first-child {
     position: sticky;
     top: var(--header-height);
     align-self: flex-start;
+    max-height: none;
     width: var(--menu-width);
     flex-shrink: 0;
     height: calc(100vh - var(--header-height));
@@ -1157,6 +1158,7 @@ tbody tr.is-followed td:first-child {
     position: sticky;
     top: var(--header-height);
     align-self: flex-start;
+    max-height: none;
     width: var(--menu-width);
     height: calc(100vh - var(--header-height));
     overflow-y: auto;
@@ -1841,6 +1843,7 @@ tbody tr.is-followed td:first-child {
     position: sticky;
     top: var(--header-height);
     align-self: flex-start;
+    max-height: none;
     width: var(--menu-width);
     flex-shrink: 0;
     height: calc(100vh - var(--header-height));
