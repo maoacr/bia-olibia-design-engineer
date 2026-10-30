@@ -642,115 +642,6 @@ aside.is-open {
   font-variant-numeric: tabular-nums;
 }
 
-/* ─── Graficas ─────────────────────────────────────────────────────── */
-
-.charts,
-.split {
-  display: grid;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-
-/* El SVG hereda el color del tema: sus <text> usan fill="currentColor".
-   Sin esto quedarian negros sobre fondo oscuro, es decir invisibles — y el
-   valor de cada barra dejaria de leerse sin pasar el mouse por encima. */
-.chart {
-  width: 100%;
-  height: 220px;
-  display: block;
-  color: var(--chart-axis);
-}
-
-.legend {
-  display: flex;
-  gap: var(--space-4);
-  font-size: var(--text-sm);
-  margin-top: var(--space-3);
-  color: var(--text-secondary);
-}
-
-/* Grid, no flex: asi las tres columnas quedan alineadas entre filas sin
-   fijar un ancho inventado en la etiqueta. El layout manda aqui, no el
-   contenido. */
-.row {
-  display: grid;
-  grid-template-columns: minmax(0, 5.5rem) 1fr auto;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
-}
-
-.row span:first-child {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.track {
-  height: 18px;
-  background: var(--surface-raised);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-}
-
-/* Barra de contexto. El acento se reserva para lo que el usuario interroga. */
-.fill {
-  background: var(--chart-bar);
-  height: 100%;
-  border-radius: inherit;
-  transition:
-    width var(--duration-slow) var(--ease),
-    background-color var(--duration-base) var(--ease);
-}
-
-/* Barra interrogada: color, peso y texto pleno. Tres canales, no solo color:
-   en tema claro el acento y el gris neutro tienen luminancia parecida, asi que
-   el realce no puede depender del matiz. */
-/* Sin halo: un desenfoque de 16px sobre una barra de 18px de alto genera
-   una mancha casi tan grande como la barra. Aqui el realce ya lo dan el
-   color, el peso de la etiqueta y el valor a color pleno. */
-.row--focus .fill {
-  background: var(--chart-bar-on);
-}
-
-.row--focus span:first-child,
-.row--focus strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.row strong {
-  min-width: 1.75rem;
-  text-align: right;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-}
-
-/* Mismo criterio dentro del SVG. */
-.chart .bar {
-  fill: var(--chart-bar);
-  transition: fill var(--duration-base) var(--ease);
-}
-
-.chart .bar-group--focus .bar {
-  fill: var(--chart-bar-on);
-  filter: var(--glow-svg);
-}
-
-.chart .bar-group text {
-  opacity: 0.8;
-  transition: opacity var(--duration-base) var(--ease);
-}
-
-.chart .bar-group--focus text {
-  opacity: 1;
-  font-weight: 600;
-}
-
 /* ─── Tabla ────────────────────────────────────────────────────────── */
 
 .tabletools {
@@ -1173,16 +1064,6 @@ tbody tr.is-followed td:first-child {
   .menu__link,
   .menu__section {
     padding: var(--space-2) var(--space-3);
-  }
-
-  .charts {
-    grid-template-columns: 1.35fr 1fr;
-    gap: var(--space-5);
-  }
-
-  .split {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-5);
   }
 
   .card,
@@ -2369,5 +2250,183 @@ tbody tr.is-followed td:first-child {
 
   .origin__stage-short {
     display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Bloque 5 · "Como venimos?" — diez lugares por mes
+
+   Los mismos diez lugares de "Vamos a llegar?", extendidos en el tiempo.
+   Un punto es un cierre en los dos bloques. Se usan lugares y no barras
+   porque un cierre es un evento contable: no se cierran 7,5 negocios.
+
+   Que ninguna columna se llene NO es un detalle del dibujo: es el dato.
+   La meta de 10 no se alcanzo en ninguno de los meses conocidos.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.trend {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-5) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.trend__head {
+  margin-bottom: var(--space-4);
+}
+
+.trend__head h2 {
+  margin: 0;
+}
+
+.trend__scope {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.trend__verdict {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-body);
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+.trend__delta {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* ─── La matriz ────────────────────────────────────────────────────── */
+
+/* La linea de meta corona las columnas: el techo del dibujo ES la meta, asi
+   que el hueco que queda arriba de cada mes se lee sin leyenda. */
+.trend__goal {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 var(--space-2);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px dashed var(--border-control);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.trend__months {
+  list-style: none;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.trend__month {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 0;
+  padding: var(--space-2) var(--space-1);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+}
+
+/* Que un mes sea navegable no puede depender del hover: el brief pide
+   explicitamente que las acciones importantes se vean sin pasar el raton.
+   Solo dos de los seis meses tienen detalle, asi que la diferencia tiene que
+   notarse quieta. */
+.trend__month--link {
+  cursor: pointer;
+}
+
+.trend__month--link .trend__label {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--border-control);
+}
+
+.trend__month--link.is-current .trend__label {
+  text-decoration-color: var(--accent);
+}
+
+.trend__month--link:hover {
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+/* El mes que se esta mirando: no es solo un dato mas de la serie, es donde
+   esta parada la persona. */
+.trend__month.is-current {
+  background: var(--surface-raised);
+  border-color: var(--accent);
+}
+
+/* De abajo hacia arriba, como se llena un recipiente. */
+.trend__stack {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+  width: 100%;
+  align-items: center;
+}
+
+.trend__slot {
+  width: 100%;
+  max-width: 0.625rem;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+}
+
+.trend__slot.is-closed {
+  background: var(--accent);
+}
+
+/* Punteado otra vez: en todo el tablero significa "no ocurrio". */
+.trend__slot.is-open {
+  border: 1px dashed var(--border-control);
+}
+
+.trend__count {
+  font-size: var(--text-md);
+  font-weight: 650;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.trend__label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.trend__month.is-current .trend__label {
+  color: var(--accent);
+}
+
+.trend__never {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-md);
+  color: var(--signal-attention);
+}
+
+@media (min-width: 40rem) {
+  .trend {
+    padding: var(--space-6);
+  }
+
+  .trend__slot {
+    max-width: 0.75rem;
+  }
+
+  .trend__months {
+    gap: var(--space-4);
   }
 }

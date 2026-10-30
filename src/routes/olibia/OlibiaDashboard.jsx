@@ -1,143 +1,23 @@
 import React, { useState } from 'react';
-import { CHANNELS, STAGE_SLUG, MONTHLY_GOAL, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
+import { CHANNELS, STAGE_SLUG, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
 import Goal from './Goal.jsx';
 import { MovementTag } from './Movement.jsx';
 import Stalled from './Stalled.jsx';
+import Trend from './Trend.jsx';
 import Origin from './Origin.jsx';
 import Workload from './Workload.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useFilterParams } from './useFilterParams.js';
 import SideMenu from './SideMenu.jsx';
-import { niceScale } from '../../shared/scale.js';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
 /** Concordancia de numero: "1 oportunidad abierta", no "1 oportunidades abiertas". */
 const plural = (count, singular, many) => `${count} ${count === 1 ? singular : many}`;
 
-/**
- * El acento no decora: marca lo que el usuario esta interrogando. Si hay un
- * filtro activo, esa barra se enciende y el resto queda de contexto.
- *
- * El realce no se apoya solo en el color. En tema claro el acento y el gris
- * neutro tienen luminancia parecida —no existe un gris que pase 3:1 contra el
- * blanco y a la vez se separe del teal—, asi que la barra interrogada lleva
- * ademas peso tipografico y texto a color pleno.
- */
-function Bars({ items, max, highlight = null }) {
-  return items.map(([name, n]) => {
-    const focused = highlight != null && name === highlight;
-    return (
-      <div className={focused ? 'row row--focus' : 'row'} key={name}>
-        <span>{name}</span>
-        <div className="track">
-          <div className="fill" style={{ width: `${(n / max) * 100}%` }} />
-        </div>
-        <strong>{n}</strong>
-      </div>
-    );
-  });
-}
-/**
- * Grafico de barras con escala derivada del dato.
- *
- * El starter calculaba la altura como `185 - valor * 15` con la grilla fija en
- * 0/5/10. Al filtrar, los canales mostraban valores de 0 a 2 sobre una escala
- * que llegaba a 10: cuatro quintos del panel en aire vacio. El ancho de barra
- * tambien era fijo (36px) mientras el paso dependia de cuantas barras hubiera,
- * asi que con tres quedaban huecos enormes y con seis se apretaban.
- */
-const PLOT = { top: 18, bottom: 182, left: 38, right: 524 };
-const AXIS_LABEL_Y = 203;
-
-function Chart({ values, labels, label, goal = null, highlight = null }) {
-  // La meta entra en el dominio para que la linea siempre quede dentro del area.
-  const { max, ticks } = niceScale(Math.max(...values, goal ?? 0));
-  const y = value => PLOT.bottom - (value / max) * (PLOT.bottom - PLOT.top);
-
-  const band = (PLOT.right - PLOT.left) / values.length;
-  const barWidth = Math.min(band * 0.52, 48);
-  const center = i => PLOT.left + band * (i + 0.5);
-
-  return (
-    <svg className="chart" viewBox="0 0 540 220" role="img" aria-label={label}>
-      {ticks.map(tick => (
-        <g key={tick}>
-          <line
-            x1={PLOT.left}
-            x2={PLOT.right}
-            y1={y(tick)}
-            y2={y(tick)}
-            stroke="var(--chart-grid)"
-          />
-          <text
-            x={PLOT.left - 8}
-            y={y(tick) + 4}
-            fontSize="11"
-            textAnchor="end"
-            fill="currentColor"
-          >
-            {tick}
-          </text>
-        </g>
-      ))}
-
-      {goal != null && (
-        <line
-          x1={PLOT.left}
-          x2={PLOT.right}
-          y1={y(goal)}
-          y2={y(goal)}
-          stroke="var(--chart-axis)"
-          strokeDasharray="5 5"
-        />
-      )}
-
-      {values.map((value, i) => {
-        const focused = highlight != null && labels[i] === highlight;
-        return (
-          <g key={labels[i]} className={focused ? 'bar-group bar-group--focus' : 'bar-group'}>
-            {/* Plantilla, no dos nodos sueltos: React trata a <title> como
-                texto unico y avisa por consola si recibe un arreglo de hijos.
-                Venia del starter y ensuciaba la consola en cada pintada. */}
-            <title>{`${labels[i]}: ${value}`}</title>
-            {value > 0 && (
-              <rect
-                x={center(i) - barWidth / 2}
-                y={y(value)}
-                width={barWidth}
-                height={PLOT.bottom - y(value)}
-                rx="3"
-                className="bar"
-              />
-            )}
-            <text
-              x={center(i)}
-              y={y(value) - 7}
-              fontSize="12"
-              textAnchor="middle"
-              fill="currentColor"
-            >
-              {value}
-            </text>
-            <text
-              x={center(i)}
-              y={AXIS_LABEL_Y}
-              fontSize="11"
-              textAnchor="middle"
-              fill="currentColor"
-            >
-              {labels[i]}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
 export default function OlibiaDashboard() {
   const { filters, update, reset } = useFilterParams();
   const { period, query, stage, owner, channel, minimum, movement } = filters;
@@ -339,6 +219,8 @@ export default function OlibiaDashboard() {
             activeChannel={channel}
             onSelectChannel={setChannel}
           />
+          {/* Quinta y ultima pregunta. El historial es del equipo. */}
+          <Trend period={d} onSelectPeriod={id => update({ period: id })} />
           {banner && (
             <section className="banner" aria-label="Aviso comercial">
               <div>
@@ -475,28 +357,17 @@ export default function OlibiaDashboard() {
               cierres muestran el total del periodo.
             </p>
           </section>
-          <div className="charts">
-            <section className="panel">
-              <h2>Cierres por mes · Equipo completo</h2>
-              <Chart
-                values={d.history.map(h => h.closed)}
-                labels={d.history.map(h => h.month)}
-                label={`Cierres por mes del equipo, con la meta de ${MONTHLY_GOAL} cierres`}
-                highlight={d.history[d.history.length - 1].month}
-                goal={MONTHLY_GOAL}
-              />
-              <div className="legend">Barras: cierres del mes · Línea discontinua: meta de 10</div>
-            </section>
-            <section className="panel">
-              <h2>Oportunidades por etapa</h2>
-              <Bars
-                items={STAGES.map(n => [n, rows.filter(o => o.stage === n).length])}
-                max={Math.max(rows.length, 1)}
-                highlight={stage || null}
-              />
-              <p className="muted">Oportunidades abiertas según los filtros</p>
-            </section>
-          </div>
+          {/* Los cuatro graficos del starter se fueron, cada uno por su
+              motivo, y cada uno tiene arriba el bloque que lo contesta:
+                · "Cierres por mes" — dibujaba barras contra la meta sin decir
+                  que esa meta no se alcanzo nunca  -> "Como venimos?"
+                · "Cierres por ejecutivo" — una sola magnitud, hacia quedar al
+                  que mas carga como el que menos trabaja  -> "Donde me meto?"
+                · "Origen de oportunidades" — contaba cuentas, asi que igualaba
+                  Outbound con Referidos  -> "De donde viene el valor?"
+                · "Oportunidades por etapa" — no contestaba ninguna de las
+                  cinco preguntas, y el reparto por etapa ya se ve en el riel
+                  de "Que se esta cayendo?" y en el embudo de los canales. */}
           <section className="panel">
             <div className="tabletools">
               <h2>Oportunidades abiertas</h2>
