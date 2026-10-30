@@ -147,6 +147,14 @@
   --accent-gradient: var(--bia-gradient);
   --focus-ring: var(--bia-sheen);
 
+  /* Etapas del embudo: una rampa, no cuatro matices sueltos, porque el
+     embudo es una secuencia. Va en azul-violeta, fuera del rango cian-verde
+     que pertenece al acento y del ambar reservado para lo que pide atencion. */
+  --stage-contacto: #9ca3af;
+  --stage-calificacion: #7da2f0;
+  --stage-propuesta: #a78bfa;
+  --stage-negociacion: #d8b4fe;
+
   --signal-good: var(--bia-teal);
   --signal-attention: var(--support-amber);
   --signal-negative: var(--support-red);
@@ -198,6 +206,11 @@
   --accent-gradient: linear-gradient(135deg, var(--bia-teal-ink), var(--bia-sheen-ink));
   --focus-ring: var(--bia-teal-ink);
 
+  --stage-contacto: #5b6472;
+  --stage-calificacion: #2f5fc4;
+  --stage-propuesta: #6d3fd4;
+  --stage-negociacion: #8b2fb8;
+
   --signal-good: var(--bia-teal-ink);
   --signal-attention: var(--support-amber-ink);
   --signal-negative: var(--support-red-ink);
@@ -244,6 +257,11 @@
     --accent-strong: var(--bia-sheen-ink);
     --accent-gradient: linear-gradient(135deg, var(--bia-teal-ink), var(--bia-sheen-ink));
     --focus-ring: var(--bia-teal-ink);
+
+    --stage-contacto: #5b6472;
+    --stage-calificacion: #2f5fc4;
+    --stage-propuesta: #6d3fd4;
+    --stage-negociacion: #8b2fb8;
 
     --signal-good: var(--bia-teal-ink);
     --signal-attention: var(--support-amber-ink);

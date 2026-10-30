@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { MovementTag, movementSentence } from './Movement.jsx';
+import { STAGE_SLUG } from './data.js';
 
 /**
  * Detalle de una oportunidad.
@@ -95,7 +96,9 @@ export default function OpportunityDetail({ opportunity, year, done, onFollowUp,
           <div>
             <dt>Etapa</dt>
             <dd>
-              <span className="badge">{opportunity.stage}</span>
+              <span className={`badge badge--${STAGE_SLUG[opportunity.stage]}`}>
+                {opportunity.stage}
+              </span>
             </dd>
           </div>
           <div>

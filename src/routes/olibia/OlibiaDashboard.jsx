@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { CHANNELS, MONTHLY_GOAL, MONTH_NAMES, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
+import {
+  CHANNELS,
+  STAGE_SLUG,
+  MONTHLY_GOAL,
+  MONTH_NAMES,
+  PERIOD_IDS,
+  STAGES,
+  TEAM,
+  periods,
+} from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
 import MovementBar, { MovementTag } from './Movement.jsx';
@@ -563,7 +572,7 @@ export default function OlibiaDashboard() {
                           )}
                         </td>
                         <td>
-                          <span className="badge">{o.stage}</span>
+                          <span className={`badge badge--${STAGE_SLUG[o.stage]}`}>{o.stage}</span>
                         </td>
                         <td>
                           <MovementTag movement={o.movement} />

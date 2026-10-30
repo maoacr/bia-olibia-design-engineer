@@ -11,6 +11,14 @@
 /** Orden del embudo. El indice define que significa "avanzar". */
 export const STAGES = ['Contacto', 'Calificación', 'Propuesta', 'Negociación'];
 
+/** Clase CSS de cada etapa, para teñir su distintivo. */
+export const STAGE_SLUG = {
+  Contacto: 'contacto',
+  Calificación: 'calificacion',
+  Propuesta: 'propuesta',
+  Negociación: 'negociacion',
+};
+
 export const CHANNELS = ['Outbound', 'Referidos', 'Inbound'];
 
 export const TEAM = ['Ana López', 'Carlos Ruiz', 'Laura Díaz', 'Mateo Gil'];
