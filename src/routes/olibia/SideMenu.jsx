@@ -72,13 +72,41 @@ const IconEquipo = () => (
   </Icon>
 );
 
-function Item({ to, label, count, active, icon, nested = false }) {
+function Section({ icon, label, count, collapsed, onToggle }) {
+  const content = (
+    <>
+      {icon}
+      <span className="menu__label">{label}</span>
+      {count != null && (
+        <span className="menu__count" aria-hidden="true">
+          {count}
+        </span>
+      )}
+    </>
+  );
+
+  // Recogido no tiene destino propio, pero tampoco puede quedarse mudo: pulsar
+  // su icono despliega el menu, que es donde estan sus opciones.
+  return collapsed ? (
+    <button type="button" className="menu__section" title={`Desplegar ${label}`} onClick={onToggle}>
+      {content}
+      <span className="sr-only">{`Desplegar ${label}`}</span>
+    </button>
+  ) : (
+    <span className="menu__section" title={label}>
+      {content}
+    </span>
+  );
+}
+
+function Item({ to, label, count, active, icon, nested = false, onNavigate }) {
   return (
     <li>
       <Link
         to={to}
         aria-current={active ? 'page' : undefined}
         title={label}
+        onClick={onNavigate}
         className={`menu__link${nested ? ' menu__link--nested' : ''}${active ? ' is-active' : ''}`}
       >
         {icon}
@@ -106,31 +134,24 @@ export default function SideMenu({ id, period, filters, summary, total, collapse
 
   return (
     <nav className="menu" id={id} aria-label="Secciones">
-      {/* Primer icono de la barra: cambia entre las dos formas del menu. */}
-      <button
-        type="button"
-        className="menu__toggle"
-        aria-expanded={!collapsed}
-        aria-label={collapsed ? 'Desplegar el menú' : 'Recoger el menú'}
-        title={collapsed ? 'Desplegar el menú' : 'Recoger el menú'}
-        onClick={onToggle}
-      >
-        <IconPanel />
-        <span className="menu__label">Recoger</span>
-      </button>
-
       <p className="menu__group">Trabajo</p>
       <ul className="menu__list">
-        <Item to={link({})} label="Resumen" active={!anyFilter} icon={<IconResumen />} />
+        <Item
+          to={link({})}
+          label="Resumen"
+          active={!anyFilter}
+          icon={<IconResumen />}
+          onNavigate={collapsed ? onToggle : undefined}
+        />
 
         <li>
-          <span className="menu__section" title="Oportunidades">
-            <IconPipeline />
-            <span className="menu__label">Oportunidades</span>
-            <span className="menu__count" aria-hidden="true">
-              {total}
-            </span>
-          </span>
+          <Section
+            icon={<IconPipeline />}
+            label="Oportunidades"
+            count={total}
+            collapsed={collapsed}
+            onToggle={onToggle}
+          />
           <ul className="menu__list menu__list--child">
             {[
               [STALLED, 'Sin movimiento'],
@@ -148,20 +169,27 @@ export default function SideMenu({ id, period, filters, summary, total, collapse
             ))}
           </ul>
         </li>
-      </ul>
+        {/* Misma forma que Oportunidades: una seccion con icono y los
+            nombres colgando. Antes el equipo era un rotulo suelto sin
+            icono, asi que desaparecia de la barra recogida y, desplegado,
+            era el unico modulo sin representacion grafica.
 
-      <p className="menu__group">Equipo</p>
-      <ul className="menu__list">
-        {/* En la barra de iconos el equipo se representa con uno solo: cuatro
-            avatares identicos no distinguirian nada. */}
-        <li className="menu__rail-icon">
-          <span className="menu__section" title="Equipo">
-            <IconEquipo />
-          </span>
+            En la barra el equipo se representa con un icono solo: cuatro
+            avatares identicos no distinguirian a nadie. */}
+        <li>
+          <Section icon={<IconEquipo />} label="Equipo" collapsed={collapsed} onToggle={onToggle} />
+          <ul className="menu__list menu__list--child">
+            {TEAM.map(name => (
+              <Item
+                key={name}
+                to={link({ owner: name })}
+                label={name}
+                active={owner === name}
+                nested
+              />
+            ))}
+          </ul>
         </li>
-        {TEAM.map(name => (
-          <Item key={name} to={link({ owner: name })} label={name} active={owner === name} />
-        ))}
       </ul>
 
       {anyFilter && (
@@ -171,6 +199,19 @@ export default function SideMenu({ id, period, filters, summary, total, collapse
           </Link>
         </p>
       )}
+      {/* Al pie: es un control de la herramienta, no un destino. Arriba
+          competia con el primer modulo por la mirada. */}
+      <button
+        type="button"
+        className="menu__toggle"
+        aria-expanded={!collapsed}
+        aria-label={collapsed ? 'Desplegar el menú' : 'Recoger el menú'}
+        title={collapsed ? 'Desplegar el menú' : 'Recoger el menú'}
+        onClick={onToggle}
+      >
+        <IconPanel />
+        <span className="menu__label">Recoger</span>
+      </button>
     </nav>
   );
 }

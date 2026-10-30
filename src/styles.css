@@ -314,6 +314,7 @@ aside.is-open {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  min-height: 100%;
 }
 
 .menu__group {
@@ -340,8 +341,11 @@ aside.is-open {
 .menu__section {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-3);
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
   padding: var(--space-3);
   border-radius: var(--radius-sm);
   font-size: var(--text-body);
@@ -411,6 +415,7 @@ aside.is-open {
 }
 
 .menu__count {
+  margin-left: auto;
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
@@ -1113,7 +1118,10 @@ tbody tr.is-followed td:first-child {
 
 /* El control que cambia de forma es el primer icono de la barra: vive dentro
    del menu porque recogido el menu no desaparece, solo se angosta. */
+/* Al pie, separado del ultimo modulo por el espacio sobrante. */
 .menu__toggle {
+  margin-top: auto;
+  padding-top: var(--space-4);
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -1134,12 +1142,6 @@ tbody tr.is-followed td:first-child {
 
 .menu__icon {
   flex-shrink: 0;
-}
-
-/* Fuera de la barra de iconos no hace falta repetir el icono del equipo:
-   ahi cada persona tiene su propio renglon con nombre. */
-.menu__rail-icon {
-  display: none;
 }
 
 @media (min-width: 53rem) {
@@ -1173,22 +1175,12 @@ tbody tr.is-followed td:first-child {
     display: none;
   }
 
-  aside.is-collapsed .menu__rail-icon {
-    display: block;
-  }
-
   /* Los iconos quedan centrados en la barra y con area suficiente. */
   aside.is-collapsed .menu__toggle,
   aside.is-collapsed .menu__link,
   aside.is-collapsed .menu__section {
     justify-content: center;
     padding: var(--space-3) 0;
-  }
-
-  /* Sin texto, el unico que informa es el icono: los nombres del equipo se
-     veirian como cuatro renglones vacios. */
-  aside.is-collapsed .menu__list > li:not(.menu__rail-icon) .menu__link:not([title='Resumen']) {
-    display: none;
   }
 
   aside.is-collapsed .menu__link.is-active::before {
