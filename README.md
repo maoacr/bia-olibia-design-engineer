@@ -8,7 +8,7 @@ Dos experiencias sobre un mismo sistema de diseño: el tablero comercial de **Ol
 
 ## Ejecutar
 
-Requiere Node.js 20 o superior.
+Requiere Node.js **20.19+ o 22.12+** — el rango que exige Vite 8, declarado en `engines`. Node 21 no sirve.
 
 ```sh
 npm ci
@@ -25,6 +25,8 @@ Abre la URL que imprime Vite (por defecto `http://localhost:5173`).
 | `npm run check:contrast` | **Verifica el contraste WCAG de todos los tokens, en ambos temas** |
 
 Ese último no es decorativo: lee `src/tokens.css`, resuelve las variables y comprueba 48 pares texto/superficie. Sale con código 1 si alguno baja del mínimo. Encontró cuatro errores reales antes de que llegaran a un commit.
+
+Y tiene un techo que conviene decir: **compara token contra token, así que no ve nada translúcido.** Un lavado de color sobre una superficie compone un tercer color que no está en `tokens.css` y que ningún par cubre. Ese agujero dejó pasar un relleno proporcional que hundía la segunda línea de las fichas a 3.36:1; apareció midiendo el color compuesto en el navegador, no acá.
 
 ---
 
