@@ -525,31 +525,6 @@ tbody tr.is-followed td:first-child {
   max-width: 60ch;
 }
 
-/* ─── Aviso comercial ──────────────────────────────────────────────── */
-
-.banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--signal-attention);
-  background: var(--surface-panel);
-  padding: var(--space-4);
-  margin: 0 0 var(--space-5);
-  border-radius: var(--radius-md);
-}
-
-.banner div {
-  flex: 1 1 100%;
-}
-
-.banner p {
-  margin: var(--space-2) 0 0;
-  color: var(--text-secondary);
-  max-width: 72ch;
-}
-
 /* ─── Resumen AI ───────────────────────────────────────────────────── */
 
 .ai-widget {
@@ -769,10 +744,6 @@ tbody tr.is-followed td:first-child {
     align-items: center;
     justify-content: space-between;
     gap: var(--space-5);
-  }
-
-  .banner div {
-    flex: 1;
   }
 }
 

@@ -24,8 +24,7 @@ export default function OlibiaDashboard() {
 
   const [selected, setSelected] = useState(null),
     [done, setDone] = useState({}),
-    [notice, setNotice] = useState(''),
-    [banner, setBanner] = useState(true);
+    [notice, setNotice] = useState('');
 
   const setQuery = value => update({ query: value }, { replace: true });
   const setStage = value => update({ stage: value });
@@ -173,27 +172,6 @@ export default function OlibiaDashboard() {
           />
           {/* Quinta y ultima pregunta. El historial es del equipo. */}
           <Trend period={d} onSelectPeriod={id => update({ period: id })} />
-          {banner && (
-            <section className="banner" aria-label="Aviso comercial">
-              <div>
-                <strong>Recta final del mes</strong>
-                <p>
-                  Revisa las oportunidades abiertas y coordina los próximos contactos con tu equipo.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  clearFilters();
-                  setStage(NEGOTIATION);
-                }}
-              >
-                Ver negociaciones
-              </button>
-              <button aria-label="Cerrar banner" onClick={() => setBanner(false)}>
-                ×
-              </button>
-            </section>
-          )}
           {/* Cierres y meta ya no viven aqui: los contesta el bloque "Vamos a
               llegar?" de arriba, y repetirlos seria mostrar el mismo hecho dos
               veces. Queda solo lo que SI responde a los filtros, que es
