@@ -2157,3 +2157,217 @@ tbody tr.is-followed td:first-child {
     justify-content: flex-start;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Bloque 4 · "De donde viene el valor?" — la plata sobre el embudo
+
+   El grafico que reemplaza contaba cuentas y por eso igualaba Outbound con
+   Referidos. Aqui la plata de cada canal se ubica en la etapa donde esta
+   parada, sobre el mismo eje que usa el riel del bloque 2.
+
+   Celda punteada = el canal nunca llego ahi. Celda vacia por debajo del
+   techo = paso y ya no le queda nada detenido, que es mejor noticia. El
+   punteado significa lo mismo que en "Vamos a llegar?": todavia no ocurrio.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.origin {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-5) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.origin__head {
+  margin-bottom: var(--space-4);
+}
+
+.origin__head h2 {
+  margin: 0;
+}
+
+.origin__scope {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.origin__verdict {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-body);
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+/* ─── Eje y filas ──────────────────────────────────────────────────── */
+
+/* En pantalla chica el nombre y el total comparten renglon y las celdas van
+   debajo, a todo el ancho: es la unica forma de que cuatro columnas de
+   embudo sean legibles en 320px. */
+.origin__axis,
+.origin__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  /* Areas explicitas: con `grid-column: 1/-1` en las celdas, la colocacion
+     automatica empujaba el total a un tercer renglon propio en vez de
+     dejarlo al lado del nombre. */
+  grid-template-areas:
+    'name value'
+    'cells cells';
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+}
+
+.origin__name {
+  grid-area: name;
+}
+.origin__value {
+  grid-area: value;
+}
+.origin__cells {
+  grid-area: cells;
+}
+
+.origin__axis {
+  padding-inline: calc(var(--space-2) + 1px);
+  margin-bottom: var(--space-2);
+}
+
+.origin__axis .origin__name,
+.origin__axis .origin__value {
+  display: none;
+}
+
+/* Las celdas ocupan el renglon completo: en la fila tambien, asi el eje y
+   las celdas comparten exactamente la misma caja. */
+.origin__cells {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+
+.origin__stage {
+  text-align: center;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.origin__stage-long {
+  display: none;
+}
+
+.origin__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.origin__row {
+  width: 100%;
+  padding: var(--space-2);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+}
+
+.origin__row:hover {
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.origin__row.is-selected {
+  background: var(--surface-raised);
+  border-color: var(--accent);
+}
+
+.origin__name {
+  font-size: var(--text-md);
+  font-weight: 550;
+}
+
+.origin__value {
+  justify-self: end;
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Celdas del embudo ────────────────────────────────────────────── */
+
+.origin__cell {
+  display: block;
+  height: 1.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+
+/* Nunca llego hasta aqui. Mismo punteado que los lugares vacios de la meta:
+   en todo el tablero, punteado significa "todavia no". */
+.origin__cell.is-unreached {
+  background: none;
+  border: 1px dashed var(--border-control);
+}
+
+.origin__fill {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.origin__fill--contacto {
+  background: var(--stage-contacto);
+}
+.origin__fill--calificacion {
+  background: var(--stage-calificacion);
+}
+.origin__fill--propuesta {
+  background: var(--stage-propuesta);
+}
+.origin__fill--negociacion {
+  background: var(--stage-negociacion);
+}
+
+.origin__capped {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-md);
+  color: var(--signal-attention);
+}
+
+@media (min-width: 40rem) {
+  .origin {
+    padding: var(--space-6);
+  }
+
+  /* Con ancho, nombre, embudo y total entran en una fila. El eje declara las
+     mismas tres columnas para que las etiquetas caigan sobre sus celdas. */
+  .origin__axis,
+  .origin__row {
+    grid-template-columns: 7rem 1fr 5rem;
+    grid-template-areas: 'name cells value';
+  }
+
+  .origin__axis .origin__name,
+  .origin__axis .origin__value {
+    display: block;
+  }
+
+  .origin__stage-long {
+    display: inline;
+  }
+
+  .origin__stage-short {
+    display: none;
+  }
+}

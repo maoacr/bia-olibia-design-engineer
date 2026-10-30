@@ -5,6 +5,7 @@ import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './
 import Goal from './Goal.jsx';
 import { MovementTag } from './Movement.jsx';
 import Stalled from './Stalled.jsx';
+import Origin from './Origin.jsx';
 import Workload from './Workload.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
@@ -330,6 +331,14 @@ export default function OlibiaDashboard() {
               son del periodo, y la carga tiene que medirse con la misma vara
               o se estarian comparando dos cosas distintas. */}
           <Workload period={d} opportunities={all} activeOwner={owner} onSelectOwner={setOwner} />
+          {/* Cuarta pregunta. De donde viene el valor es un hecho del mes,
+              no de la vista: tambien sin filtrar. */}
+          <Origin
+            period={d}
+            opportunities={all}
+            activeChannel={channel}
+            onSelectChannel={setChannel}
+          />
           {banner && (
             <section className="banner" aria-label="Aviso comercial">
               <div>
@@ -488,18 +497,6 @@ export default function OlibiaDashboard() {
               <p className="muted">Oportunidades abiertas según los filtros</p>
             </section>
           </div>
-          {/* "Cierres por ejecutivo" ya no vive aqui: mostraba una sola
-              magnitud y por eso mentia por omision. Lo contesta el bloque
-              "Donde me meto?" de arriba, con la carga al lado del cierre. */}
-          <section className="panel">
-            <h2>Origen de oportunidades abiertas</h2>
-            <Chart
-              values={CHANNELS.map(c => rows.filter(o => o.channel === c).length)}
-              labels={CHANNELS}
-              label="Oportunidades abiertas por canal de origen"
-              highlight={channel || null}
-            />
-          </section>
           <section className="panel">
             <div className="tabletools">
               <h2>Oportunidades abiertas</h2>
