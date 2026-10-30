@@ -124,7 +124,7 @@ function Item({ to, label, count, active, icon, nested = false, onNavigate }) {
   );
 }
 
-export default function SideMenu({ id, period, filters, summary, total, collapsed, onToggle }) {
+export default function SideMenu({ id, period, filters, summary, collapsed, onToggle }) {
   const { query, stage, owner, channel, minimum, movement } = filters;
   const anyFilter = Boolean(query || stage || owner || channel || minimum || movement);
 
@@ -148,7 +148,6 @@ export default function SideMenu({ id, period, filters, summary, total, collapse
           <Section
             icon={<IconPipeline />}
             label="Oportunidades"
-            count={total}
             collapsed={collapsed}
             onToggle={onToggle}
           />

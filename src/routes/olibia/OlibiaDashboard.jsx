@@ -282,7 +282,6 @@ export default function OlibiaDashboard() {
             period={period}
             filters={filters}
             summary={summary}
-            total={scoped.length}
             collapsed={menuCollapsed}
             onToggle={() => setMenuCollapsed(c => !c)}
           />
