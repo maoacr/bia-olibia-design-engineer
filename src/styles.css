@@ -79,6 +79,19 @@ select,
 input {
   font: inherit;
   padding: var(--space-2) var(--space-3);
+  /* Area tactil: por debajo de 44px el dedo falla. Va en la regla de la
+     familia y no solo en `button` porque un menu desplegable y un campo de
+     texto se tocan igual que un boton. Estaba declarado unicamente en
+     `button`, y por esa omision los cinco desplegables median 35-38px y el
+     buscador 39-42px: seis controles por debajo del minimo, en los cinco
+     anchos, desde siempre.
+
+     Un `select` no se estira solo con relleno: el navegador le fuerza
+     `line-height: normal`, asi que su alto no sigue el 1.5 del cuerpo. Hace
+     falta el piso explicito. Quien necesite ser mas chico que esto lo anula
+     a proposito —lo hacen el control de tema, el cierre del detalle y los
+     meses de la tendencia. */
+  min-height: 44px;
   border: 1px solid var(--border-control);
   border-radius: var(--radius-sm);
   background: var(--surface-raised);
@@ -91,9 +104,6 @@ input {
 
 button {
   cursor: pointer;
-  /* Area tactil: por debajo de 44px el dedo falla. En escritorio no molesta
-     porque el relleno ya llevaba a un tamaño similar. */
-  min-height: 44px;
 }
 
 button:hover:not(:disabled),
