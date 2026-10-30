@@ -98,8 +98,24 @@ export default function Dock({ filtersActive, onClear }) {
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(DESTINOS[0].id);
   const marca = useRef(0);
+  const marcado = useRef(null);
+  const llego = useRef(false);
 
-  useEffect(() => () => window.clearTimeout(marca.current), []);
+  /**
+   * Apaga el destello, sea cual sea la seccion que lo tenga.
+   *
+   * Antes solo se le quitaba la clase al destino NUEVO y se cancelaba el
+   * temporizador del anterior: eso dejaba al anterior encendido para siempre,
+   * y con dos secciones marcadas a la vez.
+   */
+  const apagar = () => {
+    window.clearTimeout(marca.current);
+    if (marcado.current) marcado.current.classList.remove('is-targeted');
+    marcado.current = null;
+    llego.current = false;
+  };
+
+  useEffect(() => () => apagar(), []);
 
   // La marca sigue a la seccion que cruza una linea fija bajo la cabecera.
   // Un observador por interseccion obliga a afinar margenes para secciones de
@@ -130,7 +146,17 @@ export default function Dock({ filtersActive, onClear }) {
       // fondo ES estar en el ultimo destino.
       const atEnd =
         window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-      setActive(atEnd ? DESTINOS[DESTINOS.length - 1].id : (containing ?? lastAbove));
+      const next = atEnd ? DESTINOS[DESTINOS.length - 1].id : (containing ?? lastAbove);
+      setActive(next);
+
+      // Una sola seccion marcada a la vez: si la persona se va de la que
+      // pidio, el destello se apaga. Pero solo DESPUES de haber llegado: un
+      // desplazamiento suave cruza las secciones del medio, y apagar ahi
+      // mataria el destello en pleno viaje.
+      if (marcado.current) {
+        if (marcado.current.id === next) llego.current = true;
+        else if (llego.current) apagar();
+      }
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -159,11 +185,11 @@ export default function Dock({ filtersActive, onClear }) {
 
     // Y un destello de acento que ata el clic con el modulo que llego: sin
     // el, pedir una seccion que ya estaba a la vista no da ninguna señal.
-    window.clearTimeout(marca.current);
-    el.classList.remove('is-targeted');
+    apagar();
     void el.offsetWidth; // reinicia la animacion si se repite el destino
     el.classList.add('is-targeted');
-    marca.current = window.setTimeout(() => el.classList.remove('is-targeted'), 1400);
+    marcado.current = el;
+    marca.current = window.setTimeout(apagar, 1400);
   };
 
   return (
