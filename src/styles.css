@@ -1109,55 +1109,42 @@ tbody tr.is-followed td:first-child {
   }
 }
 
-/* ─── Colapsar el menu lateral ─────────────────────────────────────── */
+/* ─── Las dos formas del menu ──────────────────────────────────────── */
 
-/* El control se apoya sobre el borde del panel, no en la cabecera: pertenece
-   al elemento que gobierna. No puede ir dentro del <aside> porque al ocultarlo
-   desapareceria con el. Por eso es hermano suyo y se posiciona encima de su
-   borde; al colapsar se desliza hasta el borde de la ventana y sigue a la
-   vista.
+/* El control que cambia de forma es el primer icono de la barra: vive dentro
+   del menu porque recogido el menu no desaparece, solo se angosta. */
+.menu__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: var(--text-body);
+  text-align: left;
+}
 
-   No existe por debajo de 53rem: ahi el menu ya es una hoja que se cierra
-   sola y no ocupa espacio permanente, asi que no hay nada que ganar. */
-.panel-toggle {
+.menu__toggle:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+.menu__icon {
+  flex-shrink: 0;
+}
+
+/* Fuera de la barra de iconos no hace falta repetir el icono del equipo:
+   ahi cada persona tiene su propio renglon con nombre. */
+.menu__rail-icon {
   display: none;
 }
 
 @media (min-width: 53rem) {
-  .panel-toggle {
-    position: fixed;
-    top: calc(var(--header-height) + var(--space-4));
-    left: calc(var(--menu-width) - 0.875rem);
-    z-index: 15;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    min-height: 0;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-full);
-    background: var(--surface-raised);
-    color: var(--text-muted);
-    transition:
-      left var(--duration-base) var(--ease),
-      background-color var(--duration-fast) var(--ease),
-      color var(--duration-fast) var(--ease);
-  }
-
-  .panel-toggle:hover:not(:disabled) {
-    background: var(--surface-hover);
-    border-color: var(--border-control);
-    color: var(--accent);
-  }
-
-  .panel-toggle.is-collapsed {
-    left: var(--space-3);
-  }
-
   /* Queda a la vista mientras se recorre la pagina, para poder cambiar de
-     filtro sin tener que volver arriba. Scrollea por dentro si no entra. */
+     filtro sin tener que volver arriba. */
   aside {
     position: sticky;
     top: var(--header-height);
@@ -1165,21 +1152,722 @@ tbody tr.is-followed td:first-child {
     width: var(--menu-width);
     height: calc(100vh - var(--header-height));
     overflow-y: auto;
+    overflow-x: hidden;
     transition:
       width var(--duration-base) var(--ease),
       padding var(--duration-base) var(--ease);
   }
 
+  /* Recogido: barra de iconos. No desaparece —los modulos siguen al
+     alcance— y se recuperan unos 170px para el contenido. */
   aside.is-collapsed {
-    width: 0;
-    padding-inline: 0;
-    border-right-width: 0;
-    overflow: hidden;
+    width: var(--menu-rail);
+    padding-inline: var(--space-2);
   }
 
-  /* Deja sitio al control para que no se monte sobre las opciones. */
-  .menu {
-    padding-top: var(--space-5);
+  aside.is-collapsed .menu__label,
+  aside.is-collapsed .menu__count,
+  aside.is-collapsed .menu__group,
+  aside.is-collapsed .menu__list--child,
+  aside.is-collapsed .menu__foot {
+    display: none;
+  }
+
+  aside.is-collapsed .menu__rail-icon {
+    display: block;
+  }
+
+  /* Los iconos quedan centrados en la barra y con area suficiente. */
+  aside.is-collapsed .menu__toggle,
+  aside.is-collapsed .menu__link,
+  aside.is-collapsed .menu__section {
+    justify-content: center;
+    padding: var(--space-3) 0;
+  }
+
+  /* Sin texto, el unico que informa es el icono: los nombres del equipo se
+     veirian como cuatro renglones vacios. */
+  aside.is-collapsed .menu__list > li:not(.menu__rail-icon) .menu__link:not([title='Resumen']) {
+    display: none;
+  }
+
+  aside.is-collapsed .menu__link.is-active::before {
+    left: 0;
+    height: 1.5rem;
+  }
+}
+
+/* ─── Barra de herramientas y filtros ──────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.filter-panel,
+.ai-widget {
+  margin-bottom: var(--space-5);
+}
+
+/* Grid en vez de flex: las columnas se reparten solas segun el ancho, sin
+   tener que fijar una base y corregirla despues. */
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--space-3);
+  align-items: end;
+}
+
+/* El boton no es un campo: no debe estirarse para ocupar una columna. */
+.filter-grid > button {
+  justify-self: start;
+}
+
+.filter-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.scope-note {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: var(--space-4) 0 0;
+}
+
+/* ─── Superficies y jerarquia ──────────────────────────────────────── */
+
+/* Tres pesos, sin recurrir a mas color: lo que encuadra la lectura, lo que
+   la desarrolla y lo que solo sirve para operar. Alguien con pocos minutos
+   tiene que poder saltear el tercero sin perderse nada. */
+
+.card,
+.panel {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-panel);
+}
+
+.panel--lead {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+
+.panel--lead h2 {
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.0625rem);
+}
+
+/* Los controles no son contenido: sin sombra, sin relleno de panel y con el
+   titulo en segundo plano, para que no compitan con los datos. */
+.panel--control {
+  background: none;
+  box-shadow: none;
+  border-style: dashed;
+  padding: var(--space-4);
+}
+
+.panel--control h2 {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* ─── Indicadores agrupados por alcance ────────────────────────────── */
+
+.kpi-groups {
+  display: grid;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.kpi-group__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-3);
+}
+
+.kpi-group__hint {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.card {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.value {
+  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 1.875rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin: var(--space-3) 0 var(--space-1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Graficas ─────────────────────────────────────────────────────── */
+
+.charts,
+.split {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+/* El SVG hereda el color del tema: sus <text> usan fill="currentColor".
+   Sin esto quedarian negros sobre fondo oscuro, es decir invisibles — y el
+   valor de cada barra dejaria de leerse sin pasar el mouse por encima. */
+.chart {
+  width: 100%;
+  height: 220px;
+  display: block;
+  color: var(--chart-axis);
+}
+
+.legend {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  margin-top: var(--space-3);
+  color: var(--text-secondary);
+}
+
+/* Grid, no flex: asi las tres columnas quedan alineadas entre filas sin
+   fijar un ancho inventado en la etiqueta. El layout manda aqui, no el
+   contenido. */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 5.5rem) 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.row span:first-child {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track {
+  height: 18px;
+  background: var(--surface-raised);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+/* Barra de contexto. El acento se reserva para lo que el usuario interroga. */
+.fill {
+  background: var(--chart-bar);
+  height: 100%;
+  border-radius: inherit;
+  transition:
+    width var(--duration-slow) var(--ease),
+    background-color var(--duration-base) var(--ease);
+}
+
+/* Barra interrogada: color, peso y texto pleno. Tres canales, no solo color:
+   en tema claro el acento y el gris neutro tienen luminancia parecida, asi que
+   el realce no puede depender del matiz. */
+/* Sin halo: un desenfoque de 16px sobre una barra de 18px de alto genera
+   una mancha casi tan grande como la barra. Aqui el realce ya lo dan el
+   color, el peso de la etiqueta y el valor a color pleno. */
+.row--focus .fill {
+  background: var(--chart-bar-on);
+}
+
+.row--focus span:first-child,
+.row--focus strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.row strong {
+  min-width: 1.75rem;
+  text-align: right;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* Mismo criterio dentro del SVG. */
+.chart .bar {
+  fill: var(--chart-bar);
+  transition: fill var(--duration-base) var(--ease);
+}
+
+.chart .bar-group--focus .bar {
+  fill: var(--chart-bar-on);
+  filter: var(--glow-svg);
+}
+
+.chart .bar-group text {
+  opacity: 0.8;
+  transition: opacity var(--duration-base) var(--ease);
+}
+
+.chart .bar-group--focus text {
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* ─── Tabla ────────────────────────────────────────────────────────── */
+
+.tabletools {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.tabletools h2 {
+  margin: 0;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th,
+td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-md);
+}
+
+th {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom-color: var(--border-strong);
+}
+
+tbody tr {
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+tbody tr:hover {
+  background: var(--surface-raised);
+}
+
+td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.foot {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-5);
+  max-width: 72ch;
+}
+
+/* Marcar seguimiento abria y cerraba el detalle sin dejar nada a la vista:
+   al volver a la lista no habia forma de saber a quien ya se contacto. */
+.followed-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--signal-good);
+  color: var(--text-on-accent);
+  font-size: 0.625rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+tbody tr.is-followed td:first-child {
+  color: var(--text-secondary);
+}
+
+/* ─── Estado vacio ─────────────────────────────────────────────────── */
+
+/* Decir "no se encontraron oportunidades" deja a la persona sin saber si se
+   rompio algo o si fue culpa suya. Esto nombra el filtro responsable y
+   ofrece la salida en un clic. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6) 0 var(--space-4);
+}
+
+.empty__title {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 60ch;
+}
+
+/* ─── Aviso comercial ──────────────────────────────────────────────── */
+
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--signal-attention);
+  background: var(--surface-panel);
+  padding: var(--space-4);
+  margin: 0 0 var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+.banner div {
+  flex: 1 1 100%;
+}
+
+.banner p {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  max-width: 72ch;
+}
+
+/* ─── Resumen AI ───────────────────────────────────────────────────── */
+
+.ai-widget {
+  border-color: var(--border-strong);
+}
+
+.ai-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.ai-heading h2 {
+  margin: 0;
+}
+
+.ai-widget p {
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 72ch;
+}
+
+.ai-widget strong {
+  color: var(--text-primary);
+}
+
+/* ─── Movimiento entre periodos ────────────────────────────────────── */
+
+.movement {
+  margin-bottom: var(--space-5);
+}
+
+.movement__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.movement__head h2 {
+  margin: 0;
+}
+
+.movement__clear {
+  border: none;
+  background: none;
+  padding: var(--space-1) var(--space-2);
+  color: var(--accent);
+  font-size: var(--text-sm);
+}
+
+.movement__clear:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+
+.movement__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
+  gap: var(--space-3);
+}
+
+/* Cada recuento es un control: filtra la tabla. El borde izquierdo lleva el
+   tono del estado, asi el color informa sin tener que bañar el bloque. */
+.movement__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--signal-neutral);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+.movement__tile--attention {
+  border-left-color: var(--signal-attention);
+}
+.movement__tile--good {
+  border-left-color: var(--signal-good);
+}
+.movement__tile--negative {
+  border-left-color: var(--signal-negative);
+}
+
+.movement__tile:disabled {
+  opacity: 0.45;
+}
+
+/* Seleccionado: el fondo sube un escalon y la barra de categoria se engrosa.
+   Nada de halo —un desenfoque sobre un rectangulo se esparce y ensucia— y
+   nada de reescribir border-color en bloque, que borraba el tono de la
+   categoria justo al elegirla. */
+.movement__tile.is-selected {
+  background: var(--surface-hover);
+  border-left-width: 5px;
+  padding-left: calc(var(--space-4) - 2px);
+}
+
+.movement__count {
+  font-size: clamp(1.375rem, 1.15rem + 1.1vw, 1.625rem);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El recuento toma el color de su propia categoria, no el acento generico:
+   un bloque ambar con el numero en teal se contradice a si mismo. */
+.movement__tile--attention.is-selected .movement__count {
+  color: var(--signal-attention);
+}
+.movement__tile--good.is-selected .movement__count {
+  color: var(--signal-good);
+}
+.movement__tile--negative.is-selected .movement__count {
+  color: var(--signal-negative);
+}
+.movement__tile--neutral.is-selected .movement__count {
+  color: var(--text-primary);
+}
+
+.movement__label {
+  font-size: var(--text-md);
+  color: var(--text-primary);
+}
+
+.movement__detail {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Indicador en la tabla. El punto da un segundo canal ademas del color del
+   texto, para que el estado no dependa solo del matiz. */
+.move-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.move-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--signal-neutral);
+  flex-shrink: 0;
+}
+
+.move-tag--attention {
+  color: var(--signal-attention);
+  font-weight: 600;
+}
+.move-tag--attention::before {
+  background: var(--signal-attention);
+}
+
+.move-tag--good::before {
+  background: var(--signal-good);
+}
+
+.move-tag--negative {
+  color: var(--signal-negative);
+}
+.move-tag--negative::before {
+  background: var(--signal-negative);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   30rem · hay ancho para pares de columnas
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 30rem) {
+  .detail-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .modal {
+    place-items: center;
+    padding: var(--space-5);
+  }
+
+  .modal article {
+    width: min(520px, 100%);
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   40rem · entran los textos secundarios y los encabezados en linea
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 40rem) {
+  main {
+    padding: var(--space-5);
+    padding-bottom: calc(var(--space-8) + 3rem);
+  }
+
+  .top small,
+  .top-actions > .muted {
+    display: inline;
+  }
+
+  .tabletools,
+  .ai-heading {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+
+  .banner div {
+    flex: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   53rem · cabe el menu al costado: deja de ser una hoja inferior
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 53rem) {
+  .menu-toggle {
+    display: none;
+  }
+
+  aside {
+    position: static;
+    width: var(--menu-width);
+    flex-shrink: 0;
+    max-height: none;
+    overflow: visible;
+    transform: none;
+    visibility: visible;
+    padding: var(--space-5) var(--space-4);
+    border-top: none;
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  main {
+    /* Sin boton flotante, el pie no necesita despeje. */
+    padding-bottom: var(--space-5);
+  }
+
+  .menu__link,
+  .menu__section {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .charts {
+    grid-template-columns: 1.35fr 1fr;
+    gap: var(--space-5);
+  }
+
+  .split {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+  }
+
+  .card,
+  .panel {
+    padding: var(--space-5);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   69rem · los dos grupos de indicadores conviven en una fila
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 69rem) {
+  .kpi-groups {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
