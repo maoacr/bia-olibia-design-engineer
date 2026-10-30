@@ -1,16 +1,8 @@
 import React, { useState } from 'react';
-import {
-  CHANNELS,
-  STAGE_SLUG,
-  MONTHLY_GOAL,
-  MONTH_NAMES,
-  PERIOD_IDS,
-  STAGES,
-  TEAM,
-  periods,
-} from './data.js';
+import { CHANNELS, STAGE_SLUG, MONTHLY_GOAL, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
 import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { movementSummary, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
+import Goal from './Goal.jsx';
 import MovementBar, { MovementTag } from './Movement.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
@@ -170,14 +162,6 @@ export default function OlibiaDashboard() {
   const negotiation = rows.filter(o => o.stage === NEGOTIATION);
   const key = selected ? `${period}:${selected.id}` : '';
 
-  // Variacion de cierres contra el mes anterior, derivada del historial en
-  // lugar de quedar escrita a mano en el texto del KPI.
-  const previousMonth = d.history[d.history.length - 2];
-  const closedDelta = d.closed - previousMonth.closed;
-  const closedDeltaNote = `${closedDelta > 0 ? '+' : '−'}${Math.abs(closedDelta)} frente a ${
-    MONTH_NAMES[previousMonth.month]
-  }`;
-
   // Cuando no queda nada visible, probar a soltar cada filtro por separado
   // dice cual es el responsable. Septiembre, por ejemplo, no tiene ninguna
   // oportunidad en Negociacion: sin esto la pantalla queda en blanco y la
@@ -333,6 +317,10 @@ export default function OlibiaDashboard() {
               <button onClick={exportCSV}>Exportar CSV</button>
             </div>
           </div>
+          {/* La primera pregunta de quien es dueño del numero va primero, y
+              recibe `all` —el periodo completo— porque la meta es del equipo
+              y no responde a los filtros. */}
+          <Goal period={d} opportunities={all} onSelect={setSelected} />
           {banner && (
             <section className="banner" aria-label="Aviso comercial">
               <div>
@@ -354,10 +342,10 @@ export default function OlibiaDashboard() {
               </button>
             </section>
           )}
-          {/* Los cuatro indicadores se veian identicos pero dos responden a los
-              filtros y dos no. El starter avisaba con una nota al pie; aqui lo
-              resuelve la estructura, que es la unica forma de que no haya que
-              leer un disclaimer para saber que mira cada numero. */}
+          {/* Cierres y meta ya no viven aqui: los contesta el bloque "Vamos a
+              llegar?" de arriba, y repetirlos seria mostrar el mismo hecho dos
+              veces. Queda solo lo que SI responde a los filtros, que es
+              justamente lo que el starter no sabia separar. */}
           <div className="kpi-groups">
             {[
               {
@@ -366,18 +354,6 @@ export default function OlibiaDashboard() {
                 cards: [
                   ['Oportunidades abiertas', rows.length, `de ${all.length} en el periodo`],
                   ['Valor del pipeline', `$${total} M`, 'COP millones / mes'],
-                ],
-              },
-              {
-                title: `${d.label} · equipo completo`,
-                hint: 'no cambia con los filtros',
-                cards: [
-                  ['Cierres del mes', d.closed, closedDeltaNote],
-                  [
-                    'Meta comercial',
-                    `${Math.round((d.closed / MONTHLY_GOAL) * 100)}%`,
-                    `de ${MONTHLY_GOAL} cierres mensuales`,
-                  ],
                 ],
               },
             ].map(({ title, hint, cards }) => (

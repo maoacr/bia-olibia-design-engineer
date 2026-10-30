@@ -101,6 +101,16 @@ const PAIRS = [
   ['border-control', 'surface-base', 3],
   ['border-control', 'surface-panel', 3],
   ['border-control', 'surface-hover', 3],
+
+  // Bloque "Vamos a llegar?". Los lugares de la meta son elementos graficos
+  // portadores de informacion, no adorno: el punto lleno, el anillo punteado
+  // vacio y el corchete tienen que ser perceptibles (1.4.11).
+  ['accent', 'surface-raised', 3],
+  ['signal-attention', 'surface-base', 4.5],
+  // El tooltip de Radix se pinta sobre superficie elevada y su nota al pie usa
+  // el gris mas tenue de la escala: es el par mas exigido de los dos temas.
+  ['text-secondary', 'surface-raised', 4.5],
+  ['text-muted', 'surface-raised', 4.5],
 ];
 
 let failures = 0;
