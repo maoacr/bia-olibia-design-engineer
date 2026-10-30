@@ -22,6 +22,19 @@
  * SEPTIEMBRE: no tiene periodo previo. Que no haya con que comparar es
  * distinto de que nada se haya movido, y la interfaz no puede confundirlas
  * —el mismo principio que ya sostiene movement.js.
+ *
+ * ALTO EN MOVIL: 759px a 390px de ancho, el bloque mas alto de los cinco, y
+ * se queda asi a proposito. Las ocho filas no son una lista larga que
+ * convenga recortar: son el argumento. El punto solo de la cuenta trabada se
+ * lee como trabado PORQUE a su alrededor hay siete lineas que viajan.
+ * Esconder esas siete tras un "ver las 8" dejaria el punto sin nada contra
+ * que leerse, y entonces habria que creerle al color —que es exactamente la
+ * tira de recuentos que este bloque vino a reemplazar.
+ *
+ * Medido antes de decidir: 0.90 de viewport, entra en una pantalla, sin
+ * desborde horizontal y sin ningun control por debajo de 44px. Es el mas
+ * alto porque es el unico con ocho items comparables; los demas tienen entre
+ * tres y cinco. Eso es consecuencia del dato, no un defecto de densidad.
  */
 
 import React from 'react';
