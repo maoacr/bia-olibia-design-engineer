@@ -164,7 +164,6 @@ a:focus-visible {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  text-shadow: var(--glow-soft);
   /* Color solido primero: si background-clip no esta soportado, el nombre de
      la marca sigue siendo legible en vez de quedar transparente. */
   color: var(--accent);
@@ -318,16 +317,21 @@ aside.is-open {
   padding: var(--space-3);
   border-radius: var(--radius-sm);
   font-size: var(--text-body);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-decoration: none;
   transition:
     background-color var(--duration-fast) var(--ease),
     color var(--duration-fast) var(--ease);
 }
 
+/* Agrupa, no es destino: ni se puede pulsar ni debe parecer que si. Se lee
+   como encabezado intermedio entre el rotulo del grupo y los sub-destinos. */
 .menu__section {
-  color: var(--text-primary);
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: default;
 }
 
 .menu__link:hover {
@@ -337,16 +341,45 @@ aside.is-open {
 
 /* La opcion activa no se distingue solo por color: tambien cambia el fondo y
    el peso, que es lo que la hace legible sin depender del matiz. */
+/* La marca de posicion es una barra al borde izquierdo, no un halo: un
+   desenfoque de 24px sobre un rectangulo de lista se esparce y se lee como
+   suciedad en vez de como estado. Ademas reutiliza el recurso que el sistema
+   ya emplea en los recuentos de movimiento, donde el borde izquierdo lleva el
+   tono de la categoria. */
 .menu__link.is-active {
+  position: relative;
   background: var(--surface-hover);
   color: var(--accent);
   font-weight: 600;
-  box-shadow: var(--glow-soft);
+}
+
+.menu__link.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: 3px;
+  height: 1.125rem;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+/* La sangria significa pertenencia: los sub-destinos cuelgan de una guia
+   vertical en lugar de estar corridos porque si. */
+.menu__list--child {
+  margin: var(--space-1) 0 var(--space-3) var(--space-3);
+  padding-left: var(--space-2);
+  border-left: 1px solid var(--border);
 }
 
 .menu__link--nested {
-  padding-left: var(--space-5);
   font-size: var(--text-md);
+  color: var(--text-secondary);
+}
+
+.menu__list--child .menu__link.is-active::before {
+  left: calc(var(--space-2) * -1 - 1px);
 }
 
 .menu__count {
@@ -582,9 +615,11 @@ aside.is-open {
 /* Barra interrogada: color, peso y texto pleno. Tres canales, no solo color:
    en tema claro el acento y el gris neutro tienen luminancia parecida, asi que
    el realce no puede depender del matiz. */
+/* Sin halo: un desenfoque de 16px sobre una barra de 18px de alto genera
+   una mancha casi tan grande como la barra. Aqui el realce ya lo dan el
+   color, el peso de la etiqueta y el valor a color pleno. */
 .row--focus .fill {
   background: var(--chart-bar-on);
-  box-shadow: var(--glow);
 }
 
 .row--focus span:first-child,
@@ -850,12 +885,14 @@ tbody tr.is-followed td:first-child {
   opacity: 0.45;
 }
 
-/* El estado seleccionado no se apoya solo en el color: tambien cambia el
-   fondo y el peso del recuento. */
+/* Seleccionado: el fondo sube un escalon y la barra de categoria se engrosa.
+   Nada de halo —un desenfoque sobre un rectangulo se esparce y ensucia— y
+   nada de reescribir border-color en bloque, que borraba el tono de la
+   categoria justo al elegirla. */
 .movement__tile.is-selected {
   background: var(--surface-hover);
-  border-color: var(--border-control);
-  box-shadow: var(--glow);
+  border-left-width: 5px;
+  padding-left: calc(var(--space-4) - 2px);
 }
 
 .movement__count {
@@ -867,8 +904,19 @@ tbody tr.is-followed td:first-child {
   font-variant-numeric: tabular-nums;
 }
 
-.movement__tile.is-selected .movement__count {
-  color: var(--accent);
+/* El recuento toma el color de su propia categoria, no el acento generico:
+   un bloque ambar con el numero en teal se contradice a si mismo. */
+.movement__tile--attention.is-selected .movement__count {
+  color: var(--signal-attention);
+}
+.movement__tile--good.is-selected .movement__count {
+  color: var(--signal-good);
+}
+.movement__tile--negative.is-selected .movement__count {
+  color: var(--signal-negative);
+}
+.movement__tile--neutral.is-selected .movement__count {
+  color: var(--text-primary);
 }
 
 .movement__label {

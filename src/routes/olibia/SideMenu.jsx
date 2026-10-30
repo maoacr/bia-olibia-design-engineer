@@ -63,7 +63,7 @@ export default function SideMenu({ id, period, filters, summary, total }) {
               {total}
             </span>
           </span>
-          <ul className="menu__list">
+          <ul className="menu__list menu__list--child">
             {[
               [STALLED, 'Sin movimiento'],
               [NEW, 'Nuevas este mes'],
@@ -85,7 +85,7 @@ export default function SideMenu({ id, period, filters, summary, total }) {
       <p className="menu__group">Equipo</p>
       <ul className="menu__list">
         {TEAM.map(name => (
-          <Item key={name} to={link({ owner: name })} label={name} active={owner === name} nested />
+          <Item key={name} to={link({ owner: name })} label={name} active={owner === name} />
         ))}
       </ul>
 
