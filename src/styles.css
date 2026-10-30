@@ -1153,8 +1153,18 @@ tbody tr.is-followed td:first-child {
   font-size: var(--text-md);
   text-align: left;
   cursor: pointer;
+  /* Relleno proporcional a lo que esta cuenta pesa dentro del total en
+     juego. Se ancla a la derecha para seguir la alineacion de la columna, y
+     se queda en un tinte bajo: tiene que dejar ver la relacion sin tocar el
+     contraste del texto que lleva encima. La intensidad de color es el canal
+     mas debil para codificar cantidad; la longitud, el mas fuerte. */
+  background-image: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--accent) 15%, transparent) calc(var(--share, 0) * 100%),
+    transparent calc(var(--share, 0) * 100%)
+  );
   transition:
-    background var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease),
     border-color var(--duration-fast) var(--ease);
 }
 
@@ -1264,7 +1274,6 @@ tbody tr.is-followed td:first-child {
   }
 
   .goal__side--stake .goal__candidate {
-    justify-content: flex-end;
     gap: var(--space-4);
   }
 

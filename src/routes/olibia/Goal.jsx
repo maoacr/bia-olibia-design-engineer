@@ -202,6 +202,10 @@ export default function Goal({ period, opportunities, onSelect }) {
                             <button
                               type="button"
                               className={`goal__candidate${active === o.id ? ' is-active' : ''}`}
+                              /* Cuanto de los que estan en juego es esta. El
+                                 relleno lo dice sin pedir que se comparen dos
+                                 cifras de memoria. */
+                              style={{ '--share': inPlay ? o.value / inPlay : 0 }}
                               onClick={() => onSelect(o)}
                               onMouseEnter={() => setActive(o.id)}
                               onMouseLeave={() => setActive(null)}
