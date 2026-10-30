@@ -140,7 +140,8 @@ export default function OlibiaDashboard() {
     [done, setDone] = useState({}),
     [notice, setNotice] = useState(''),
     [banner, setBanner] = useState(true),
-    [menuOpen, setMenuOpen] = useState(false);
+    [menuOpen, setMenuOpen] = useState(false),
+    [menuCollapsed, setMenuCollapsed] = useState(false);
 
   const setQuery = value => update({ query: value }, { replace: true });
   const setStage = value => update({ stage: value });
@@ -225,6 +226,39 @@ export default function OlibiaDashboard() {
     <>
       <header className="top">
         <div className="top-brand">
+          {/* Colapsar el panel es distinto de abrir la navegacion, asi que
+              lleva el icono de panel lateral y no una hamburguesa. Va en el
+              extremo izquierdo, alineado con el panel que controla. */}
+          <button
+            type="button"
+            className="panel-toggle"
+            aria-expanded={!menuCollapsed}
+            aria-controls="menu-principal"
+            aria-label={menuCollapsed ? 'Mostrar el menú' : 'Ocultar el menú'}
+            title={menuCollapsed ? 'Mostrar el menú' : 'Ocultar el menú'}
+            onClick={() => setMenuCollapsed(c => !c)}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <rect
+                x="3.25"
+                y="4.25"
+                width="17.5"
+                height="15.5"
+                rx="2.25"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              />
+              <line
+                x1="9.5"
+                y1="4.25"
+                x2="9.5"
+                y2="19.75"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              />
+            </svg>
+          </button>
           <span className="brand">Olibia</span>
           <small>Gestión comercial</small>
         </div>
@@ -267,7 +301,10 @@ export default function OlibiaDashboard() {
             elegir una opcion se cierra solo, porque dejarlo abierto taparia
             justo lo que la persona acaba de pedir. */}
         <aside
-          className={menuOpen ? 'is-open' : undefined}
+          className={
+            `${menuOpen ? 'is-open' : ''}${menuCollapsed ? ' is-collapsed' : ''}`.trim() ||
+            undefined
+          }
           onClick={e => {
             if (e.target.closest('a')) setMenuOpen(false);
           }}
