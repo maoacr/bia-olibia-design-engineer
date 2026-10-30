@@ -1141,7 +1141,7 @@ tbody tr.is-followed td:first-child {
 
 .goal__candidate {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
   width: 100%;
@@ -1164,13 +1164,12 @@ tbody tr.is-followed td:first-child {
   border-color: var(--accent);
 }
 
-/* Empresa y responsable como un bloque, el valor pegado al otro extremo:
-   la fila crece con el panel sin que el nombre quede flotando solo. */
+/* Empresa arriba y el dato secundario debajo, en renglones aparte: puestos
+   uno al lado del otro competian por la misma linea y el nombre dejaba de
+   leerse como el titulo de la fila. El valor queda pegado al otro extremo. */
 .goal__candidate-who {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-1) var(--space-3);
+  display: grid;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -1188,11 +1187,26 @@ tbody tr.is-followed td:first-child {
   font-variant-numeric: tabular-nums;
 }
 
-.goal__spare,
-.goal__fallback {
+.goal__spare {
   margin: 0;
   font-size: var(--text-md);
   color: var(--text-secondary);
+}
+
+/* El caso vacio usa la misma fila que un mes con negociaciones, con su
+   rotulo encima: lo que cambia es que hay una sola y no es una negociacion,
+   no la forma de mostrarla. */
+.goal__fallback {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.goal__fallback-label {
+  margin: 0;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
 }
 
 /* ─── Tooltip (Radix) ──────────────────────────────────────────────── */
@@ -1258,7 +1272,7 @@ tbody tr.is-followed td:first-child {
      columna, 13px por fuera de la linea donde caen las cifras. La misma
      sangria que la cifra los pone a todos sobre la misma linea. */
   .goal__side--stake .goal__spare,
-  .goal__side--stake .goal__fallback {
+  .goal__side--stake .goal__fallback-label {
     padding-right: calc(var(--space-3) + 1px);
   }
 

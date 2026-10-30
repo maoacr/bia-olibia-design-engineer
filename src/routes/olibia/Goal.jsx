@@ -249,12 +249,50 @@ export default function Goal({ period, opportunities, onSelect }) {
                 )}
 
                 {uncovered && fallback && (
-                  <p className="goal__fallback">
-                    Lo más avanzado está en {fallback.stage}:{' '}
-                    <button type="button" className="linkish" onClick={() => onSelect(fallback)}>
-                      {fallback.company} · {money(fallback.value)}
-                    </button>
-                  </p>
+                  /* Misma fila que las candidatas de un mes con negociaciones.
+                     Antes era un enlace apretado dentro de un parrafo: en el
+                     mes donde MAS hace falta un siguiente paso, era lo que
+                     peor se veia. La etapa ocupa el lugar del responsable
+                     porque es el motivo por el que esta cuenta es la que es. */
+                  <div className="goal__fallback">
+                    <p className="goal__fallback-label">Lo más avanzado</p>
+                    <ul className="goal__candidates">
+                      <li>
+                        <Tooltip.Root>
+                          <Tooltip.Trigger asChild>
+                            <button
+                              type="button"
+                              className="goal__candidate"
+                              onClick={() => onSelect(fallback)}
+                            >
+                              <span className="goal__candidate-who">
+                                <span className="goal__candidate-name">{fallback.company}</span>
+                                <span className="goal__candidate-owner">{fallback.stage}</span>
+                              </span>
+                              <span className="goal__candidate-value">{money(fallback.value)}</span>
+                            </button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Portal>
+                            <Tooltip.Content
+                              className="tip"
+                              side="bottom"
+                              sideOffset={8}
+                              collisionPadding={12}
+                            >
+                              <strong>{fallback.company}</strong>
+                              <span>
+                                {fallback.owner} · próximo contacto {fallback.nextContact}
+                              </span>
+                              <span className="tip__note">
+                                Es lo que más lejos llegó, no una negociación.
+                              </span>
+                              <Tooltip.Arrow className="tip__arrow" width={11} height={5} />
+                            </Tooltip.Content>
+                          </Tooltip.Portal>
+                        </Tooltip.Root>
+                      </li>
+                    </ul>
+                  </div>
                 )}
               </div>
             </div>
