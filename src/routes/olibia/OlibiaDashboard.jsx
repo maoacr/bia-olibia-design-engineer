@@ -4,6 +4,8 @@ import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
 import { opportunitiesWithMovement, previousPeriodOf } from './movement.js';
 import Goal from './Goal.jsx';
 import { MovementTag } from './Movement.jsx';
+import Pipeline from './Pipeline.jsx';
+import Assistant from './Assistant.jsx';
 import Stalled from './Stalled.jsx';
 import Trend from './Trend.jsx';
 import Origin from './Origin.jsx';
@@ -14,9 +16,6 @@ import { useFilterParams } from './useFilterParams.js';
 import Dock from './Dock.jsx';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
-
-/** Concordancia de numero: "1 oportunidad abierta", no "1 oportunidades abiertas". */
-const plural = (count, singular, many) => `${count} ${count === 1 ? singular : many}`;
 
 export default function OlibiaDashboard() {
   const { filters, update, reset } = useFilterParams();
@@ -165,6 +164,11 @@ export default function OlibiaDashboard() {
             </select>
             <button onClick={exportCSV}>Exportar CSV</button>
           </div>
+          {/* El total del periodo encabeza la lectura: es el denominador que
+              los cinco bloques descomponen, y hasta ahora la pagina lo
+              repartia sin declararlo nunca. Ver el porque del lugar y del
+              tamaño de su cifra en Pipeline.jsx. */}
+          <Pipeline period={d} previous={previous} opportunities={all} />
           {/* La primera pregunta de quien es dueño del numero va primero, y
               recibe `all` —el periodo completo— porque la meta es del equipo
               y no responde a los filtros. */}
@@ -186,77 +190,21 @@ export default function OlibiaDashboard() {
           />
           {/* Quinta y ultima pregunta. El historial es del equipo. */}
           <Trend period={d} onSelectPeriod={id => update({ period: id })} />
-          {/* Cierres y meta ya no viven aqui: los contesta el bloque "Vamos a
-              llegar?" de arriba, y repetirlos seria mostrar el mismo hecho dos
-              veces. Queda solo lo que SI responde a los filtros, que es
-              justamente lo que el starter no sabia separar. */}
-          <div className="kpi-groups">
-            {[
-              {
-                title: 'Lo que estás viendo',
-                hint: filtersActive ? 'con los filtros aplicados' : 'sin filtros aplicados',
-                cards: [
-                  ['Oportunidades abiertas', rows.length, `de ${all.length} en el periodo`],
-                  ['Valor del pipeline', `$${total} M`, 'COP millones / mes'],
-                ],
-              },
-            ].map(({ title, hint, cards }) => (
-              <section className="kpi-group" key={title} aria-label={title}>
-                <h2 className="kpi-group__title">
-                  {title} <span className="kpi-group__hint">{hint}</span>
-                </h2>
-                <div className="kpis">
-                  {cards.map(([label, value, note]) => (
-                    <div className="card" key={label}>
-                      {label}
-                      <div className="value">{value}</div>
-                      <div className="muted">{note}</div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-          <section className="panel ai-widget" id="q-explorar" aria-label="Resumen AI">
-            <div className="ai-heading">
-              <h2>Resumen AI</h2>
-              <span className="badge">Vista de demostración</span>
-            </div>
-            <div aria-live="polite">
-              {rows.length ? (
-                <>
-                  <p>
-                    Hay{' '}
-                    <strong>
-                      {plural(rows.length, 'oportunidad abierta', 'oportunidades abiertas')}
-                    </strong>{' '}
-                    en esta vista, por un valor mensual estimado de{' '}
-                    <strong>${total} millones COP</strong>.{' '}
-                    {negotiation.length
-                      ? `${plural(negotiation.length, 'está', 'están')} en negociación y ${negotiation.length === 1 ? 'concentra' : 'concentran'} $${negotiation.reduce((sum, o) => sum + o.value, 0)} millones COP del pipeline.`
-                      : 'Ninguna de las oportunidades visibles está en negociación.'}
-                  </p>
-                  <p>
-                    <strong>Siguiente paso sugerido:</strong> revisar{' '}
-                    {negotiation.length
-                      ? 'las negociaciones pendientes'
-                      : 'las próximas fechas de contacto'}{' '}
-                    y confirmar responsables.
-                  </p>
-                </>
-              ) : (
-                <p>
-                  {cause
-                    ? `Ninguna oportunidad de ${d.label} tiene ${cause.name} "${cause.value}".`
-                    : 'No hay oportunidades con esta combinación de filtros.'}
-                </p>
-              )}
-            </div>
-            <p className="scope-note">
-              Resumen simulado a partir de los datos visibles; no utiliza un servicio de AI.
-            </p>
-          </section>
-          <section className="panel panel--control filter-panel">
+          {/* El grupo "Lo que estas viendo" se fue completo. Sus dos cifras
+              —cuantas oportunidades y por cuanto— las decia tambien, palabra
+              por palabra, el resumen de AI; y el titulo de la tabla dice la
+              primera una tercera vez. El total del periodo, que es el dato que
+              ninguno de los tres daba, pasa a encabezar la pagina.
+
+              El resumen de AI tampoco vive ya aca: es la burbuja del
+              asistente, al pie de la pantalla. Ver Assistant.jsx.
+
+              Y "q-explorar" se muda con el. Apuntaba al resumen, que estaba
+              justo encima de los filtros; ahora senala los filtros mismos, que
+              son la zona que de verdad responde a ellos. Por eso el dock
+              pone ahi su aviso de filtro activo: el aviso va donde el filtro
+              tiene efecto. */}
+          <section className="panel panel--control filter-panel" id="q-explorar">
             <h2>Filtrar oportunidades abiertas</h2>
             <div className="filter-grid">
               <label>
@@ -296,9 +244,12 @@ export default function OlibiaDashboard() {
               </label>
               <button onClick={clearFilters}>Limpiar filtros</button>
             </div>
+            {/* Decia que los filtros aplican "al pipeline y a las graficas de
+                oportunidades". Ninguna de las dos cosas era cierta: los cinco
+                bloques y la banda del pipeline reciben el periodo completo. */}
             <p className="scope-note">
-              Aplican al pipeline, al resumen AI, a las gráficas de oportunidades y a la tabla. Los
-              cierres muestran el total del periodo.
+              Aplican a la tabla y al asistente. El pipeline y los cinco bloques de arriba muestran
+              el periodo completo, sin filtrar.
             </p>
           </section>
           {/* Los cuatro graficos del starter se fueron, cada uno por su
@@ -395,6 +346,9 @@ export default function OlibiaDashboard() {
           </footer>
         </main>
       </div>
+      {/* Fuera de `main`: flota sobre la pagina, no corre con ella. Comparte
+          rincon con el dock, que desde 40rem se va a la columna izquierda. */}
+      <Assistant rows={rows} total={total} negotiation={negotiation} cause={cause} period={d} />
       {selected && (
         <OpportunityDetail
           opportunity={selected}

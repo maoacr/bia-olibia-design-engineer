@@ -107,6 +107,13 @@
   --menu-width: 232px;
   --menu-rail: 60px;
 
+  /* El piso tactil del dock, y de ahi su alto. La burbuja del asistente se
+     apila encima en movil, asi que necesita saber cuanto despejar: lo deriva
+     de aca en vez de llevar un 58px escrito a mano que se desactualiza en
+     silencio el dia que el dock cambie. */
+  --dock-item-min: 48px;
+  --dock-height: calc(var(--dock-item-min) + var(--space-1) * 2 + 2px);
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;

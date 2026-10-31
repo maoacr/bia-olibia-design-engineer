@@ -335,8 +335,7 @@ main {
   margin-bottom: var(--space-5);
 }
 
-.filter-panel,
-.ai-widget {
+.filter-panel {
   margin-bottom: var(--space-5);
 }
 
@@ -374,7 +373,6 @@ main {
    la desarrolla y lo que solo sirve para operar. Alguien con pocos minutos
    tiene que poder saltear el tercero sin perderse nada. */
 
-.card,
 .panel {
   background: var(--surface-panel);
   border: 1px solid var(--border);
@@ -410,54 +408,93 @@ main {
   margin-bottom: var(--space-3);
 }
 
-/* ─── Indicadores agrupados por alcance ────────────────────────────── */
+/* ─── Pipeline del periodo ─────────────────────────────────────────── */
 
-.kpi-groups {
-  display: grid;
-  gap: var(--space-5);
+/* Enmarca la pagina, no es un bloque mas de ella. Por eso no lleva
+   superficie de panel —seria una tarjeta compitiendo con las tarjetas— sino
+   una linea al pie que lo separa de los cinco bloques que encabeza. */
+.pipeline {
+  padding-bottom: var(--space-5);
   margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
 }
 
-.kpi-group__title {
+/* La etiqueta y el alcance comparten renglon: apilados eran dos lineas de
+   texto chico antes de llegar a la cifra, y una banda que tarda dos lineas
+   en decir algo deja de ser una banda. */
+.pipeline__head {
   display: flex;
   align-items: baseline;
-  gap: var(--space-2);
   flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+/* Etiqueta estructural, no pregunta: chica y en mayusculas para que las
+   cinco preguntas de abajo sigan siendo las unicas que suenan a titulo. */
+.pipeline__title {
   font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-secondary);
-  margin: 0 0 var(--space-3);
-}
-
-.kpi-group__hint {
-  font-size: var(--text-xs);
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--text-muted);
-}
-
-.kpis {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
   margin: 0;
 }
 
-.card {
+.pipeline__scope {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* El hueco entre el total y su variacion es grande a proposito: son dos
+   hechos, no una frase corrida. Con 1.5rem se leian como uno solo. */
+.pipeline__figures {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-7);
+}
+
+.pipeline__figure {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/* Un escalon por debajo de .goal__figure a proposito: el monto en juego de
+   "Vamos a llegar?" es una porcion de este total, y dos cifras del mismo
+   peso se leerian como dos hechos en competencia. */
+.pipeline__figure strong {
+  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 1.875rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pipeline__figure span {
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
-.value {
-  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 1.875rem);
-  font-weight: 650;
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
-  margin: var(--space-3) 0 var(--space-1);
+/* Sin color de señal: que el pipeline crezca no es por si mismo bueno ni
+   malo. La flecha da la direccion y nada mas. */
+.pipeline__delta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+.pipeline__arrow {
+  color: var(--text-secondary);
 }
 
 /* ─── Tabla ────────────────────────────────────────────────────────── */
@@ -589,31 +626,211 @@ tbody tr.is-followed td:first-child {
   max-width: 60ch;
 }
 
-/* ─── Resumen AI ───────────────────────────────────────────────────── */
+/* ─── Asistente ────────────────────────────────────────────────────── */
 
-.ai-widget {
-  border-color: var(--border-strong);
-}
+/* El resumen AI dejo de ser un panel en medio de la pagina. Ver el porque
+   del lugar, del apilado sobre el dock y de que no sea modal en
+   Assistant.jsx.
 
-.ai-heading {
+   Entre el dock (30) y el modal de detalle (50): flota sobre el contenido,
+   pero el detalle de una oportunidad le pasa por encima. */
+.assistant {
+  position: fixed;
+  z-index: 40;
+  right: var(--space-3);
+  /* Despeja el dock, que en movil ocupa la franja de abajo. El alto sale de
+     --dock-height, derivado de los tokens que dibujan el dock. */
+  bottom: calc(var(--dock-height) + var(--space-3) * 2);
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-3);
+  /* Deja respirar al panel contra el borde izquierdo en pantalla chica. */
+  left: var(--space-3);
+  pointer-events: none;
+}
+
+.assistant > * {
+  pointer-events: auto;
+}
+
+/* El mismo vidrio del dock: las dos son capas que flotan sobre contenido, y
+   el sistema reserva este tratamiento justo para eso. */
+.assistant__trigger {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  min-height: 0;
+  padding: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-xl));
+  -webkit-backdrop-filter: blur(var(--blur-xl));
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-panel);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .assistant__trigger {
+    background: var(--surface-panel);
+  }
+}
+
+.assistant__trigger:hover {
+  background: var(--surface-raised);
+  color: var(--accent);
+}
+
+.assistant__trigger.is-open {
+  color: var(--accent);
+}
+
+/* El acento esta reservado para lo que se esta interrogando, asi que el
+   aviso de pendiente usa el ambar de atencion, igual que el punto del dock. */
+.assistant__unread {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.25rem;
+  border-radius: var(--radius-full);
+  background: var(--signal-attention);
+  box-shadow: 0 0 0 2px var(--surface-base);
+  color: var(--surface-base);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.assistant__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 24rem;
+  /* Nunca mas alto que lo que queda de pantalla sobre el dock. */
+  max-height: calc(100vh - var(--dock-height) - var(--header-height) - var(--space-5));
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  /* OPACO, y no el vidrio del dock. Medido en el navegador: con el vidrio
+     claro encima de un glifo oscuro, la etiqueta y la nota al pie caian a
+     2.84:1 y el boton de cerrar a 4.18:1. El gate de contraste no lo ve
+     porque compara token contra token y no compone transparencias.
+
+     Pero el motivo de fondo es anterior al numero: el vidrio esta bien para
+     una barra fina de iconos que flota sobre el contenido —el dock— y mal
+     para una superficie de lectura. Un parrafo sobre un desenfoque de lo que
+     pasa por atras se lee peor aunque el contraste de la cuenta. */
+  background: var(--surface-panel);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-panel);
+}
+
+.assistant__panel:focus {
+  outline: none;
+}
+
+.assistant__head {
+  display: flex;
   align-items: flex-start;
+  justify-content: space-between;
   gap: var(--space-3);
 }
 
-.ai-heading h2 {
+.assistant__identity {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.assistant__identity h2 {
   margin: 0;
+  font-size: var(--text-md);
 }
 
-.ai-widget p {
-  line-height: 1.6;
+.assistant__close {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: var(--radius-full);
   color: var(--text-secondary);
-  max-width: 72ch;
 }
 
-.ai-widget strong {
+.assistant__close:hover:not(:disabled) {
+  background: var(--surface-hover);
   color: var(--text-primary);
+}
+
+.assistant__thread {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.assistant__from {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* El mensaje entrante va sobre superficie elevada y con la esquina inferior
+   izquierda cuadrada: es la forma que dice "esto lo dijo el otro". */
+.assistant__bubble {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+}
+
+.assistant__bubble p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.assistant__bubble p + p {
+  margin-top: var(--space-3);
+}
+
+.assistant__bubble strong {
+  color: var(--text-primary);
+}
+
+.assistant__composer {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.assistant__composer input {
+  flex: 1;
+  min-width: 0;
+}
+
+.assistant__composer button {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  padding-inline: var(--space-3);
+}
+
+.assistant .scope-note {
+  margin: 0;
+  font-size: var(--text-xs);
 }
 
 /* ─── Movimiento entre periodos ────────────────────────────────────── */
@@ -803,11 +1020,24 @@ tbody tr.is-followed td:first-child {
     transform: none;
   }
 
-  .tabletools,
-  .ai-heading {
+  .tabletools {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  /* Desde aca el dock se fue a la columna izquierda, asi que el angulo
+     inferior derecho queda libre: la burbuja baja al rincon de siempre y
+     deja de despejar nada. El panel ya no necesita estirarse al ancho de la
+     pantalla, se queda en su ancho de popover. */
+  .assistant {
+    left: auto;
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
+
+  .assistant__panel {
+    max-height: calc(100vh - var(--header-height) - var(--space-7));
   }
 }
 
@@ -821,19 +1051,8 @@ tbody tr.is-followed td:first-child {
     padding-bottom: var(--space-5);
   }
 
-  .card,
   .panel {
     padding: var(--space-5);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   69rem · los dos grupos de indicadores conviven en una fila
-   ═══════════════════════════════════════════════════════════════════ */
-
-@media (min-width: 69rem) {
-  .kpi-groups {
-    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -2285,7 +2504,9 @@ tbody tr.is-followed td:first-child {
   align-content: center;
   gap: 3px;
   width: 100%;
-  min-height: 48px;
+  /* El mismo valor del que sale --dock-height: si este piso sube, el despeje
+     de la burbuja del asistente sube con el. */
+  min-height: var(--dock-item-min);
   padding: var(--space-1);
   background: none;
   border: 1px solid transparent;
