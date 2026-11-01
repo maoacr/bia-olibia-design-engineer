@@ -1,0 +1,5 @@
+# Todo el sitio es publico: es la demo de una prueba de diseno.
+User-agent: *
+Allow: /
+
+Sitemap: https://bia-olibia-design-engineer.vercel.app/sitemap.xml

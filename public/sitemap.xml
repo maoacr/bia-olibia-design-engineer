@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Una sola URL. La raiz redirige a /olibia, asi que listar las dos seria
+  pedirle al buscador que indexe un redirect.
+
+  Sin `lastmod` a proposito: un sitemap estatico con una fecha escrita a
+  mano envejece en silencio. O se actualiza en cada deploy, o no se pone.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://bia-olibia-design-engineer.vercel.app/olibia</loc>
+  </url>
+</urlset>
