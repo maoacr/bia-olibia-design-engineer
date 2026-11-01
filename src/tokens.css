@@ -117,6 +117,19 @@
   --space-8: 4rem;
 
   --header-height: 69px;
+
+  /* EL AIRE QUE QUEDA ENTRE LA CABECERA Y LA SECCION A LA QUE SE SALTA.
+     Lo comparten el dock —que desplaza con JavaScript, no con anclas— y el
+     `scroll-margin-top` de los destinos. Estando en un solo token, los dos
+     no pueden desincronizarse: antes los dos decian 16 y al cambiar uno
+     el titulo aterrizaba en un lugar y el otro en otro.
+
+     No es solo el alto de la cabecera: encima esta el velo, que se sostiene
+     opaco al 94% hasta el borde de la barra y se suelta en los 9rem
+     siguientes. Con 16px el titulo caia bajo un 85% de negro, con 4:1 de
+     contraste; con 48px queda a 81px de la cabecera, con el velo en 38% y
+     12.8:1. Medido en el navegador, no estimado. */
+  --scroll-offset: var(--space-7);
   --menu-width: 232px;
   --menu-rail: 60px;
 

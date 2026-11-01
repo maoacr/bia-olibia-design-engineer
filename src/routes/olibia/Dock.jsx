@@ -250,13 +250,31 @@ export default function Dock({ collapsed, onToggle }) {
   // alturas muy distintas —van de 335 a 759px—; una linea fija es predecible.
   useEffect(() => {
     let frame = 0;
+    // La linea de lectura se mide una vez y se recalcula cuando cambia el
+    // ancho, porque depende del alto de la cabecera pegajosa.
+    let linea = 140;
+    const medirLinea = () => {
+      const el = document.getElementById(DESTINOS[0].id);
+      if (!el) return;
+      const valor = parseFloat(getComputedStyle(el).scrollMarginTop);
+      if (!Number.isNaN(valor) && valor > 0) linea = valor;
+    };
+    medirLinea();
+
     const update = () => {
       frame = 0;
-      // Offset FIJO, no un porcentaje del alto de la ventana. Con un 30% y
-      // una ventana de 1600px la linea cae en 480, y un bloque de 384 nunca
-      // la contiene aunque este arriba de todo: la marca se adelantaba.
-      // 140px es justo debajo de la cabecera pegajosa.
-      const line = 140;
+      // DONDE ESTA LA LINEA DE LECTURA.
+      //
+      // Ni un porcentaje del alto de la ventana —con un 30% y una ventana
+      // de 1600px la linea cae en 480, y un bloque de 384 nunca la
+      // contiene aunque este arriba de todo: la marca se adelantaba— ni un
+      // numero fijo: 140px quedo viejo cuando el titulo aterrizaba a 16px
+      // de la cabecera. Ahora el titulo aterriza mas abajo, la linea caia
+      // en la seccion ANTERIOR y la marca del dock se atrasaba un destino.
+      //
+      // La linea es la misma cuenta que el `scroll-margin-top` de las
+      // secciones: donde cae el titulo de la seccion es donde se lee.
+      const line = linea;
       // Gana la seccion que CONTIENE la linea, no la ultima que quedo por
       // encima: con una ventana alta entran varias arriba del umbral y la
       // marca se adelantaba una posicion.
@@ -291,10 +309,16 @@ export default function Dock({ collapsed, onToggle }) {
     };
     update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    // Al cambiar el ancho cambia el alto de la cabecera pegajosa, y con el
+    // cambia donde tiene que caer la linea de lectura.
+    const onResize = () => {
+      medirLinea();
+      onScroll();
+    };
+    window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      window.removeEventListener('resize', onResize);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
@@ -305,9 +329,14 @@ export default function Dock({ collapsed, onToggle }) {
     // El margen que deja libre la cabecera pegajosa se calcula aqui porque
     // el desplazamiento es propio: `scroll-margin-top` solo lo respeta
     // `scrollIntoView`, que es justo lo que se dejo de usar.
-    const cabecera = document.querySelector('.top');
-    const aire = (cabecera ? cabecera.getBoundingClientRect().height : 0) + 16;
-    const destino = Math.max(0, el.getBoundingClientRect().top + window.scrollY - aire);
+    //
+    // Pero el margen se LEE del destino, ya calculado: el `scroll-margin-top`
+    // que el CSS le pone a cada seccion es la misma cuenta, en px y con el
+    // velo de la cabecera tenido en cuenta. Recalcularlo en JavaScript era
+    // tener el mismo numero en dos lugares, y con el velo ese numero dejaba
+    // el titulo bajo un 85% de negro.
+    const margen = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+    const destino = Math.max(0, el.getBoundingClientRect().top + window.scrollY - margen);
 
     if (reduceMotion) {
       cancelAnimationFrame(viaje.current);

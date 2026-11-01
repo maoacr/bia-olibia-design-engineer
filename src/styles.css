@@ -348,7 +348,8 @@ a:focus-visible {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
-  transition: color var(--duration-fast) var(--ease),
+  transition:
+    color var(--duration-fast) var(--ease),
     border-color var(--duration-fast) var(--ease);
 }
 
@@ -3325,14 +3326,23 @@ td:nth-child(4) {
 /* ─── Destinos del dock ────────────────────────────────────────────── */
 
 /* La cabecera es pegajosa: sin este margen, `scrollIntoView` deja la seccion
-   pegada al tope del viewport y el titulo queda debajo de la cabecera. */
+     pegada al tope del viewport y el titulo queda debajo de la cabecera.
+
+     Y el margen NO es solo el alto de la cabecera: encima esta el VELO, que
+     se sostiene opaco (94%) hasta el borde de la barra y recien despues se
+     suelta. Con el margen de antes (+16px) el titulo caia bajo un 85% de
+     negro: se leia con dificultad y parecia tapado.
+
+     Medido en el navegador, contra el gradiente que este aplica: antes, el
+     titulo quedaba a 16px de la cabecera con 85% de negro encima (unos
+     4:1). Ahora queda a 81px, con el velo en 38% y 12.8:1 contra el fondo. */
 #q-meta,
 #q-trabadas,
 #q-equipo,
 #q-origen,
 #q-tendencia,
 #q-explorar {
-  scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  scroll-margin-top: calc(var(--header-height) + var(--scroll-offset));
 }
 
 /* Destello al llegar: ata el clic del dock con el modulo que aparece. Hace
