@@ -53,7 +53,7 @@ const IconChat = () => (
 /** Concordancia de numero, para no escribir "1 oportunidades". */
 const plural = (count, singular, many) => `${count} ${count === 1 ? singular : many}`;
 
-export default function Assistant({ rows, total, negotiation, cause, period }) {
+export default function Assistant({ rows, total, negotiation, overdue, cause, period }) {
   const [open, setOpen] = useState(false);
   const [read, setRead] = useState(false);
 
@@ -144,13 +144,29 @@ export default function Assistant({ rows, total, negotiation, cause, period }) {
                         ? `${plural(negotiation.length, 'está', 'están')} en negociación y ${negotiation.length === 1 ? 'concentra' : 'concentran'} $${negotiation.reduce((sum, o) => sum + o.value, 0)} millones COP del pipeline.`
                         : 'Ninguna de las oportunidades visibles está en negociación.'}
                     </p>
-                    <p>
-                      <strong>Siguiente paso sugerido:</strong> revisar{' '}
-                      {negotiation.length
-                        ? 'las negociaciones pendientes'
-                        : 'las próximas fechas de contacto'}{' '}
-                      y confirmar responsables.
-                    </p>
+                    {/* Lo vencido manda sobre todo lo demas. El paso sugerido
+                        era siempre el mismo porque no habia nada que pudiera
+                        volverlo urgente; ahora si lo hay, y nombrar a quien
+                        esta mas atrasado da algo que hacer en vez de una
+                        categoria que revisar. */}
+                    {overdue.length ? (
+                      <p>
+                        <strong>
+                          {plural(overdue.length, 'contacto vencido', 'contactos vencidos')}
+                        </strong>
+                        : {overdue.map(o => o.company).join(', ')}.{' '}
+                        <strong>Siguiente paso sugerido:</strong> llamar a {overdue[0].company}, que
+                        quedó para el {overdue[0].nextContact}.
+                      </p>
+                    ) : (
+                      <p>
+                        <strong>Siguiente paso sugerido:</strong> revisar{' '}
+                        {negotiation.length
+                          ? 'las negociaciones pendientes'
+                          : 'las próximas fechas de contacto'}{' '}
+                        y confirmar responsables. Ningún contacto está vencido.
+                      </p>
+                    )}
                   </>
                 ) : (
                   <p>

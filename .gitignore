@@ -12,3 +12,7 @@ dist/
 npm-debug.log*
 .vercel
 .env*
+
+# El proyecto se instala con npm (ver README). Un segundo archivo de
+# bloqueo conviviendo con package-lock.json desincroniza las versiones.
+pnpm-lock.yaml
