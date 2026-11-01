@@ -174,7 +174,7 @@ El starter traía una base razonable (ARIA, HTML semántico, `focus-visible`, `p
 
 - 72 comprobaciones de contraste verificadas en ambos temas, automatizadas.
 - Foco encerrado en el diálogo, con retorno al disparador.
-- Un solo `h1` y ningún salto de nivel: `h1 Olibia` → nueve `h2`, uno por pregunta.
+- Un solo `h1` y ningún salto de nivel: `h1 Olibia` → siete `h2` en pantalla (la banda del pipeline, las cinco preguntas y la lista), y hasta nueve con el asistente o el detalle abiertos.
 - `prefers-reduced-motion` por fin reduce algo — en el starter el media query existía pero no había una sola transición.
 - Nada se codifica sólo por color: el realce suma peso tipográfico, el movimiento suma un punto, las etapas llevan su nombre escrito.
 - Áreas táctiles de 44px como mínimo, **incluidos los desplegables y el buscador** — el piso estaba declarado sólo en `button` y seis controles quedaban por debajo.
