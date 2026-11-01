@@ -948,6 +948,31 @@ td:nth-child(4) {
   border-color: var(--stage-negociacion);
 }
 
+/* LA FIRMA. En movil es una linea mas al final del contenido: ahi el dock
+   es la barra de abajo y un pie fijo se le montaria encima. El despeje para
+   no quedar debajo de esa barra ya lo pone `main`, derivado de
+   --dock-height. Desde tablet se despega al borde inferior izquierdo, que
+   es cuando el dock se fue a la columna izquierda y el angulo queda libre
+   —el derecho lo ocupa el asistente—. */
+.sign {
+  margin: var(--space-5) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.sign a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--border-control);
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.sign a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
 .foot {
   font-size: var(--text-xs);
   color: var(--text-muted);
@@ -3209,6 +3234,17 @@ td:nth-child(4) {
        sin `display: none`, que cortaria la animacion en seco. */
     transform: translate(calc(-100% - var(--space-4)), -50%);
     opacity: 0;
+  }
+
+  /* Despegada al borde. `z-index` por debajo del dock y del asistente: es
+     una firma, no un control, y nunca debe disputarles un clic. Se alinea
+     con la columna de contenido, como todo lo demas. */
+  .sign {
+    position: fixed;
+    z-index: 8;
+    bottom: var(--space-4);
+    left: calc(5.25rem + var(--space-6));
+    margin: 0;
   }
 
   .dock-tab {

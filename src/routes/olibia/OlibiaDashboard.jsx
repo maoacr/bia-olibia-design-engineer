@@ -337,6 +337,22 @@ export default function OlibiaDashboard() {
           <footer className="foot">
             Datos ficticios para el ejercicio de diseño · Sin conexión a sistemas de Bia/Olibia
           </footer>
+
+          {/* La firma. Se queda DENTRO de `main` en movil —ahi el dock es la
+              barra de abajo y un pie fijo se le montaria encima— y recien
+              desde tablet se despega al borde inferior, cuando el dock se
+              fue a la columna izquierda y el angulo queda libre.
+
+              `rel="noopener noreferrer"` no es ceremonia: sin `noopener`, la
+              pestaña que se abre recibe una referencia a esta ventana por
+              `window.opener` y puede redirigirla. */}
+          <p className="sign">
+            Desarrollado con <span aria-hidden="true">💚</span>
+            <span className="sr-only">amor</span> por{' '}
+            <a href="https://linkedin.com/in/maoacr" target="_blank" rel="noopener noreferrer">
+              @maoacr
+            </a>
+          </p>
         </main>
       </div>
       {/* Fuera de `main`: flota sobre la pagina, no corre con ella. Comparte
