@@ -2,6 +2,16 @@
 
 Dos experiencias sobre un mismo sistema de diseño: el tablero comercial de **Olibia** y la vista de consumo energético de **Bia**.
 
+El enunciado pedía una vista. Lo que hay acá es el recorrido completo que esa vista necesitaba: **auditar el dato** antes de dibujar, **decidir qué preguntas** contesta el producto, **diseñar el sistema** que las sostiene y **escribirlo** con las garantías que lo hacen defendible. Cada decisión está argumentada en el código, no sólo implementada — si una razón dejó de ser cierta, el comentario dice por qué cambió.
+
+|                   |                                                                                                                                              |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Producto**      | El tablero diagnosticaba y no podía tratar. Hoy se avanza de etapa, se registra el contacto y el sistema avisa a quién le debés una llamada. |
+| **UX**            | Cada control vive dentro de lo que afecta. Ningún alcance se explica con un párrafo: se declara por contención.                              |
+| **Diseño**        | Tokens en dos capas, dos temas, y un gate que falla el build si un par baja de AA. Ningún color se eligió a ojo.                             |
+| **Ingeniería**    | Todo se deriva de un punto: cambiar una etapa recalcula el movimiento, el embudo, la carga del equipo y la alerta — sin sincronizar nada.    |
+| **Accesibilidad** | Piso táctil de 44px, foco encerrado en los diálogos, estado anunciado, y el color nunca como único canal.                                    |
+
 **Demo:** https://bia-olibia-design-engineer.vercel.app/olibia
 
 ---
@@ -58,7 +68,21 @@ Las cinco respuestas descomponen un total que la página nunca declaraba: `Origi
 
 El resumen AI dejó de ser un panel en medio de la página y es una conversación: la misma cifra, pero con lugar para seguir preguntando. **No entró como séptimo destino del dock**, y eso se decidió midiendo: con los filtros puestos aparece además el botón de limpiar, y en 375px los siete destinos caen a 41,9px de ancho, por debajo del piso táctil de 44px. Se apila encima, con el mismo vidrio. El panel abierto, en cambio, es opaco — el vidrio sirve para una barra de iconos, no para una superficie de lectura.
 
+El tablero diagnosticaba y no podía tratar. Señalaba que Hotel Central lleva un mes sin moverse y la única acción de todo el producto era un booleano: «ya lo miré». **Adelantar de etapa cierra ese circuito**, y la parte que vale es que no sincroniza nada: la etapa entra por `opportunitiesWithMovement`, el punto del que se deriva todo lo que la página dibuja. Mover la cuenta trabada recalcula su movimiento contra el mes previo, y «¿Qué se está cayendo?» pasa de la alerta ámbar a **«Nada quedó parado: todas las cuentas se movieron»** — un estado vacío que ya existía en el código y que hasta ahora ninguna interacción podía alcanzar.
+
+**«Marcar seguimiento realizado» se fue, y con él la columna «Movimiento».** El botón dejaba un tilde junto al nombre y nada más: una cuenta recibe muchos contactos a lo largo del embudo, así que un booleano no contesta cuánto insistir ni cuándo volver — y se borraba al recargar, o sea que dependía de la sesión y no del cliente. La columna decía si la cuenta avanzó contra el mes anterior, que es una medida de **reporte**, no de trabajo; y lo decía por tercera vez, porque el riel de «¿Qué se está cayendo?» dibuja el recorrido completo con más contexto y el historial lo repite en palabras. El dato sigue vivo: alimenta ese bloque y el filtro.
+
+En su lugar, **registrar un contacto**: qué se habló y para cuándo quedó el próximo. Es lo que un asesor hace de verdad y lo que el booleano fingía. La nota encabeza el historial y la fecha **actualiza `nextContact`**, de donde sale la alerta de vencido — se ve al instante en la ficha, en la fila de la tabla y en el asistente. El botón se habilita con la nota, no con la fecha: reagendar sin contar nada no es un contacto, y una fecha nueva sin motivo no se puede auditar.
+
+**La alerta de vencido necesitó declarar un «hoy».** Un tablero de datos ficticios no tiene uno: la fecha del sistema dejaría los siete meses de historia vencidos para siempre y marcaría las ocho cuentas a la vez — una alerta que suena en el 100% de las filas no es una alerta. Cada periodo declara el día desde el que se lo mira (el 29), y así los tres estados existen de verdad: **3 vencidos, 3 para hoy, 2 por venir**. «Hoy» se nombra sin teñirse de alarma; si todo lo que pide atención grita, nada la pide.
+
+El historial **no inventa conversaciones**. Fuera de lo que se registra en la sesión, cada línea sale de un dato que el sistema ya tenía: en qué etapa estaba el mes pasado, quién la lleva, cuándo toca el próximo contacto, cómo se movió.
+
 Ningún color se eligió a ojo. El acento marca sólo lo que se está interrogando, y con el teal reservado el ámbar queda libre para lo que pide atención.
+
+**La tabla es una lista de trabajo, no un reporte.** Por eso se ordena por empresa o por fecha desde el encabezado —tres clics: ascendente, descendente, orden original— y por eso se fue la columna «Movimiento»: decir si una cuenta avanzó contra el mes pasado es una medida de reporte, y el riel de «¿Qué se está cayendo?» ya la dibuja con más contexto. En su lugar está lo que sí es de trabajo: vencido en rojo, hoy en ámbar.
+
+**El menú se guarda y devuelve 92px al contenido.** Nace abierto —es la única orientación de una página de 3900px— y la elección se recuerda. Animar el contenido junto al menú daba 12 fps con 6 de 6 cuadros perdidos: reflueye nueve paneles con SVG por cuadro. Animando sólo el menú, 49. El contenido salta y el panel se desliza limpio.
 
 ---
 
