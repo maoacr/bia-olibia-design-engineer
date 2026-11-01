@@ -948,19 +948,25 @@ td:nth-child(4) {
   border-color: var(--stage-negociacion);
 }
 
-/* LA FIRMA. En movil es una linea mas al final del contenido: ahi el dock
-   es la barra de abajo y un pie fijo se le montaria encima. El despeje para
-   no quedar debajo de esa barra ya lo pone `main`, derivado de
-   --dock-height. Desde tablet se despega al borde inferior izquierdo, que
-   es cuando el dock se fue a la columna izquierda y el angulo queda libre
-   —el derecho lo ocupa el asistente—. */
-.sign {
-  margin: var(--space-5) 0 0;
+/* Las dos lineas del pie: el aviso de datos ficticios y la firma. Apiladas
+   mientras el ancho no alcance, enfrentadas desde escritorio. El `max-width`
+   pasa del pie a cada parrafo — en el pie limitaba las dos juntas y el
+   `space-between` no tenia contra que repartir. */
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
-.sign a {
+.foot p {
+  margin: 0;
+  max-width: 72ch;
+}
+
+.foot a {
   color: var(--text-secondary);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -968,16 +974,9 @@ td:nth-child(4) {
   transition: color var(--duration-fast) var(--ease);
 }
 
-.sign a:hover {
+.foot a:hover {
   color: var(--accent);
   text-decoration-color: var(--accent);
-}
-
-.foot {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  margin-top: var(--space-5);
-  max-width: 72ch;
 }
 
 /* Aqui vivian `.followed-tag` —el tilde junto al nombre— y la fila atenuada
@@ -1398,6 +1397,16 @@ td:nth-child(4) {
 @media (min-width: 53rem) {
   :root {
     --header-height: 104px;
+  }
+
+  /* Recien aqui hay ancho para las dos en el mismo renglon sin que ninguna
+     se parta. `baseline` y no `center`: son dos lineas de texto del mismo
+     tamaño y lo que tiene que coincidir es su linea de escritura. */
+  .foot {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-5);
   }
 
   .brand {
@@ -3234,17 +3243,6 @@ td:nth-child(4) {
        sin `display: none`, que cortaria la animacion en seco. */
     transform: translate(calc(-100% - var(--space-4)), -50%);
     opacity: 0;
-  }
-
-  /* Despegada al borde. `z-index` por debajo del dock y del asistente: es
-     una firma, no un control, y nunca debe disputarles un clic. Se alinea
-     con la columna de contenido, como todo lo demas. */
-  .sign {
-    position: fixed;
-    z-index: 8;
-    bottom: var(--space-4);
-    left: calc(5.25rem + var(--space-6));
-    margin: 0;
   }
 
   .dock-tab {
