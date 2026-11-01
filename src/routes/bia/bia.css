@@ -1,0 +1,940 @@
+/* ═══════════════════════════════════════════════════════════════════
+   BIA — hoja de la segunda experiencia
+   ═══════════════════════════════════════════════════════════════════
+
+   Vive aparte de `styles.css` a proposito. Las dos experiencias comparten
+   el SISTEMA (tokens, tipografia, radio, movimiento) pero no el estilo:
+   Olibia es un tablero de 3900px de alto para alguien que la usa ocho
+   horas por dia, y Bia es una respuesta de una sola lectura para alguien
+   que tiene tres minutos. Juntas en un archivo, las reglas de una se
+   pisarian las de la otra por proximity; separadas, la diferencia se ve
+   en el codigo.
+
+   Regla del archivo: el PUNTEADO significa "sin confirmar" y nada mas. Un
+   hecho se dibuja con tinta solida. Si aparece un punteado, es una
+   hipotesis.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── El cuerpo de la pagina ──────────────────────────────────────── */
+
+main.bia {
+  /* Mas angosto que el de Olibia. El recibo se lee en una columna con
+     aire; estirado a 1680px, que es lo que usa el tablero, las cifras
+     quedan perdidas en el aire. */
+  max-width: 62rem;
+  padding-bottom: var(--space-7);
+}
+
+/* Bia no tiene dock al costado, asi que la barra no le cede la columna
+   izquierda al contenido: la marca arranca donde arranca el texto. */
+@media (min-width: 40rem) {
+  main.bia {
+    padding-left: var(--space-5);
+  }
+
+  .top__inner {
+    max-width: 62rem;
+    padding-left: var(--space-5);
+  }
+}
+
+/* ─── Los bloques ─────────────────────────────────────────────────── */
+
+.bloque {
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--border);
+  /* Un ancla a un bloque tiene que caer DEBAJO de la cabecera pegajosa,
+     no debajo de ella. */
+  scroll-margin-top: var(--header-height);
+}
+
+.bloque:first-of-type {
+  border-top: 0;
+  padding-top: var(--space-5);
+}
+
+.bloque__head {
+  margin-bottom: var(--space-5);
+}
+
+.bloque__head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.bloque__scope {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ─── 1 · El veredicto ────────────────────────────────────────────── */
+
+.veredicto__total-valor {
+  display: block;
+  font-size: clamp(2.5rem, 9vw, 3.75rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.veredicto__total-pie {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.veredicto__comparacion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-4) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El alza es la mala noticia: lleva el color de la senal negativa, no el
+   del acento. El acento marca "mira aca"; el rojo marca "esto te pega". */
+.veredicto__delta {
+  color: var(--signal-negative);
+  font-weight: 600;
+}
+
+/* La frase que sostiene todo el bloque. Es la primera que se lee y la
+   unica que corrige la lectura equivocada ("me encarecieron el kWh"). */
+.veredicto__plano {
+  margin: var(--space-5) 0 0;
+  max-width: 46ch;
+  font-size: 1.125rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+/* ─── La cascada ──────────────────────────────────────────────────── */
+
+.cascada {
+  --cascada-gap: var(--space-5);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--cascada-gap);
+  margin-top: var(--space-6);
+}
+
+.cascada__col {
+  display: flex;
+  flex-direction: column;
+}
+
+.cascada__cifra {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cascada__pila {
+  /* Alta a proposito: el tramo de acento tiene que medir mas de 44px
+     para que sea un objetivo tactil y no una franja que se esquiva.
+     Y angosta: dos losas del ancho de la columna se leen como dos cajas
+     grises, no como dos columnas de una grafica. */
+  position: relative;
+  height: 14rem;
+  max-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.cascada__barra {
+  display: block;
+  width: 100%;
+  /* Los botones de la familia traen borde, relleno y piso tactil. La barra
+     es una barra: sin borde, sin relleno y con la altura que le toca. */
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  min-height: 0;
+  background: transparent;
+}
+
+.cascada__barra--base {
+  height: calc(var(--parte) * 100%);
+  background: var(--chart-bar);
+}
+
+.cascada__barra--delta {
+  height: calc(var(--parte) * 100%);
+  background: var(--signal-negative);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cascada__delta {
+  font-size: var(--text-sm);
+  font-weight: 650;
+  color: var(--text-on-accent);
+  font-variant-numeric: tabular-nums;
+  padding: 0 var(--space-2);
+  white-space: nowrap;
+}
+
+/* El nivel de septiembre, dibujado sobre la columna de octubre: asi se ve
+   que la parte de abajo es la misma de antes y lo que hay encima es lo
+   que se sumo. Va en la PILA y no en la barra: la pila es la que sabe
+   donde esta el borde, y asi la guia no depende del ancho de la barra. */
+.cascada__pila--guia::before {
+  content: '';
+  position: absolute;
+  bottom: calc(var(--base) * 100%);
+  left: calc(-1 * var(--cascada-gap));
+  right: 0;
+  border-top: 1px dashed var(--border-strong);
+}
+
+.cascada__mes {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.cascada__tarifa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: var(--space-5) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.cascada__tarifa-clave {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.cascada__tarifa-valor {
+  font-weight: 650;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cascada__tarifa-nota {
+  color: var(--text-muted);
+}
+
+/* ─── 2 · Las sedes ────────────────────────────────────────────────── */
+
+.sedes__lista {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--border);
+}
+
+.sede {
+  display: block;
+  cursor: pointer;
+}
+
+.sede__fila {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-3);
+  align-items: start;
+  padding: var(--space-4) var(--space-2);
+  border-top: 1px solid var(--border);
+  min-height: 44px;
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.sede:hover .sede__fila {
+  background: var(--surface-hover);
+}
+
+.sede:has(input:checked) .sede__fila {
+  background: var(--surface-raised);
+}
+
+/* El radio real esta escondido; el circulito de al lado es el que se ve.
+   Se marca con relleno Y con el anillo, para que no dependa del color. */
+.sede__radio {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-control);
+  background: transparent;
+}
+
+.sede:has(input:checked) .sede__radio {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 4px var(--surface-raised);
+}
+
+.sede:has(input:focus-visible) .sede__fila {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.sede__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sede__nombre {
+  font-weight: 600;
+  font-size: var(--text-md);
+}
+
+.sede:has(input:checked) .sede__nombre {
+  font-weight: 700;
+}
+
+.sede__nota {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.sede__cifras {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+}
+
+.sede__consumo {
+  color: var(--text-secondary);
+}
+
+.sede__delta {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.sede__participacion {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+/* La barra crece DENTRO de una pista de ancho fijo y el porcentaje va
+   despues, en el flujo. Antes la barra era un porcentaje de la columna, y
+   al 80% empujaba la etiqueta hasta encima de la linea de la madrugada. */
+.sede__pista {
+  display: block;
+  width: 5.5rem;
+  flex: none;
+}
+
+.sede__barra {
+  display: block;
+  width: calc(var(--parte) * 100%);
+  min-width: 2px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+.sede__participacion-valor {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.sede__fuera {
+  grid-column: 2;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+/* La sede que se movio: se dice con el dato, con la flecha y con el
+   peso. El color acompaña, no reemplaza. */
+.sede__fuera--movida {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.sedes__conclusion {
+  margin: var(--space-5) 0 0;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+  max-width: 44ch;
+  text-wrap: balance;
+}
+
+@media (min-width: 53rem) {
+  .sede__fila {
+    /* Las cinco columnas tienen que caber sin pisarse: la barra de
+       participacion y su porcentaje ocupan una columna propia, y la de
+       "fuera de horario" otra. Con menos, el 80% se escribia encima de la
+       linea de la madrugada. */
+    grid-template-columns:
+      auto minmax(7rem, 1fr) minmax(10rem, auto)
+      minmax(11rem, 13rem) minmax(11rem, auto);
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .sede__cifras,
+  .sede__participacion,
+  .sede__fuera {
+    grid-column: auto;
+    margin-top: 0;
+  }
+
+  .sede__participacion {
+    justify-content: flex-start;
+  }
+}
+
+/* ─── 3 · El dia por tramos ───────────────────────────────────────── */
+
+.perfil__filas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.perfil__fila {
+  display: grid;
+  grid-template-columns: minmax(7rem, 10rem) 1fr;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+}
+
+.perfil__rotulo {
+  display: flex;
+  flex-direction: column;
+}
+
+.perfil__nombre {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.perfil__horas {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.perfil__pista {
+  display: flex;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+
+.perfil__prev {
+  display: block;
+  width: calc(var(--parte) * 100%);
+  background: var(--chart-bar);
+}
+
+.perfil__delta {
+  display: block;
+  width: calc(var(--parte) * 100%);
+  background: var(--signal-negative);
+}
+
+/* La franja de madrugada es la que sostiene la hipotesis: se la marca con
+   un filo de acento, no con el punteado. El punteado es para lo que no
+   esta confirmado, y el dato de la madrugada SI lo esta. */
+.perfil__fila--fuera .perfil__nombre {
+  color: var(--text-primary);
+}
+
+.perfil__fila--fuera .perfil__rotulo {
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-3);
+}
+
+.perfil__cifras {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+}
+
+.perfil__consumo {
+  color: var(--text-secondary);
+}
+
+.perfil__cambio {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.perfil__cambio-pct {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.perfil__pie {
+  margin: var(--space-5) 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 53rem) {
+  .perfil__fila {
+    grid-template-columns: minmax(9rem, 12rem) 1fr minmax(11rem, auto);
+  }
+
+  .perfil__cifras {
+    grid-column: auto;
+    justify-content: flex-end;
+    text-align: right;
+  }
+}
+
+/* ─── El hecho y las hipotesis ────────────────────────────────────── */
+
+.evidencia__bloque {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.evidencia__bloque--hecho {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+}
+
+/* EL PUNTEADO. En toda la pagina, el contorno punteado significa "esto es
+   una hipotesis y no esta confirmado". Un hecho, con tinta solida. */
+.evidencia__bloque--hipotesis {
+  border: 1px dashed var(--border-strong);
+  margin-top: var(--space-3);
+}
+
+.evidencia__bloque--limite {
+  margin-top: var(--space-3);
+  border-left: 2px solid var(--signal-negative);
+  padding-left: var(--space-4);
+}
+
+.evidencia__etiqueta {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.evidencia__texto {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  max-width: 62ch;
+}
+
+.evidencia__candidatos {
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.candidato__afirmacion {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--text-primary);
+}
+
+.candidato__afirmacion::before {
+  content: '— ';
+  color: var(--text-muted);
+}
+
+.candidato__evidencia {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--border);
+}
+
+.candidato__lado-titulo {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.candidato__lado ul {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.evidencia__toggle {
+  margin-top: var(--space-4);
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 44px;
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.evidencia__falta-titulo {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.evidencia__falta {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.evidencia--vacia .evidencia__vacia-titulo {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.evidencia__vacia-texto {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  max-width: 58ch;
+  line-height: 1.5;
+}
+
+@media (min-width: 53rem) {
+  .candidato__evidencia {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+}
+
+/* ─── 4 · El paso ─────────────────────────────────────────────────── */
+
+.paso__frase {
+  margin: 0 0 var(--space-5);
+  font-size: 1.25rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+  max-width: 40ch;
+  text-wrap: balance;
+}
+
+/* Cuando la persona esta mirando una sede que no tiene nada que explicar,
+   el paso se lo dice antes de ofrecer el de la que si. */
+.paso__nota {
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  max-width: 56ch;
+}
+
+.paso__principal {
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-panel);
+}
+
+.paso__titulo {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.paso__porque {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 56ch;
+}
+
+.paso__cta {
+  margin-top: var(--space-4);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+  padding: 0 var(--space-5);
+}
+
+.paso__cta:hover {
+  background-color: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--text-on-accent);
+}
+
+.paso__enviado {
+  padding: var(--space-5);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  background: var(--surface-panel);
+}
+
+.paso__enviado-titulo {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.paso__enviado-texto {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 56ch;
+}
+
+.paso__alternativa {
+  margin-top: var(--space-5);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-strong);
+}
+
+.paso__alternativa-etiqueta {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.paso__alternativa-titulo {
+  margin: var(--space-2) 0 0;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.paso__alternativa-condicion {
+  margin: var(--space-1) 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  max-width: 56ch;
+}
+
+/* ─── El dialogo del pedido ───────────────────────────────────────── */
+
+.dialogo {
+  background: var(--surface-panel);
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-5);
+}
+
+.dialogo__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.dialogo__titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.dialogo__cerrar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+.dialogo__intro {
+  margin: var(--space-3) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.dialogo__datos {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogo__datos li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-sm);
+}
+
+.dialogo__dato-clave {
+  color: var(--text-muted);
+}
+
+.dialogo__dato-valor {
+  font-weight: 650;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.dialogo__pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.dialogo__enviar {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+  padding: 0 var(--space-4);
+}
+
+.dialogo__enviar:hover {
+  background-color: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--text-on-accent);
+}
+
+/* ─── Los estados ─────────────────────────────────────────────────── */
+
+.cargando {
+  padding: var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cargando__linea,
+.cargando__bloque {
+  background: var(--surface-raised);
+  border-radius: var(--radius-md);
+  height: 1rem;
+  width: 60%;
+}
+
+.cargando__linea--ancha {
+  width: 100%;
+  height: 3rem;
+}
+
+.cargando__bloque {
+  height: 9rem;
+  width: 100%;
+}
+
+.cargando__bloque--corto {
+  width: 70%;
+}
+
+.bia__error {
+  padding: var(--space-6) 0;
+  border: 1px solid var(--signal-negative);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.bia__error-titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.bia__error-texto {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  max-width: 48ch;
+  line-height: 1.5;
+}
+
+.bia__error-boton {
+  margin-top: var(--space-4);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+  padding: 0 var(--space-4);
+}
+
+.bia__estados {
+  margin-top: var(--space-1);
+}
+
+.bia__estados-boton {
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 44px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.bia__estados-boton:hover {
+  color: var(--text-secondary);
+}
