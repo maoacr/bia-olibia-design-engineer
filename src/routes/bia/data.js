@@ -129,6 +129,11 @@ export const REPORT = (() => {
   const currentKwh = suma(sedes.map(sede => sede.currentTotal));
   const deltaKwh = currentKwh - previousKwh;
 
+  // La participacion en el alza se calcula DESPUES, sobre las sedes ya
+  // completas. Antes se armaba `mainSede` con la lista intermedia, que
+  // todavia no tenia `share`: la conclusion de la pagina imprimia "NaN%".
+  const completas = sedes.map(sede => ({ ...sede, share: sede.delta / deltaKwh }));
+
   return {
     tariff: TARIFF,
     previousKwh,
@@ -138,9 +143,9 @@ export const REPORT = (() => {
     currentBill: currentKwh * TARIFF,
     deltaBill: deltaKwh * TARIFF,
     deltaPercent: deltaKwh / previousKwh,
-    sedes: sedes.map(sede => ({ ...sede, share: sede.delta / deltaKwh })),
+    sedes: completas,
     /** La sede que concentra el problema: la de mayor participacion en el alza. */
-    mainSede: sedes.reduce((a, b) => (b.delta > a.delta ? b : a)),
+    mainSede: completas.reduce((a, b) => (b.delta > a.delta ? b : a)),
   };
 })();
 
