@@ -349,8 +349,12 @@
 
 .glass {
   background: var(--surface-glass);
+  /* SIN PREFIJO A PROPOSITO.
+     lightningcss, cuando encuentra las dos, conserva la ULTIMA: con la
+     estandar primero y la de WebKit despues, se queda con la de WebKit, y
+     Chrome 156 ya no aplica ese alias (el valor computado da `none`).
+     Declarando solo la estandar, el minificador la deja como esta. */
   backdrop-filter: blur(var(--blur-md));
-  -webkit-backdrop-filter: blur(var(--blur-md));
   border: 1px solid var(--border-glass);
 }
 

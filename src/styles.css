@@ -1120,8 +1120,12 @@ td:nth-child(4) {
   padding: 0;
   border-radius: var(--radius-full);
   background: var(--surface-glass);
+  /* SIN PREFIJO A PROPOSITO.
+     lightningcss, cuando encuentra las dos, conserva la ULTIMA: con la
+     estandar primero y la de WebKit despues, se queda con la de WebKit, y
+     Chrome 156 ya no aplica ese alias (el valor computado da `none`).
+     Declarando solo la estandar, el minificador la deja como esta. */
   backdrop-filter: blur(var(--blur-xl));
-  -webkit-backdrop-filter: blur(var(--blur-xl));
   border: 1px solid var(--border-glass);
   box-shadow: var(--shadow-panel);
   color: var(--text-primary);
@@ -1452,8 +1456,12 @@ td:nth-child(4) {
   position: fixed;
   inset: 0;
   background: rgb(0 0 0 / 0.6);
+  /* SIN PREFIJO A PROPOSITO.
+     lightningcss, cuando encuentra las dos, conserva la ULTIMA: con la
+     estandar primero y la de WebKit despues, se queda con la de WebKit, y
+     Chrome 156 ya no aplica ese alias (el valor computado da `none`).
+     Declarando solo la estandar, el minificador la deja como esta. */
   backdrop-filter: blur(var(--blur-sm));
-  -webkit-backdrop-filter: blur(var(--blur-sm));
   display: grid;
   place-items: end stretch;
   z-index: 50;
@@ -3101,8 +3109,12 @@ td:nth-child(4) {
   padding: var(--space-1);
   border-radius: var(--radius-lg);
   background: var(--surface-glass);
+  /* SIN PREFIJO A PROPOSITO.
+     lightningcss, cuando encuentra las dos, conserva la ULTIMA: con la
+     estandar primero y la de WebKit despues, se queda con la de WebKit, y
+     Chrome 156 ya no aplica ese alias (el valor computado da `none`).
+     Declarando solo la estandar, el minificador la deja como esta. */
   backdrop-filter: blur(var(--blur-xl));
-  -webkit-backdrop-filter: blur(var(--blur-xl));
   border: 1px solid var(--border-glass);
   box-shadow: var(--shadow-panel);
 }
@@ -3203,8 +3215,12 @@ td:nth-child(4) {
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   background: var(--surface-glass);
+  /* SIN PREFIJO A PROPOSITO.
+     lightningcss, cuando encuentra las dos, conserva la ULTIMA: con la
+     estandar primero y la de WebKit despues, se queda con la de WebKit, y
+     Chrome 156 ya no aplica ese alias (el valor computado da `none`).
+     Declarando solo la estandar, el minificador la deja como esta. */
   backdrop-filter: blur(var(--blur-md));
-  -webkit-backdrop-filter: blur(var(--blur-md));
   color: var(--text-secondary);
 }
 

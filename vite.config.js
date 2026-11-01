@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  css: {
+  build: {
     /**
      * LOS OBJETIVOS DEL MINIFICADOR.
      *
@@ -22,21 +22,20 @@ export default defineConfig({
      * usando sin notarlo — la decision de que "el vidrio esta bien para una
      * barra fina de iconos" daba por sentado un desenfoque que no existia.
      *
-     * Decirle a lightningcss que el objetivo es un navegador moderno
-     * devuelve la propiedad como esta escrita, sin prefijo.
+     * La opcion es `build.cssTarget` y no `css.lightningcss.targets`: el
+     * minificador hace `{...config.css.lightningcss, targets:
+     * convertTargets(config.build.cssTarget)}`, y ese `targets` de ultimo
+     * pisa el otro. Con `cssTarget` salen las DOS propiedades.
+     *
+     * Safari 18 y no 17: `backdrop-filter` sin prefijo llego en el 18. Con el
+     * 17 en la lista, lightningcss deduce que hace falta el prefijo y emite
+     * SOLO `-webkit-backdrop-filter` — que Chrome 156 ya no aplica.
      *
      * La primera version de este fix pedia `build.cssMinify: 'esbuild'`.
      * Funciona en local, pero Vite 8 (rolldown) no trae esbuild: en Vercel
      * el build muere con "Cannot find package 'esbuild'". No hace falta
      * agregar la dependencia.
      */
-    lightningcss: {
-      targets: {
-        chrome: 120 << 16,
-        edge: 120 << 16,
-        firefox: 121 << 16,
-        safari: 17 << 16,
-      },
-    },
+    cssTarget: 'chrome120, edge120, firefox121, safari18',
   },
 });
