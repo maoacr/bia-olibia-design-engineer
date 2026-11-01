@@ -6,10 +6,18 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:contrast": "node scripts/check-contrast.mjs"
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "make:images": "node scripts/make-images.mjs"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "design-engineer",
+    "bia",
+    "olibia",
+    "dashboard",
+    "react",
+    "design-system"
+  ],
+  "author": "@maoacr",
   "license": "ISC",
   "type": "module",
   "engines": {

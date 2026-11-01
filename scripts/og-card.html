@@ -1,0 +1,202 @@
+<!doctype html>
+<!--
+  Carta social del proyecto. NO se abre en el navegador: la renderiza
+  `scripts/make-images.mjs` con Chrome headless y la guarda como PNG.
+
+  Por que un HTML y no un diseno en Figma o un SVG suelto: la carta tiene
+  que salir de los MISMOS tokens que la aplicacion, asi que si el teal o el
+  fondo cambian, la imagen cambia con ellos. Los valores de abajo estan
+  copiados de `src/tokens.css` a proposito -- el script los inyecta, asi que
+  si se editan a mano, se lose el vinculo con el sistema de diseno.
+
+  `{{FONT_DATA}}` y `{{LOGO_DATA}}` los reemplaza el script con datos
+  base64: el archivo se renderiza desde un temporal, sin servidor, y una
+  `@font-face` con ruta relativa no resolveria en un `file://`.
+-->
+<html lang="es" data-variant="card">
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      // La variante la elige quien renderiza: `?v=icon` pone el rayo, `?v=og`
+      // la carta. Sin esto las cuatro salidas serian la misma imagen.
+      document.documentElement.dataset.variant =
+        new URLSearchParams(location.search).get('v') || 'card';
+    </script>
+    <style>
+      @font-face {
+        font-family: 'Inter';
+        src: url(data:font/woff2;base64,{{FONT_DATA}}) format('woff2');
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: block;
+      }
+
+      :root {
+        --bg: #0a0a0a;
+        --fg: #fafafa;
+        --muted: #86868f;
+        --accent: #08ddbc;
+        --sheen: #17ffdb;
+        --pad: 78px;
+        --bolt: 0px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-feature-settings: 'cv11', 'ss01';
+        -webkit-font-smoothing: antialiased;
+        overflow: hidden;
+      }
+
+      /* Un solo foco de luz: el teal entra desde arriba a la derecha, que es
+         de donde entra en el producto. No hay dos brillos compitiendo. */
+      body::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(110% 85% at 86% -12%, rgba(8, 221, 188, 0.17), transparent 62%);
+        pointer-events: none;
+      }
+
+      .frame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: var(--pad);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+      }
+
+      .logo {
+        display: block;
+        height: 46px;
+        width: auto;
+      }
+
+      .eyebrow {
+        font-size: 19px;
+        font-weight: 620;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .headline {
+        font-size: 60px;
+        line-height: 1.06;
+        letter-spacing: -0.032em;
+        font-weight: 620;
+      }
+
+      .sub {
+        margin-top: 24px;
+        font-size: 27px;
+        line-height: 1.36;
+        color: var(--muted);
+        max-width: 48ch;
+      }
+
+      .foot {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+      }
+
+      .rule {
+        width: 164px;
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--accent), var(--sheen));
+      }
+
+      .meta {
+        font-size: 19px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* ── Iconos cuadrados ────────────────────────────────────────────────
+         El logotipo va entero sobre fondo oscuro, sin recortar: la palabra
+         "Bia" es blanca y solo se lee sobre oscuro, y un recorte por pixeles
+         del rayo se rompe en cuanto la marca cambia de archivo. */
+      html[data-variant='icon'],
+      html[data-variant='apple'] {
+        --pad: 0px;
+      }
+
+      html[data-variant='icon'] .frame,
+      html[data-variant='apple'] .frame {
+        justify-content: center;
+      }
+
+      html[data-variant='icon'] .top,
+      html[data-variant='apple'] .top {
+        justify-content: center;
+      }
+
+      html[data-variant='icon'] .eyebrow,
+      html[data-variant='apple'] .eyebrow,
+      html[data-variant='icon'] .middle,
+      html[data-variant='apple'] .middle,
+      html[data-variant='icon'] .foot,
+      html[data-variant='apple'] .foot {
+        display: none;
+      }
+
+      html[data-variant='icon'] .logo {
+        width: 320px;
+        height: auto;
+      }
+
+      html[data-variant='apple'] .logo {
+        width: 132px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <header class="top">
+        <img class="logo" src="data:image/png;base64,{{LOGO_DATA}}" alt="Bia" />
+        <p class="eyebrow">Prueba de Design Engineer</p>
+      </header>
+
+      <div class="middle">
+        <h1 class="headline">
+          Dos experiencias sobre un mismo<br />sistema de diseño.
+        </h1>
+        <p class="sub">
+          El tablero comercial de Olibia y la vista de consumo energético de Bia.
+        </p>
+      </div>
+
+      <footer class="foot">
+        <span class="rule"></span>
+        <p class="meta">React 19 · Vite · Tokens en dos capas · Colombia</p>
+      </footer>
+    </div>
+  </body>
+</html>
