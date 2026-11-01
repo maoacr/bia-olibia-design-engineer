@@ -20,7 +20,11 @@ const PARAM = {
   channel: 'canal',
   minimum: 'desde',
   movement: 'movimiento',
+  sort: 'orden',
 };
+
+/** Columnas por las que la tabla se deja ordenar. */
+export const SORTABLE = ['empresa', 'contacto'];
 
 /** El movimiento usa claves internas en ingles; en la URL va en español. */
 const MOVEMENT_TO_URL = {
@@ -61,6 +65,20 @@ export function useFilterParams() {
   );
 
   /**
+   * El orden de la tabla, FUERA del objeto de filtros.
+   *
+   * Comparte la direccion con ellos —una vista ordenada tambien se comparte y
+   * tambien se deshace con el boton atras— pero no es un filtro: no esconde
+   * ninguna fila, no merece una ficha y "Limpiar todo" no debe deshacerlo.
+   * Mezclarlo en `filters` lo habria arrastrado a las tres cosas.
+   */
+  const sort = useMemo(() => {
+    const [field, direction] = (params.get(PARAM.sort) || '').split('-');
+    if (!SORTABLE.includes(field)) return null;
+    return { field, direction: direction === 'desc' ? 'desc' : 'asc' };
+  }, [params]);
+
+  /**
    * `replace` evita que cada pulsacion del buscador deje una entrada en el
    * historial: con eso, el boton atras tendria que recorrer el texto letra
    * por letra. Los demas filtros si son acciones deliberadas y se apilan.
@@ -89,5 +107,5 @@ export function useFilterParams() {
     [update],
   );
 
-  return { filters, update, reset };
+  return { filters, sort, update, reset };
 }

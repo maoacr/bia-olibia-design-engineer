@@ -81,11 +81,27 @@ const closesByOwner = counts => TEAM.map((owner, i) => ({ owner, closed: counts[
 
 const history = entries => entries.map(([month, closed]) => ({ month, closed }));
 
+/**
+ * EL DIA DESDE EL QUE SE MIRA CADA PERIODO.
+ *
+ * Que un contacto este vencido depende de contra que fecha se compare, y un
+ * tablero de datos ficticios no tiene un "hoy" real: usar la fecha del
+ * sistema dejaria los seis meses de historia vencidos para siempre y, en el
+ * mes corriente, marcaria las ocho cuentas a la vez. Una alerta que suena en
+ * el 100% de las filas no es una alerta.
+ *
+ * Asi que cada periodo declara el dia desde el que se lo mira, como quien
+ * abre el tablero un martes a media tarde. Con el 29 los contactos del 28
+ * estan vencidos, los del 29 son para hoy y los del 30 estan por venir: los
+ * tres estados existen en los dos meses. Es una convencion del ejercicio y
+ * esta dicha aqui, no escondida en un componente.
+ */
 export const periods = {
   oct: {
     id: 'oct',
     label: 'Octubre 2026',
     year: 2026,
+    today: '2026-10-29',
     previous: 'sep',
     closed: 8,
     history: history([
@@ -112,6 +128,7 @@ export const periods = {
     id: 'sep',
     label: 'Septiembre 2026',
     year: 2026,
+    today: '2026-09-29',
     previous: null,
     closed: 6,
     history: history([
@@ -136,3 +153,32 @@ export const periods = {
 
 /** Periodos en el orden en que se ofrecen al usuario: el mas reciente primero. */
 export const PERIOD_IDS = ['oct', 'sep'];
+
+/**
+ * La historia de cierres del equipo, completa y en orden.
+ *
+ * Cada periodo guarda SU ventana de seis meses, que termina en el mes del
+ * periodo: octubre trae May-Oct y septiembre trae Abr-Sep. Son dos recortes
+ * distintos de una sola serie, y dibujar el recorte en vez de la serie tenia
+ * dos consecuencias feas en "Como venimos?": el mes elegido caia siempre en
+ * la ultima columna —asi que la marca no se movia nunca al cambiar de mes— y
+ * todo mes POSTERIOR al elegido desaparecia del grafico. Desde septiembre,
+ * octubre no estaba, y no habia forma de volver.
+ *
+ * La union de las dos ventanas es la serie: siete meses, de abril a octubre.
+ * Se deriva de los periodos en vez de quedar escrita a mano, y el orden sale
+ * de MONTH_NAMES, que ya declara el eje cronologico.
+ */
+export const TIMELINE = (() => {
+  const order = Object.keys(MONTH_NAMES);
+  const closedByMonth = new Map();
+  // El ultimo que escribe gana, y da igual: los meses compartidos por las dos
+  // ventanas traen el mismo numero en las dos. Si algun dia dejaran de
+  // coincidir, seria un dato roto y no algo que esta funcion deba conciliar.
+  for (const id of PERIOD_IDS)
+    for (const { month, closed } of periods[id].history) closedByMonth.set(month, closed);
+
+  return [...closedByMonth]
+    .map(([month, closed]) => ({ month, closed }))
+    .sort((a, b) => order.indexOf(a.month) - order.indexOf(b.month));
+})();
