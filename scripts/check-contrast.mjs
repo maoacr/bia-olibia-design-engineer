@@ -51,10 +51,30 @@ const themes = {
   claro: { ...primitives, ...block(/^:root\[data-theme='light'\] \{/m) },
 };
 
+/**
+ * Las marcas.
+ *
+ * El acento por marca se declara en tokens.css como un bloque por marca, y
+ * el tema elige cual de sus dos versiones usa. Medir solo los temas —como
+ * hacia la version anterior de este script— deja el acento de Olibia sin
+ * verificar: es exactamente el token que se rompio. Cada marca se mide
+ * contra los dos temas, y el gate no pasa si alguna combinacion baja.
+ */
+const brands = {
+  bia: block(/^:root\[data-brand='bia'\] \{/m),
+  olibia: block(/^:root\[data-brand='olibia'\] \{/m),
+};
+
 function resolve(value, scope, depth = 0) {
   if (!value || depth > 10) return value;
-  const ref = /^var\((--[\w-]+)\)$/.exec(value.trim());
-  return ref ? resolve(scope[ref[1]], scope, depth + 1) : value.trim();
+  // Admite el valor de repuesto: `var(--brand-accent, var(--bia-teal))`.
+  // Sin ese segundo argumento no se podria medir la marca y el tema por
+  // separado, porque el token sin definir no tiene a quien caerse.
+  const ref = /^var\((--[\w-]+)(?:\s*,\s*([\s\S]+))?\)$/.exec(value.trim());
+  if (!ref) return value.trim();
+  const found = resolve(scope[ref[1]], scope, depth + 1);
+  if (found !== undefined && found !== null && found !== '') return found;
+  return ref[2] ? resolve(ref[2], scope, depth + 1) : undefined;
 }
 
 const channels = hex => [0, 2, 4].map(i => parseInt(hex.slice(i + 1, i + 3), 16));
@@ -148,11 +168,24 @@ const PAIRS = [
   ['stage-negociacion', 'surface-raised', 3],
 ];
 
+/**
+ * Las cuatro combinaciones que la aplicacion puede pintar: dos marcas por
+ * dos temas. La marca por defecto —sin `data-brand`— es la de Bia, asi que
+ * no hace falta una quinta.
+ */
+const scopes = {
+  'OSCURO · BIA': { ...themes.oscuro, ...brands.bia },
+  'CLARO · BIA': { ...themes.claro, ...brands.bia },
+  'OSCURO · OLIBIA': { ...themes.oscuro, ...brands.olibia },
+  'CLARO · OLIBIA': { ...themes.claro, ...brands.olibia },
+};
+
 let failures = 0;
 let skipped = 0;
+let checks = 0;
 
-for (const [name, scope] of Object.entries(themes)) {
-  console.log(`\nTEMA ${name.toUpperCase()}`);
+for (const [label, scope] of Object.entries(scopes)) {
+  console.log(`\n${label}`);
   for (const [fg, bg, min] of PAIRS) {
     const front = resolve(scope[`--${fg}`], scope);
     const back = resolve(scope[`--${bg}`], scope);
@@ -163,6 +196,7 @@ for (const [name, scope] of Object.entries(themes)) {
       console.log(`  --  ${`${fg} / ${bg}`.padEnd(36)} no evaluable`);
       continue;
     }
+    checks++;
     const ok = ratio >= min;
     if (!ok) failures++;
     console.log(
@@ -177,4 +211,4 @@ if (failures) {
   console.error(`${failures} par(es) por debajo del minimo WCAG AA.`);
   process.exit(1);
 }
-console.log('Todos los pares cumplen WCAG AA en los dos temas.');
+console.log(`${checks} comprobaciones: todos los pares cumplen WCAG AA en las dos marcas y los dos temas.`);

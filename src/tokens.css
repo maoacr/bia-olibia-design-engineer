@@ -64,7 +64,19 @@
   --support-red-ink: #a11f1a;
   --support-violet: #8b5cf6;
   --support-blue: #3b82f6;
+
+  /* El cian de Olibia, con sus dos versiones.
+     El sitio de Bia es teal; el de Olibia es cian. El cian viene del mismo
+     rango que el teal, asi que necesita la misma pareja: una version
+     brillante para el tema oscuro y una version "ink" para el claro, porque
+     #06b6d4 sobre papel da 2.33:1 y no llega ni a ser texto.
+     Las dos versiones nuevas estan medidas contra el panel claro, no
+     estimadas: #0e7490 da 5.13:1 sobre #fafafa y #0b6076 deja 7.12:1 al
+     texto blanco que se apoya encima. */
   --support-cyan: #06b6d4;
+  --support-cyan-strong: #22d3ee;
+  --support-cyan-ink: #0e7490;
+  --support-cyan-strong-ink: #0b6076;
 
   /* Vidrio. Bia no usa paneles translucidos que dejan ver el fondo: usa una
      capa blanca muy tenue mas desenfoque. El contraste queda alto y estable. */
@@ -161,10 +173,15 @@
   --text-muted: #86868f;
   --text-on-accent: var(--zinc-950);
 
-  --accent: var(--bia-teal);
-  --accent-strong: var(--bia-sheen);
-  --accent-gradient: var(--bia-gradient);
-  --focus-ring: var(--bia-sheen);
+  /* EL ACENTO LO APORTA LA MARCA, EL TEMA ELIGE CUAL DE SUS DOS VERSIONES.
+     `--brand-*` los define el bloque de marca mas abajo; sin marca —el caso
+     por defecto— cae al teal de Bia. Asi el acento por marca no pisa al
+     tema: la version clara del cian nunca puede quedar en un fondo claro.
+     Ver "Acento por marca", al final del archivo. */
+  --accent: var(--brand-accent, var(--bia-teal));
+  --accent-strong: var(--brand-accent-strong, var(--bia-sheen));
+  --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  --focus-ring: var(--accent-strong);
 
   /* Etapas del embudo: una rampa, no cuatro matices sueltos, porque el
      embudo es una secuencia. Va en azul-violeta, fuera del rango cian-verde
@@ -174,7 +191,7 @@
   --stage-propuesta: #a78bfa;
   --stage-negociacion: #d8b4fe;
 
-  --signal-good: var(--bia-teal);
+  --signal-good: var(--accent);
   --signal-attention: var(--support-amber);
   --signal-negative: var(--support-red);
   --signal-neutral: var(--zinc-400);
@@ -184,7 +201,9 @@
   --chart-bar: var(--zinc-bar);
   --chart-bar-on: var(--accent);
 
-  --glow: 0 0 16px rgb(8 221 188 / 0.28);
+  /* El halo sale del acento, no de un color cocido: asi la marca no deja
+     un teal Brillando en una pagina que ya es cian. */
+  --glow: 0 0 16px color-mix(in srgb, var(--accent) 28%, transparent);
 
   /* Boton flotante: vidrio teñido. El contraste que lo identifica como
      control lo lleva el borde, no el relleno. */
@@ -192,7 +211,7 @@
   --fab-fill-hover: rgb(8 221 188 / 0.24);
   --fab-border: rgb(8 221 188 / 0.55);
   --fab-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
-  --glow-soft: 0 0 24px rgb(8 221 188 / 0.14);
+  --glow-soft: 0 0 24px color-mix(in srgb, var(--accent) 14%, transparent);
   --glow-svg: drop-shadow(0 0 5px rgb(8 221 188 / 0.5));
   --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 24px -12px rgb(0 0 0 / 0.7);
 }
@@ -221,18 +240,19 @@
   --text-muted: var(--ink-500);
   --text-on-accent: #ffffff;
 
-  /* Aqui el neon no entra: no alcanza AA sobre fondo claro. */
-  --accent: var(--bia-teal-ink);
-  --accent-strong: var(--bia-sheen-ink);
-  --accent-gradient: linear-gradient(135deg, var(--bia-teal-ink), var(--bia-sheen-ink));
-  --focus-ring: var(--bia-teal-ink);
+  /* Aqui el neon no entra: no alcanza AA sobre fondo claro. Por eso el
+     acento sale de la version "ink" de la marca, que si lo alcanza. */
+  --accent: var(--brand-accent-ink, var(--bia-teal-ink));
+  --accent-strong: var(--brand-accent-strong-ink, var(--bia-sheen-ink));
+  --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  --focus-ring: var(--accent);
 
   --stage-contacto: #5b6472;
   --stage-calificacion: #2f5fc4;
   --stage-propuesta: #6d3fd4;
   --stage-negociacion: #8b2fb8;
 
-  --signal-good: var(--bia-teal-ink);
+  --signal-good: var(--accent);
   --signal-attention: var(--support-amber-ink);
   --signal-negative: var(--support-red-ink);
   --signal-neutral: var(--ink-600);
@@ -243,7 +263,7 @@
   --chart-bar-on: var(--accent);
 
   /* En claro la profundidad viene de la sombra, no del halo. */
-  --glow: 0 1px 3px rgb(5 129 110 / 0.3);
+  --glow: 0 1px 3px color-mix(in srgb, var(--accent) 30%, transparent);
 
   --fab-fill: rgb(5 129 110 / 0.1);
   --fab-fill-hover: rgb(5 129 110 / 0.18);
@@ -276,17 +296,17 @@
     --text-muted: var(--ink-500);
     --text-on-accent: #ffffff;
 
-    --accent: var(--bia-teal-ink);
-    --accent-strong: var(--bia-sheen-ink);
-    --accent-gradient: linear-gradient(135deg, var(--bia-teal-ink), var(--bia-sheen-ink));
-    --focus-ring: var(--bia-teal-ink);
+    --accent: var(--brand-accent-ink, var(--bia-teal-ink));
+    --accent-strong: var(--brand-accent-strong-ink, var(--bia-sheen-ink));
+    --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    --focus-ring: var(--accent);
 
     --stage-contacto: #5b6472;
     --stage-calificacion: #2f5fc4;
     --stage-propuesta: #6d3fd4;
     --stage-negociacion: #8b2fb8;
 
-    --signal-good: var(--bia-teal-ink);
+    --signal-good: var(--accent);
     --signal-attention: var(--support-amber-ink);
     --signal-negative: var(--support-red-ink);
     --signal-neutral: var(--ink-600);
@@ -296,7 +316,7 @@
     --chart-bar: var(--paper-bar);
     --chart-bar-on: var(--accent);
 
-    --glow: 0 1px 3px rgb(5 129 110 / 0.3);
+    --glow: 0 1px 3px color-mix(in srgb, var(--accent) 30%, transparent);
 
     --fab-fill: rgb(5 129 110 / 0.1);
     --fab-fill-hover: rgb(5 129 110 / 0.18);
@@ -330,17 +350,45 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   Acento por marca — CAPA 1 redefinida; los componentes no se enteran
+   ACENTO POR MARCA — la marca aporta VALORES, el tema elige cual usa
+   ═══════════════════════════════════════════════════════════════════
+
+   La marca se declara en <html>, junto a `data-theme`, y cada ruta pone la
+   suya: Olibia es cian, Bia es teal. Los componentes no nombran ningun
+   color de marca, asi que el cambio de identidad no los toca.
+
+   POR QUE NO ES UN `--accent` POR MARCA
+   -------------------------------------
+   La version anterior de este bloque decia `[data-brand='olibia'] {
+   --accent: var(--support-cyan) }`, y estaba roto de dos maneras. La
+   primera: **nadie la aplicaba** — ningun elemento del arbol llevaba
+   `data-brand`, asi que las dos rutas se veian con el teal de Bia. La
+   segunda, que solo aparecia al arreglarla: ese bloque venia DESPUES de
+   los temas y con la misma especificidad, asi que pisaba el acento del
+   tema claro. El claro usa una version "ink" del teal (#05816e, 4.60:1)
+   justamente porque el neon no alcanza AA sobre papel; pisarlo con el
+   cian brillante (#06b6d4, 2.33:1) dejaba texto ilegible en el tema
+   claro. El bug de los dos estaba en el mismo lugar.
+
+   La forma nueva invierte la responsabilidad: la marca declara sus dos
+   versiones y el tema elige. `--accent` sale siempre de `--brand-accent`
+   (oscuro) o `--brand-accent-ink` (claro), con el teal de Bia como
+   respaldo, asi que **es imposible que la version brillante de una marca
+   termine en un fondo claro**.
    ═══════════════════════════════════════════════════════════════════ */
 
-[data-brand='olibia'] {
-  --accent: var(--support-cyan);
-  --accent-strong: var(--bia-sheen);
+:root[data-brand='olibia'] {
+  --brand-accent: var(--support-cyan);
+  --brand-accent-strong: var(--support-cyan-strong);
+  --brand-accent-ink: var(--support-cyan-ink);
+  --brand-accent-strong-ink: var(--support-cyan-strong-ink);
 }
 
-[data-brand='bia'] {
-  --accent: var(--bia-teal);
-  --accent-strong: var(--bia-sheen);
+:root[data-brand='bia'] {
+  --brand-accent: var(--bia-teal);
+  --brand-accent-strong: var(--bia-sheen);
+  --brand-accent-ink: var(--bia-teal-ink);
+  --brand-accent-strong-ink: var(--bia-sheen-ink);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
