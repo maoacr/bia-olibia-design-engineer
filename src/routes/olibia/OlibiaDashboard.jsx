@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { STAGES, periods } from './data.js';
 import { filterOpportunities, sortOpportunities } from './filters.js';
 import { dateFromISO, formatContact, overdueOf } from './contact.js';
@@ -13,6 +14,8 @@ import Origin from './Origin.jsx';
 import Workload from './Workload.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
+import { useBrand } from '../../shared/useBrand.js';
+import { useScrolled } from '../../shared/useScrolled.js';
 import { useDocumentTitle } from '../../shared/useDocumentTitle.js';
 import { useFilterParams } from './useFilterParams.js';
 import Dock, { useDockCollapsed } from './Dock.jsx';
@@ -20,51 +23,15 @@ import Dock, { useDockCollapsed } from './Dock.jsx';
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
 export default function OlibiaDashboard() {
+  useBrand('olibia');
   useDocumentTitle('Olibia · Tablero comercial · Prueba Design Engineer');
 
   const { filters, sort, update, reset } = useFilterParams();
   const { collapsed, toggle: toggleDock } = useDockCollapsed();
 
-  /**
-   * Si la pagina esta desplazada. Lo consume el fundido de `.shell::before`.
-   *
-   * HACE FALTA, y lo descubri sacandolo. Esta maquinaria existia para
-   * encender el vidrio de la cabecera; al quitar el vidrio la borre como
-   * codigo muerto, y resulta que el fundido tiene la misma necesidad por
-   * otro motivo: en scroll 0 no hay nada subiendo bajo la cabecera, asi que
-   * el velo no tiene trabajo y lo unico que hace es apagar el primer
-   * titulo. Medido: entre el borde de la barra y "PIPELINE ABIERTO" hay 37px
-   * en escritorio y 28 en movil — no alcanza para un degradado, asi que
-   * acortarlo no era una opcion. Apagarlo arriba, si.
-   *
-   * Un centinela de 1px en el tope del documento y un observador por
-   * interseccion: mientras se vea, la pagina esta sin desplazar. No es un
-   * oyente de scroll, asi que no corre una vez por cuadro mientras se baja.
-   * Va en absoluto, asi que no ocupa lugar ni corre el contenido.
-   *
-   * No sirve que la cabecera se observe a si misma con `rootMargin`: nace
-   * pegada al tope, o sea que nace recortada, y la marca quedaria puesta
-   * desde el primer cuadro. Probado en su momento.
-   */
-  const [scrolled, setScrolled] = useState(false);
-  const sentinel = useRef(null);
-
-  useEffect(() => {
-    const el = sentinel.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-
-    const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting));
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  // Se publica en la raiz, junto a `data-theme` y `data-dock`: el velo vive
-  // en `.shell` y la cabecera tambien podria quererlo algun dia.
-  useEffect(() => {
-    const root = document.documentElement;
-    if (scrolled) root.setAttribute('data-scrolled', '');
-    else root.removeAttribute('data-scrolled');
-  }, [scrolled]);
+  // El centinela del desplazamiento. Lo consume el fundido de `.shell::before`.
+  // El porque de que haga falta esta en `shared/useScrolled.js`.
+  const sentinel = useScrolled();
   const { period, query, stage, owner, channel, minimum, movement } = filters;
 
   const // El detalle se guarda por ID y no por objeto. Guardar el objeto lo
@@ -241,6 +208,9 @@ export default function OlibiaDashboard() {
           {/* El nivel 1 del documento. Ver el porque en la seccion .brand. */}
           <h1 className="brand">Olibia</h1>
           <div className="top-actions">
+            <Link className="top__enlace" to="/bia">
+              Ver Bia
+            </Link>
             <ThemeToggle />
           </div>
         </div>
