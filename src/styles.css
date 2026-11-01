@@ -102,14 +102,92 @@ input {
     color var(--duration-fast) var(--ease);
 }
 
+/* EL RELLENO DE LO QUE SE PULSA. Un boton y un desplegable se APRIETAN; un
+   campo de texto se LLENA. La familia comparte borde, radio y piso tactil,
+   pero no la superficie: lo pulsable va elevado y el campo se queda hundido,
+   que es la distincion que cualquiera espera y la que hacia falta aca.
+
+   Un boton se rellenaba con --surface-raised, la superficie de las TARJETAS,
+   que contra el panel donde se apoya da 1.06:1: el mismo color para el ojo.
+   Toda la condicion de boton colgaba de un borde de 1px, y por eso no se
+   sentian pulsables. Con --surface-control el relleno pasa a 1.68:1.
+
+   El campo se queda donde estaba, y no por comodidad: su marca de agua usa
+   --text-muted, que sobre el relleno de control cae a 2.87:1 y no llega a
+   AA. Lo detecto el gate de contraste al medir el par nuevo. */
+button,
+select {
+  background: var(--surface-control);
+}
+
 button {
   cursor: pointer;
 }
 
+/* ─── El chevron de los desplegables ──────────────────────────────── */
+
+/* LA FLECHA NATIVA SE SALIA DE LA CAJA. Chrome la dibuja pegada al borde
+   derecho del control e IGNORA su `padding-right`: comprobado subiendolo a
+   32px sin que la flecha se moviera un pixel. Con el radio de 6px de la
+   familia, el glifo quedaba montado sobre la esquina redondeada, en los
+   cinco desplegables de la pagina.
+ 
+   Asi que el control pasa a dibujar el suyo. No es solo el arreglo: la caja
+   ya era nuestra —borde, superficie, radio y los 44px de piso tactil los
+   pone este archivo— y la flecha era lo ultimo que seguia siendo del
+   navegador. Era tambien el unico glifo de la interfaz que no hablaba el
+   idioma de los demas: los seis iconos del dock, el del asistente y el de
+   la burbuja son de trazo 1.6 y sin relleno.
+ 
+   POR QUE DOS DEGRADADOS Y NO UN SVG. Un `background-image` con un SVG en
+   data URI lleva el color escrito adentro, y este proyecto tiene dos temas:
+   habria que declararlo dos veces y mantener sincronizado a mano un color
+   que ya existe como token. Dos bandas diagonales de `currentColor` heredan
+   el color del control, asi que el chevron sigue al tema, al hover y al
+   `.pipeline__period` sin una sola linea extra. Y las bandas miden 1.6px,
+   que es exactamente el `strokeWidth` de los iconos dibujados a mano.
+ 
+   Cada degradado ocupa una caja de 5px y dibuja la mitad de la V; el eje va
+   perpendicular al trazo que se quiere. El relleno derecho de 2.25rem es el
+   que la flecha nativa nunca respeto: 12px de aire al borde, 10px de
+   chevron y el resto de separacion con el texto. */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.25rem;
+  background-repeat: no-repeat;
+  background-size: 0.3125rem 0.3125rem;
+  background-position:
+    right 1.0625rem center,
+    right 0.75rem center;
+  background-image:
+    linear-gradient(
+      to top right,
+      transparent calc(50% - 0.8px),
+      currentColor calc(50% - 0.8px),
+      currentColor calc(50% + 0.8px),
+      transparent calc(50% + 0.8px)
+    ),
+    linear-gradient(
+      to bottom right,
+      transparent calc(50% - 0.8px),
+      currentColor calc(50% - 0.8px),
+      currentColor calc(50% + 0.8px),
+      transparent calc(50% + 0.8px)
+    );
+}
+
+/* `background-color` y no el atajo `background`: el atajo resetea
+   `background-image`, y de ahi cuelga el chevron de los desplegables. Con
+   `background` el chevron desaparecia al apuntar el control. */
 button:hover:not(:disabled),
-select:hover,
+select:hover {
+  background-color: var(--surface-control-hover);
+  border-color: var(--accent);
+}
+
 input:hover {
-  background: var(--surface-hover);
+  background-color: var(--surface-hover);
   border-color: var(--accent);
 }
 
@@ -142,18 +220,21 @@ a:focus-visible {
 
 /* ─── Cabecera ─────────────────────────────────────────────────────── */
 
-/* Llega sin fondo, sin desenfoque y sin linea: arriba del todo no hay nada
-   detras de la barra de lo que separarla, asi que cualquier superficie seria
-   un marco puesto por costumbre.
+/* SIN VIDRIO Y SIN LINEA, en todo momento. Llego a tener un velo
+   desenfocado que se encendia al despegar del tope, para que el contenido
+   que le pasa por debajo no se superpusiera con la marca. Lo reemplaza el
+   fundido de `.shell::before`: el contenido se apaga contra el fondo ANTES
+   de llegar aqui, asi que cuando entra en la franja de la cabecera ya no
+   queda nada con que superponerse. Desenfocar algo que ya se desvanecio no
+   agrega nada y cuesta una capa de composicion.
 
-   El vidrio aparece recien cuando la pagina se mueve, y entonces NO es
-   decoracion: la barra es pegajosa, el contenido le pasa por debajo y sin
-   fondo la marca se superpone con el texto que viaja atras. Comprobado:
-   "Olibia" quedaba encima de "Hotel Central", ilegibles las dos.
+   Con el velo se fue toda su maquinaria: un centinela de 1px en el tope del
+   documento, el IntersectionObserver que lo vigilaba y el estado `is-stuck`
+   que encendia. Ver OlibiaDashboard.jsx.
 
-   El borde se declara desde el principio en transparente para que al
-   aparecer no empuje el alto ni un pixel. --header-height depende de eso. */
-/* Marca el tope del documento para el observador que enciende el vidrio.
+   El borde inferior sigue declarado en transparente: de el depende que la
+   caja mida lo que --header-height promete. */
+/* Marca el tope del documento para el observador que enciende el fundido.
    En absoluto y de 1px: tiene que tener area —un elemento de alto cero nunca
    intersecta— pero no puede ocupar lugar ni correr el contenido. */
 .top-sentinel {
@@ -171,35 +252,31 @@ a:focus-visible {
   z-index: 10;
   background: transparent;
   border-bottom: 1px solid transparent;
-  padding: var(--space-3) var(--space-4);
+  min-height: var(--header-height);
   display: flex;
   align-items: center;
   /* En movil la marca va al centro de la PANTALLA, no al centro del espacio
      que le deja el control de tema. Por eso el control sale del flujo: si
      empujara, la marca quedaria corrida hacia la izquierda justo lo que mide
      el control. Desde 40rem vuelve el reparto a los extremos. */
-  justify-content: center;
-  gap: var(--space-3);
-  transition:
-    background-color var(--duration-base) var(--ease),
-    border-color var(--duration-base) var(--ease);
 }
 
-.top.is-stuck {
-  background: var(--surface-glass);
-  backdrop-filter: blur(var(--blur-md));
-  -webkit-backdrop-filter: blur(var(--blur-md));
-  border-bottom-color: var(--border);
+/* Repite el ancho maximo y el centrado de `main`, y su relleno izquierdo
+   —el que deja libre la columna del dock desde 40rem— se declara ahi mismo,
+   en la consulta que lo crea. */
+.top__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 1680px;
+  margin-inline: auto;
+  padding: var(--space-3) var(--space-4);
 }
 
 /* Sin desenfoque el vidrio no separa nada: hace falta una superficie opaca,
    y solo cuando hay algo pasando por debajo. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .top.is-stuck {
-    background: var(--surface-panel);
-  }
-}
-
 /* Mismo tamaño en todos los anchos. La barra lleva unicamente la marca y el
    control de tema, asi que la identidad nunca comparte el renglon con otra
    cosa y no hay motivo para que encoja en pantalla grande.
@@ -210,6 +287,11 @@ a:focus-visible {
    dejaria corridos los enlaces profundos. Con 1.1 la caja mide 44px, justo lo
    que el control de tema ya imponia, y el alto no se mueve en ningun ancho.
    "Olibia" no tiene trazos descendentes: la caja ajustada no le recorta nada. */
+/* Media lo mismo en los tres anchos, con el argumento de que la barra lleva
+   solo la marca y no hay motivo para que encoja. Cierto a medias: el motivo
+   para que CREZCA es que a 1440px una identidad de 40px en una barra vacia
+   se lee pequeña, y el ancho sobra. Crece en los dos saltos que ya existen;
+   el alto de la barra lo absorbe --header-height, que sube con ella. */
 .brand {
   /* Es el h1 de la pagina. El titulo que habia antes —"Dashboard comercial"—
      no decia nada que la estructura no dijera sola: debajo hay nueve h2 que
@@ -220,7 +302,7 @@ a:focus-visible {
 
      `margin: 0` no es cosmetico: la regla base de h1 trae
      `margin: 0 0 var(--space-2)` y .brand no la pisaba por si sola. Esos 8px
-     se sumarian al alto de la barra y --header-height dejaria de ser cierto. */
+     descentrarian la marca dentro de la barra, que la alinea por el medio. */
   margin: 0;
   font-size: 2.5rem;
   font-weight: 700;
@@ -283,6 +365,66 @@ a:focus-visible {
 
 /* ─── Estructura ───────────────────────────────────────────────────── */
 
+/* EL CONTENIDO SE FUNDE AL SUBIR. Un velo fijo al tope de la ventana, por
+   debajo de la cabecera y por encima del contenido: lo que sube hacia la
+   barra se va apagando contra el fondo en vez de cortarse en el borde.
+ 
+   `position: fixed` y no una mascara sobre `main`: lo que se desplaza es la
+   PAGINA, no `main`, asi que una mascara quedaria anclada a la caja de
+   `main` y se iria con el scroll. El velo tiene que quedarse donde esta la
+   ventana.
+ 
+   NO ES NEGRO, es `--surface-base`. En tema claro el contenido tiene que
+   fundirse hacia el fondo claro; un negro literal dejaria una banda oscura
+   en la mitad superior de la pantalla.
+ 
+   `pointer-events: none` no es opcional: sin eso el velo se come los clics
+   de todo lo que quede bajo la franja superior.
+ 
+   Y NO LLEGA A OPACO del todo arriba. Llevarlo al 100% en el tope apagaria
+   el contenido justo donde la cabecera lo esta desenfocando, y el vidrio en
+   degradado se quedaria sin nada que mostrar. Al 92% el fundido se lee
+   completo y el desenfoque sigue teniendo material. Los dos efectos se
+   suman en vez de cancelarse. */
+.shell::before {
+  content: '';
+  position: fixed;
+  z-index: 9;
+  inset: 0 0 auto;
+  /* EL ALTO SE MIDE DESDE EL BORDE DE LA CABECERA, no desde el tope. La
+     primera version media 152px en total y la cabecera se llevaba 104: solo
+     quedaban 48px de degradado en zona visible, y arrancaban ya por la
+     mitad. Era un corte suave, no un fundido.
+
+     Ahora el velo se sostiene opaco hasta donde termina la barra y recien
+     ahi empieza a soltarse, durante 9rem. Las paradas van en LONGITUD y no
+     en porcentaje porque --header-height cambia en cada punto de quiebre
+     —69, 92, 104— y con porcentajes el fundido arrancaria en un lugar
+     distinto en cada ancho. */
+  height: calc(var(--header-height) + 9rem);
+  background: linear-gradient(
+    to bottom,
+    rgb(from var(--surface-base) r g b / 0.94) 0,
+    rgb(from var(--surface-base) r g b / 0.94) var(--header-height),
+    rgb(from var(--surface-base) r g b / 0.72) calc(var(--header-height) + 2.5rem),
+    rgb(from var(--surface-base) r g b / 0.32) calc(var(--header-height) + 5.5rem),
+    transparent 100%
+  );
+  pointer-events: none;
+  /* APAGADO EN EL TOPE. En scroll 0 no hay nada subiendo bajo la cabecera:
+     el velo no tiene nada que fundir y lo unico que hace es apagar el
+     primer titulo. Y acortarlo no era salida — entre el borde de la barra y
+     "PIPELINE ABIERTO" hay 37px en escritorio y 28 en movil, que no da para
+     un degradado. Asi que se apaga arriba y se enciende al desplazar; el
+     recorrido de 144px se conserva entero para cuando hace falta. */
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease);
+}
+
+[data-scrolled] .shell::before {
+  opacity: 1;
+}
+
 .shell {
   display: flex;
   min-height: calc(100vh - var(--header-height));
@@ -298,74 +440,11 @@ main {
   margin-inline: auto;
 }
 
-/* Sin desenfoque, relleno solido para no dejar el icono sobre lo que pase por
-   debajo. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-}
-
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-height: 100%;
-}
-
-.menu__link--nested {
-  font-size: var(--text-md);
-  color: var(--text-secondary);
-}
-
-.menu__icon {
-  flex-shrink: 0;
-}
-
-@media (min-width: 53rem) {
-}
-
-/* ─── Barra de herramientas y filtros ──────────────────────────────── */
-
-/* Los controles del periodo ya no comparten renglon con un titulo, asi que
-   no hace falta un contenedor que los empareje: el margen que daba .toolbar
-   pasa aca. */
-.filters {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-bottom: var(--space-5);
-}
-
-.filter-panel {
-  margin-bottom: var(--space-5);
-}
-
-/* Grid en vez de flex: las columnas se reparten solas segun el ancho, sin
-   tener que fijar una base y corregirla despues. */
-.filter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-  gap: var(--space-3);
-  align-items: end;
-}
-
-/* El boton no es un campo: no debe estirarse para ocupar una columna. */
-.filter-grid > button {
-  justify-self: start;
-}
-
-.filter-grid label {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
-.scope-note {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  margin: var(--space-4) 0 0;
-}
+/* Aqui quedaba el ultimo rastro del menu lateral que el Dock reemplazo:
+   `.menu`, `.menu__link--nested` y `.menu__icon`, mas dos cascaras de at-rule
+   —un `@supports` y un `@media` de 53rem— que habian quedado sin una sola
+   declaracion adentro. Ninguna de las tres clases podia salir de ningun
+   render; los dos bloques vacios no le decian nada al navegador. */
 
 /* ─── Superficies y jerarquia ──────────────────────────────────────── */
 
@@ -381,32 +460,12 @@ main {
   box-shadow: var(--shadow-panel);
 }
 
-.panel--lead {
-  background: var(--surface-raised);
-  border-color: var(--border-strong);
-}
-
-.panel--lead h2 {
-  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.0625rem);
-}
-
-/* Los controles no son contenido: sin sombra, sin relleno de panel y con el
-   titulo en segundo plano, para que no compitan con los datos. */
-.panel--control {
-  background: none;
-  box-shadow: none;
-  border-style: dashed;
-  padding: var(--space-4);
-}
-
-.panel--control h2 {
-  font-size: var(--text-sm);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-bottom: var(--space-3);
-}
+/* Las dos variantes que habia aqui —.panel--lead y .panel--control— se
+   quedaron sin un solo usuario. La primera vestia la tira de movimiento, que
+   el rediseño saco de la pagina; la segunda vestia el panel de filtros, que
+   ahora vive dentro de la lista que recorta. Un panel de controles con
+   superficie propia y borde punteado era justo el disfraz que hacia pasar por
+   tablero general a algo que solo alcanzaba a una tabla. */
 
 /* ─── Pipeline del periodo ─────────────────────────────────────────── */
 
@@ -424,8 +483,9 @@ main {
    en decir algo deja de ser una banda. */
 .pipeline__head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: var(--space-1) var(--space-3);
   margin-bottom: var(--space-4);
 }
@@ -441,34 +501,66 @@ main {
   margin: 0;
 }
 
-.pipeline__scope {
-  margin: 0;
-  font-size: var(--text-xs);
-  color: var(--text-muted);
+/* EL PERIODO ES UN CONTROL COMO LOS DEMAS, y durante un tiempo no lo
+   parecio. Lo habia dejado silencioso —sin borde y sin fondo hasta pasarle el
+   raton— con el argumento de que una caja de 44px pesaria mas que la etiqueta
+   de 12px que lo acompaña. El argumento se cayo dos veces:
+
+   Primero, cuando la banda paso a repartir a los extremos: el desplegable ya
+   no comparte renglon con el titulo, esta en la otra punta, y no compite con
+   nada. Segundo, y definitivo, cuando toda la familia de controles recibio
+   relleno propio para que los botones se sintieran pulsables. Este se habia
+   quedado afuera por su propio `background: transparent`: era el unico
+   control de la pagina que seguia sin verse como control.
+
+   Hereda ahora el relleno, el borde y el hover de la familia. Lo unico suyo
+   es el peso tipografico: ahi el nombre del mes no es un valor de formulario,
+   es el sujeto de la banda. Lo que se lee es "Octubre 2026", no
+   "periodo: Octubre 2026". */
+.pipeline__period {
+  font-size: var(--text-md);
+  font-weight: 600;
 }
 
-/* El hueco entre el total y su variacion es grande a proposito: son dos
-   hechos, no una frase corrida. Con 1.5rem se leian como uno solo. */
+/* La region viva del periodo. Vacia no ocupa nada: `:empty` evita el hueco
+   permanente de un parrafo que solo habla cuando cambiar de mes suelta un
+   filtro. Sin esto quedaria un renglon muerto entre la banda y el primer
+   bloque, en todas las vistas y para siempre. */
+.period-notice {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--signal-attention);
+}
+
+.period-notice:empty {
+  display: none;
+}
+
+/* La cifra a la izquierda, su variacion a la derecha. Enfrentadas, repiten
+   el reparto del renglon de arriba —etiqueta y selector de periodo— y la
+   banda deja de tener todo el peso en un extremo.
+
+   `align-items: end` alinea los dos bloques por ABAJO, no por la linea base:
+   son dos piezas de dos lineas cada una con tamaños muy distintos, y
+   alinearlas por la base del primer renglon dejaria la variacion flotando a
+   la altura de un "$" de 56px. */
 .pipeline__figures {
   display: flex;
-  align-items: baseline;
+  align-items: end;
   flex-wrap: wrap;
-  gap: var(--space-2) var(--space-7);
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
 }
 
 .pipeline__figure {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--space-2);
   margin: 0;
 }
 
-/* Un escalon por debajo de .goal__figure a proposito: el monto en juego de
-   "Vamos a llegar?" es una porcion de este total, y dos cifras del mismo
-   peso se leerian como dos hechos en competencia. */
+/* POR ENCIMA de .goal__figure, no por debajo. Es el total del que ese monto
+   es una porcion: si la parte se dibuja mas grande que el todo, lo que se
+   lee es que la parte pesa mas. Ver el porque completo en Pipeline.jsx. */
 .pipeline__figure strong {
-  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 1.875rem);
+  font-size: clamp(2.5rem, 2rem + 2.6vw, 3.5rem);
   font-weight: 650;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -476,30 +568,79 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
-.pipeline__figure span {
-  font-size: var(--text-sm);
+/* El pie de la cifra. El recuento va en peso porque es el segundo dato de la
+   banda —cuantas cuentas componen ese total— y no una palabra mas de la
+   frase; el resto queda en tono secundario para no disputarle nada. */
+.pipeline__total {
+  min-width: 0;
+}
+
+.pipeline__unit {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-md);
   color: var(--text-secondary);
 }
 
-/* Sin color de señal: que el pipeline crezca no es por si mismo bueno ni
-   malo. La flecha da la direccion y nada mas. */
+.pipeline__unit strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* CON color de señal: verde si sube, rojo si baja. Ver en Pipeline.jsx por
+   que el argumento contrario no se sostenia. Alineada a la derecha y en
+   columna: dos renglones, el dato arriba y su escala debajo. */
 .pipeline__delta {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
   margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-muted);
+  text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-.pipeline__arrow {
-  color: var(--text-secondary);
+.pipeline__change {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  /* Clamp y no un token: la escala tipografica de este proyecto llega a
+     16px y sirve para texto de interfaz. Esto es una cifra, y las cifras
+     —la del pipeline, la de la meta— se dimensionan con clamp. */
+  font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
-/* ─── Tabla ────────────────────────────────────────────────────────── */
+.pipeline__delta--up .pipeline__change {
+  color: var(--signal-good);
+}
 
-.tabletools {
+.pipeline__delta--down .pipeline__change {
+  color: var(--signal-negative);
+}
+
+/* La flecha, un paso por debajo de la cifra que acompaña: da la direccion,
+   no es el dato. */
+.pipeline__arrow {
+  font-size: 0.8em;
+}
+
+/* La referencia: cuanto representa ese monto y contra que mes. Se queda en
+   gris — el color de señal marca la direccion, no la frase entera. */
+.pipeline__against {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ─── Oportunidades abiertas: controles y tabla ─────────────────────── */
+
+/* Un solo panel para la lista y lo que la recorta. Eran dos, con dos titulos
+   casi iguales —"Filtrar oportunidades abiertas" y "Oportunidades abiertas"—
+   y una frontera de panel en el medio. Ver el porque del cambio en
+   Opportunities.jsx. */
+
+.explore__head {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -507,11 +648,183 @@ main {
   margin-bottom: var(--space-4);
 }
 
-.tabletools h2 {
+.explore__head h2 {
   margin: 0;
 }
 
+/* El buscador se estira y el boton no: uno recibe texto de largo imprevisible
+   y el otro tiene una etiqueta fija. */
+.explore__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.explore__tools input {
+  flex: 1;
+  min-width: 0;
+}
+
+.explore__tools button {
+  flex-shrink: 0;
+}
+
+/* Las columnas se reparten solas segun el ancho: no hay que fijar una base y
+   corregirla despues en cada punto de quiebre. */
+.explore__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--space-3);
+  align-items: end;
+  margin-bottom: var(--space-4);
+}
+
+.explore__filters label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* ─── Filtros puestos ──────────────────────────────────────────────── */
+
+/* La franja de lo aplicado: el recuento, las fichas y la salida general. Va
+   entre los controles y las filas porque es la consecuencia de los primeros
+   sobre las segundas, y aparece solo cuando hay algo puesto. */
+.refine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border);
+  margin-bottom: var(--space-2);
+}
+
+.refine__count {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Cada filtro puesto, y su salida en el mismo golpe. Es el unico control de
+   la pagina que baja del piso tactil de 44px a proposito: no es un control
+   que se busca, es una etiqueta de estado que ADEMAS se puede quitar. Con
+   44px de alto, cuatro fichas pesarian mas que la tabla que describen.
+   La compensacion es el area: el blanco horizontal es generoso y la ficha
+   entera es el objetivo, no una cruz de 12px dentro de ella. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border-color: var(--accent);
+  background: var(--surface-raised);
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.chip:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+/* El nombre de la dimension en segundo plano y el valor al frente: lo que se
+   escanea es "Ana López", no "Responsable". Pero sin el nombre, "Ana López"
+   no dice si es la responsable o la empresa que se busco. */
+.chip__name {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.chip__value {
+  color: var(--text-primary);
+}
+
+.chip__x {
+  color: var(--text-secondary);
+  font-size: var(--text-md);
+  line-height: 1;
+}
+
+.chip:hover .chip__x {
+  color: var(--accent);
+}
+
+/* Solo con dos filtros o mas: con uno solo, su propia ficha ya es la salida y
+   un segundo boton para lo mismo es ruido. */
+/* RELLENO DE ACENTO, NO BORDE DE ACENTO. La distincion importa y es la que
+   deja usar la marca sin crear confusion.
+
+   Las fichas son estado —filtros PUESTOS— y van DELINEADAS en acento. Esto
+   es la accion contraria, y va RELLENA. Lleno contra contorno es la forma
+   clasica de separar una accion de un estado, y es una señal mas fuerte que
+   cambiar el color del borde: una pildora delineada en acento al lado de
+   cuatro pildoras delineadas en acento se leeria como un quinto filtro
+   llamado "Limpiar todo". Rellena no se confunde con ninguna.
+
+   Paso por dos versiones peores: primero un link de texto sin borde ni
+   fondo, que no se leia como control; despues una pildora de borde neutro,
+   que se leia como control pero no se encontraba. La geometria —misma altura
+   y mismo radio que las fichas— se mantiene de esa segunda version, que es
+   lo que la deja entrar en la fila sin romperla.
+
+   El hover se declara entero porque la regla de la familia cambia el fondo a
+   `--surface-hover`: sin esto, apuntar el boton le vaciaba el relleno. */
+.refine__clear {
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border-color: var(--accent);
+  background: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 550;
+  color: var(--text-on-accent);
+}
+
+.refine__clear:hover:not(:disabled) {
+  background-color: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--text-on-accent);
+}
+
+/* Acuse de recibo de la exportacion, en el panel que exporta. Vacio no ocupa
+   lugar, por el mismo motivo que .period-notice. */
+.explore__notice {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.explore__notice:empty {
+  display: none;
+}
+
+/* `position: relative` NO es decorativo: lo exige el texto para lector de
+   pantalla que llevan los encabezados ordenables. `.sr-only` se posiciona en
+   absoluto, y un elemento absoluto cuyo bloque contenedor queda FUERA del
+   contenedor con `overflow` no lo recorta ese contenedor: el de la ultima
+   columna se plantaba en x=620 y estiraba el ancho del documento a 620px en
+   un movil de 386. La tabla scrolleaba bien; lo que se desbordaba era la
+   pagina entera. Haciendo de este el bloque contenedor, el texto oculto
+   queda adentro y no empuja nada. */
 .scroll {
+  position: relative;
   overflow-x: auto;
 }
 
@@ -527,6 +840,62 @@ td {
   padding: var(--space-3);
   border-bottom: 1px solid var(--border);
   font-size: var(--text-md);
+}
+
+/* El encabezado que ordena.
+ 
+   Hereda la tipografia de `th` y se queda sin superficie: un relleno de
+   control dentro de una fila de encabezados pesaria mas que los datos que
+   encabeza. Lo que SI tiene siempre es el subrayado punteado —el mismo que
+   marca los meses navegables de la tendencia— porque que una columna sea
+   ordenable no puede depender del hover: el brief pide explicitamente que
+   las acciones se vean sin pasar el raton.
+ 
+   El relleno pasa de la celda al boton para que el boton SEA la celda. Con
+   el relleno en `th` el area tactil medía 254x17: ancha pero de 17px de
+   alto, imposible de acertar con el dedo. Ahora ocupa los 278x41 completos
+   —el `min-height` de 44px de la familia se anula porque lo que manda el
+   alto aqui es el renglon de encabezados, no el control. */
+.th--sortable {
+  padding: 0;
+}
+
+.th-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 0;
+  padding: var(--space-3);
+  border: none;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--border-control);
+}
+
+.th-sort:hover:not(:disabled) {
+  background: none;
+  color: var(--text-primary);
+  text-decoration-color: var(--accent);
+}
+
+/* Ancho reservado aunque este vacia: sin esto la etiqueta se corre un par de
+   pixeles al ordenar, y toda la fila de encabezados tiembla. */
+.th-sort__arrow {
+  display: inline-block;
+  width: 0.75em;
+  color: var(--accent);
+}
+
+th[aria-sort]:not([aria-sort='none']) .th-sort {
+  color: var(--text-primary);
+  text-decoration-color: var(--accent);
 }
 
 th {
@@ -579,6 +948,31 @@ td:nth-child(4) {
   border-color: var(--stage-negociacion);
 }
 
+/* LA FIRMA. En movil es una linea mas al final del contenido: ahi el dock
+   es la barra de abajo y un pie fijo se le montaria encima. El despeje para
+   no quedar debajo de esa barra ya lo pone `main`, derivado de
+   --dock-height. Desde tablet se despega al borde inferior izquierdo, que
+   es cuando el dock se fue a la columna izquierda y el angulo queda libre
+   —el derecho lo ocupa el asistente—. */
+.sign {
+  margin: var(--space-5) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.sign a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--border-control);
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.sign a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
 .foot {
   font-size: var(--text-xs);
   color: var(--text-muted);
@@ -586,25 +980,62 @@ td:nth-child(4) {
   max-width: 72ch;
 }
 
-/* Marcar seguimiento abria y cerraba el detalle sin dejar nada a la vista:
-   al volver a la lista no habia forma de saber a quien ya se contacto. */
-.followed-tag {
+/* Aqui vivian `.followed-tag` —el tilde junto al nombre— y la fila atenuada
+   que lo acompañaba. Se fueron con el booleano de "seguimiento realizado":
+   una cuenta recibe muchos contactos a lo largo del embudo, asi que un unico
+   tilde no decia cuanto insistir ni cuando volver. Lo dice el historial del
+   detalle, y la urgencia la dice la etiqueta de contacto de aqui abajo. */
+
+/* ─── Proximo contacto ─────────────────────────────────────────────── */
+
+.contact {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: var(--space-2);
-  border-radius: var(--radius-full);
-  background: var(--signal-good);
-  color: var(--text-on-accent);
-  font-size: 0.625rem;
-  line-height: 1;
-  vertical-align: middle;
+  align-items: baseline;
+  gap: var(--space-2);
+  white-space: nowrap;
 }
 
-tbody tr.is-followed td:first-child {
-  color: var(--text-secondary);
+.contact__date {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Vencido en rojo: el cliente no se contacto el dia que tocaba y eso ya
+   costo. Hoy en ambar: todavia se puede hacer algo. Ver Contact.jsx. */
+.contact__date--negative {
+  color: var(--signal-negative);
+  font-weight: 600;
+}
+
+.contact__date--attention {
+  color: var(--signal-attention);
+  font-weight: 600;
+}
+
+/* Una pildora chica, no un punto: "vencido" y "hoy" van ESCRITOS. Si el
+   estado dependiera solo del color, la alerta desapareceria para quien no
+   distingue matices — la misma regla que ya siguen los distintivos de etapa
+   y las etiquetas de movimiento. */
+.contact__tag {
+  padding: 0 var(--space-2);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* El unico relleno de la tabla. Lo vencido no es un matiz mas de una escala:
+   es el unico estado que ya se perdio, y la pildora llena lo separa de todo
+   lo demas incluso de reojo. */
+.contact__tag--negative {
+  background: var(--signal-negative);
+  border-color: var(--signal-negative);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+
+.contact__tag--attention {
+  color: var(--signal-attention);
 }
 
 /* ─── Estado vacio ─────────────────────────────────────────────────── */
@@ -835,112 +1266,10 @@ tbody tr.is-followed td:first-child {
 
 /* ─── Movimiento entre periodos ────────────────────────────────────── */
 
-.movement {
-  margin-bottom: var(--space-5);
-}
-
-.movement__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
-}
-
-.movement__head h2 {
-  margin: 0;
-}
-
-.movement__clear {
-  border: none;
-  background: none;
-  padding: var(--space-1) var(--space-2);
-  color: var(--accent);
-  font-size: var(--text-sm);
-}
-
-.movement__clear:hover:not(:disabled) {
-  background: var(--surface-raised);
-}
-
-.movement__tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
-  gap: var(--space-3);
-}
-
-/* Cada recuento es un control: filtra la tabla. El borde izquierdo lleva el
-   tono del estado, asi el color informa sin tener que bañar el bloque. */
-.movement__tile {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-1);
-  text-align: left;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--signal-neutral);
-  border-radius: var(--radius-md);
-  background: var(--surface-raised);
-}
-
-.movement__tile--attention {
-  border-left-color: var(--signal-attention);
-}
-.movement__tile--good {
-  border-left-color: var(--signal-good);
-}
-.movement__tile--negative {
-  border-left-color: var(--signal-negative);
-}
-
-.movement__tile:disabled {
-  opacity: 0.45;
-}
-
-/* Seleccionado: el fondo sube un escalon y la barra de categoria se engrosa.
-   Nada de halo —un desenfoque sobre un rectangulo se esparce y ensucia— y
-   nada de reescribir border-color en bloque, que borraba el tono de la
-   categoria justo al elegirla. */
-.movement__tile.is-selected {
-  background: var(--surface-hover);
-  border-left-width: 5px;
-  padding-left: calc(var(--space-4) - 2px);
-}
-
-.movement__count {
-  font-size: clamp(1.375rem, 1.15rem + 1.1vw, 1.625rem);
-  font-weight: 650;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* El recuento toma el color de su propia categoria, no el acento generico:
-   un bloque ambar con el numero en teal se contradice a si mismo. */
-.movement__tile--attention.is-selected .movement__count {
-  color: var(--signal-attention);
-}
-.movement__tile--good.is-selected .movement__count {
-  color: var(--signal-good);
-}
-.movement__tile--negative.is-selected .movement__count {
-  color: var(--signal-negative);
-}
-.movement__tile--neutral.is-selected .movement__count {
-  color: var(--text-primary);
-}
-
-.movement__label {
-  font-size: var(--text-md);
-  color: var(--text-primary);
-}
-
-.movement__detail {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-}
+/* Aqui vivian cien lineas para `MovementBar`, la tira de cuatro recuentos que
+   filtraba por movimiento. El componente no lo importaba nadie desde el
+   rediseño: era CSS para un elemento que ningun render podia producir. Ver
+   Movement.jsx. */
 
 /* Indicador en la tabla. El punto da un segundo canal ademas del color del
    texto, para que el estado no dependa solo del matiz. */
@@ -984,16 +1313,10 @@ tbody tr.is-followed td:first-child {
    30rem · hay ancho para pares de columnas
    ═══════════════════════════════════════════════════════════════════ */
 
-@media (min-width: 30rem) {
-  .detail-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .modal article {
-    width: min(520px, 100%);
-    border-radius: var(--radius-lg);
-  }
-}
+/* Aqui habia un segundo bloque de 30rem que le daba al MISMO elemento otro
+   ancho —`.modal article` a 520px— y despues lo pisaba `.detail` a 34rem mas
+   abajo. Dos reglas para la misma caja, con dos selectores distintos y dos
+   valores distintos, en la misma consulta de medios. */
 
 /* ═══════════════════════════════════════════════════════════════════
    40rem · entran los textos secundarios y los encabezados en linea
@@ -1010,9 +1333,24 @@ tbody tr.is-followed td:first-child {
 
   /* Desde tablet la barra reparte a los extremos: la marca a la izquierda y
      el control de tema a la derecha. Con ancho de sobra, centrar la marca la
-     dejaria flotando lejos del contenido que encabeza. El tamaño no cambia. */
-  .top {
+     dejaria flotando lejos del contenido que encabeza. */
+  .top__inner {
     justify-content: space-between;
+    /* El MISMO relleno que `main`: asi la marca arranca en la misma vertical
+       que "PIPELINE ABIERTO" y no 100px mas a la izquierda, colgada sobre la
+       columna que ocupa el dock. */
+    padding: var(--space-4) var(--space-5);
+    padding-left: calc(5.25rem + var(--space-6));
+  }
+
+  /* Sube con la marca. Lo usan el alto minimo de la pagina, el techo del
+     panel del asistente y el `scroll-margin-top` de los anclajes del dock. */
+  :root {
+    --header-height: 92px;
+  }
+
+  .brand {
+    font-size: 3.25rem;
   }
 
   .top-actions {
@@ -1020,10 +1358,22 @@ tbody tr.is-followed td:first-child {
     transform: none;
   }
 
-  .tabletools {
+  /* Desde tablet el titulo y las herramientas comparten renglon. El
+     buscador deja de estirarse al ancho del panel: al lado de un titulo
+     corto, un campo de 800px invita a escribir un parrafo para buscar un
+     nombre de empresa. */
+  .explore__head {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .explore__tools {
+    width: auto;
+  }
+
+  .explore__tools input {
+    flex: 0 1 16rem;
   }
 
   /* Desde aca el dock se fue a la columna izquierda, asi que el angulo
@@ -1046,6 +1396,14 @@ tbody tr.is-followed td:first-child {
    ═══════════════════════════════════════════════════════════════════ */
 
 @media (min-width: 53rem) {
+  :root {
+    --header-height: 104px;
+  }
+
+  .brand {
+    font-size: 3.75rem;
+  }
+
   main {
     /* Sin boton flotante, el pie no necesita despeje. */
     padding-bottom: var(--space-5);
@@ -1078,6 +1436,23 @@ tbody tr.is-followed td:first-child {
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: var(--shadow-panel);
   padding: var(--space-5);
+}
+
+/* Una columna en movil; dos desde que hay ancho. Ver el reparto en
+   OpportunityDetail.jsx. */
+.detail__body {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+/* Las dos mitades. `min-width: 0` no es ceremonia: el minimo automatico de
+   un item de grid es su contenido, asi que un nombre de empresa o una nota
+   sin espacios se sale de su columna aunque la PISTA ya este acotada con
+   `minmax(0, …)`. Hay que acotar las dos cosas, la pista y el item. */
+.detail__deal,
+.detail__activity {
+  min-width: 0;
 }
 
 .detail__head {
@@ -1121,7 +1496,7 @@ tbody tr.is-followed td:first-child {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  margin: var(--space-5) 0;
+  margin: 0 0 var(--space-5);
   font-size: clamp(1.75rem, 1.4rem + 1.6vw, 2.25rem);
   font-weight: 650;
   letter-spacing: -0.03em;
@@ -1172,21 +1547,189 @@ tbody tr.is-followed td:first-child {
   color: var(--text-secondary);
 }
 
+/* ─── Historial de la oportunidad ──────────────────────────────────── */
+
+/* Cada linea sale de un dato que el sistema ya tenia. Ver Opportunity-
+   Detail.jsx para el porque de que no haya texto escrito a mano. */
+/* En una columna el historial abre la mitad de la actividad, y lo que tiene
+   encima es el boton de adelantar etapa: hace falta la linea que lo separa.
+   En dos columnas la pierde —ver la consulta de 40rem—, porque ahi lo que
+   separa las dos mitades es la columna misma. */
+.detail__log {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.detail__log h3 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.detail__log ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* Dos columnas: cuando y que. La del cuando es de ancho fijo para que las
+   fechas se alineen entre si y la columna de hechos arranque pareja; con
+   `auto` cada fila empezaba en un lugar distinto segun el largo del mes. */
+/* `minmax(0, 1fr)` y `overflow-wrap` juntos, y hacen falta los dos: el
+   primero impide que la PISTA crezca con su contenido, el segundo da a una
+   palabra larga donde cortarse. Las notas del historial las escribe una
+   persona —una referencia interna, un codigo, una URL pegada— y sin esto una
+   cadena sin espacios se salia del dialogo entero. Probado con una. */
+.detail__entry {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  overflow-wrap: anywhere;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.detail__when {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* La fecha que quedo acordada en ese contacto, bajo la nota. */
+.detail__rescheduled {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+}
+
+/* Lo que acaba de pasar en esta sesion. Es lo unico de la lista que la
+   persona provoco, asi que es lo unico que se marca. */
+.detail__entry--live {
+  color: var(--text-primary);
+}
+
+.detail__entry--live .detail__when {
+  color: var(--accent);
+}
+
+/* El unico hecho a futuro: lo que hay que hacer, no lo que ya se hizo. */
+.detail__entry--next .detail__when {
+  color: var(--signal-attention);
+}
+
+/* ─── Registrar contacto ───────────────────────────────────────────── */
+
+.contact-form {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.contact-form h3 {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.contact-form__field {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* El area de texto hereda borde, radio y foco de la familia de controles,
+   pero no su piso de 44px: lo fija el numero de filas. Y queda hundida como
+   el buscador, porque es un campo que se llena, no algo que se aprieta. */
+.contact-form textarea {
+  font: inherit;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  resize: vertical;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+}
+
+.contact-form textarea:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.contact-form textarea:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* La fecha no necesita el ancho del dialogo: el campo mide lo que mide un
+   calendario y estirarlo solo agranda la zona vacia a su derecha. */
+.contact-form__field--date {
+  justify-items: start;
+}
+
+/* ─── Acciones del detalle ─────────────────────────────────────────── */
+
 .detail__foot {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  margin-top: var(--space-5);
 }
 
+/* Las acciones del dialogo no se estiran. En el pie, que es flex, no lo
+   harian solas; dentro del formulario, que es grid, si — y por eso la regla
+   vive aqui y no duplicada en los dos contenedores. */
 .detail__action {
-  align-self: flex-start;
+  justify-self: start;
 }
 
-.detail__status {
+/* Adelantar de etapa es LA accion del dialogo; registrar el contacto la
+   acompaña. Relleno de acento contra relleno de control: la misma separacion
+   entre accion y estado que ya usa la fila de filtros. */
+.detail__action--primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  font-weight: 550;
+  color: var(--text-on-accent);
+}
+
+.detail__action--primary:hover:not(:disabled) {
+  background-color: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--text-on-accent);
+}
+
+.detail__note {
+  flex-basis: 100%;
   margin: 0;
-  min-height: 1.25rem;
-  font-size: var(--text-sm);
-  color: var(--signal-good);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* La que cierra el dialogo: gobierna las dos acciones, asi que va al pie y
+   cruza el ancho completo en los dos layouts. */
+.detail__note--close {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+/* Dentro del historial la nota no vive en un contenedor flex, asi que
+   `flex-basis` no la separa: quedaba pegada al renglon de arriba. */
+.detail__log .detail__note {
+  margin-top: var(--space-3);
 }
 
 @media (min-width: 30rem) {
@@ -1199,6 +1742,51 @@ tbody tr.is-followed td:first-child {
     width: min(34rem, 100%);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
+  }
+}
+
+/* DOS COLUMNAS. El dialogo crecio bastante —ficha, historial y formulario— y
+   en una sola columna obliga a desplazar dentro del modal para llegar a la
+   accion. Con dos, el negocio y su actividad entran juntos en una pantalla.
+
+   `align-items: start` para que las dos mitades arranquen arriba en vez de
+   estirarse a la altura de la mas larga, y `minmax(0, …)` en las dos pistas
+   porque el minimo automatico de una pista de grid es el contenido: sin eso
+   una nota larga del historial ensancha su columna y desbalancea el reparto.
+   La actividad se lleva algo mas de ancho: carga texto corrido y un campo. */
+@media (min-width: 40rem) {
+  .detail {
+    width: min(46rem, 100%);
+  }
+
+  .detail__body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .detail__facts {
+    margin-bottom: 0;
+  }
+
+  /* La ficha apila etiqueta y valor. Su columna de etiqueta mide 9rem
+     FIJOS, que en un dialogo de una sola columna sobra y en media columna
+     deja 79px al valor: "28 oct VENCIDO" necesita el doble y la etiqueta
+     quedaba cortada por el borde. Apilada, el valor se lleva el ancho
+     entero y ya no depende de cuanto mida la columna. */
+  .detail__facts > div {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  /* La separacion entre las dos mitades la hace la columna, no una linea. */
+  .detail__log {
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .contact-form {
+    margin-top: var(--space-5);
   }
 }
 
@@ -2354,6 +2942,14 @@ tbody tr.is-followed td:first-child {
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   color: var(--text-secondary);
+  /* El grafico ya no se redibuja al cambiar de periodo: la caja de seleccion
+     viaja de una columna a otra sobre una serie quieta. Sin transicion ese
+     viaje es un corte de un cuadro y se pierde; con ella se lee como
+     movimiento, que es el acuse de recibo del clic. */
+  transition:
+    background-color var(--duration-base) var(--ease),
+    border-color var(--duration-base) var(--ease),
+    color var(--duration-base) var(--ease);
 }
 
 /* Que un mes sea navegable no puede depender del hover: el brief pide
@@ -2497,8 +3093,7 @@ tbody tr.is-followed td:first-child {
   min-width: 0;
 }
 
-.dock__item,
-.dock__clear {
+.dock__item {
   display: grid;
   justify-items: center;
   align-content: center;
@@ -2518,8 +3113,7 @@ tbody tr.is-followed td:first-child {
     color var(--duration-fast) var(--ease);
 }
 
-.dock__item:hover,
-.dock__clear:hover {
+.dock__item:hover {
   background: var(--surface-hover);
   color: var(--text-primary);
 }
@@ -2531,22 +3125,10 @@ tbody tr.is-followed td:first-child {
   color: var(--accent);
 }
 
+/* El `position: relative` que tenia aqui anclaba el punto de filtro activo,
+   que se fue del dock entero junto con el boton de limpiar. Ver Dock.jsx. */
 .dock__icon {
-  position: relative;
   display: inline-flex;
-}
-
-/* El aviso de filtro vive sobre "Explorar" porque es la unica zona que
-   responde a los filtros: el aviso va donde el filtro tiene efecto. */
-.dock__dot {
-  position: absolute;
-  top: -2px;
-  right: -3px;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--radius-full);
-  background: var(--signal-attention);
-  box-shadow: 0 0 0 2px var(--surface-panel);
 }
 
 .dock__short {
@@ -2562,11 +3144,57 @@ tbody tr.is-followed td:first-child {
   font-weight: 600;
 }
 
-.dock__clear {
-  width: auto;
-  padding-inline: var(--space-2);
-  color: var(--signal-attention);
-  border-color: var(--border);
+/* ─── Guardar el menu ──────────────────────────────────────────────── */
+
+/* LA LENGUETA. Pedida "minuscula", y lo es de VERTE: 16px de chevron sobre
+   una caja de 22px de ancho. Pero el objetivo tactil sigue midiendo 44px de
+   alto —el piso que este proyecto se fijo— porque el area se desacopla del
+   dibujo, igual que ya lo hacen el control de tema y el cierre del detalle.
+   Minuscula no puede significar imposible de acertar.
+
+   Nace pegada al borde y crece hacia adentro al apuntarla: en reposo es casi
+   un detalle del borde de la pantalla, y solo se ofrece cuando se la busca.
+
+   Debajo de 40rem no existe: ahi el dock es la barra inferior, no ocupa
+   columna lateral y no hay espacio que recuperar. Ver la consulta de 40rem. */
+.dock-tab {
+  display: none;
+  position: fixed;
+  z-index: 31;
+  top: 50%;
+  left: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  color: var(--text-secondary);
+}
+
+.dock-tab:hover:not(:disabled) {
+  width: 1.75rem;
+  background-color: var(--surface-glass);
+  color: var(--accent);
+}
+
+/* Guardada, la lengueta se APOYA en el borde de la pantalla: pierde el borde
+   izquierdo y las esquinas de ese lado, como una pestaña que sale de fuera.
+   Abierta flota al costado del dock, y ahi una caja abierta por la izquierda
+   se leeria como un recorte. */
+.dock-tab.is-collapsed {
+  border-left: none;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* El chevron es un solo trazo que gira: abierto apunta a la izquierda
+   —"guardalo por alli"— y guardado apunta a la derecha. */
+.dock-tab.is-collapsed svg {
+  transform: rotate(180deg);
 }
 
 /* Desde tablet el dock se va al costado y se vuelve una columna: sigue
@@ -2595,6 +3223,55 @@ tbody tr.is-followed td:first-child {
     overflow-y: auto;
   }
 
+  /* EL MENU SE GUARDA, y lo que viaja es solo el menu: el dock se mueve con
+     `transform`, que no reflueye nada, mientras el contenido recupera la
+     columna ajustando el relleno de `main`. Dos propiedades distintas, misma
+     curva y misma duracion, para que se lean como un unico gesto y no como
+     tres cosas moviendose a destiempo. Las transiciones se declaran en el
+     bloque de `prefers-reduced-motion`, asi se apagan juntas. */
+  .dock.is-collapsed {
+    /* Fuera de pantalla por su propio ancho mas el despegue del borde. Se va
+       sin `display: none`, que cortaria la animacion en seco. */
+    transform: translate(calc(-100% - var(--space-4)), -50%);
+    opacity: 0;
+  }
+
+  /* Despegada al borde. `z-index` por debajo del dock y del asistente: es
+     una firma, no un control, y nunca debe disputarles un clic. Se alinea
+     con la columna de contenido, como todo lo demas. */
+  .sign {
+    position: fixed;
+    z-index: 8;
+    bottom: var(--space-4);
+    left: calc(5.25rem + var(--space-6));
+    margin: 0;
+  }
+
+  .dock-tab {
+    display: inline-flex;
+    /* Apoyada en el flanco derecho del dock cuando esta abierto; contra el
+       borde de la pantalla cuando no. Viaja con el, no salta. */
+    transform: translate(calc(5.25rem + var(--space-4) * 2), -50%);
+  }
+
+  .dock-tab.is-collapsed {
+    transform: translate(0, -50%);
+  }
+
+  /* El contenido recupera la columna. Es la razon de todo esto: 116px fijos
+     en todos los anchos para seis destinos que se usan de a ratos.
+
+     Y la cabecera se mueve CON el: su caja interior comparte el despeje de
+     `main` para que la marca arranque en la misma vertical que el contenido.
+     Si solo se moviera el contenido, "Olibia" quedaria desalineada justo al
+     guardar el menu — que es el momento en que mas se nota, porque todo lo
+     demas se corre. Las dos leen `data-dock` de la raiz, no dos clases
+     distintas que habria que mantener en sincronia. */
+  [data-dock='collapsed'] main,
+  [data-dock='collapsed'] .top__inner {
+    padding-left: var(--space-5);
+  }
+
   .dock__list {
     grid-auto-flow: row;
     grid-auto-columns: auto;
@@ -2607,11 +3284,6 @@ tbody tr.is-followed td:first-child {
 
   .dock__short {
     display: block;
-  }
-
-  .dock__clear {
-    width: 100%;
-    padding-inline: var(--space-1);
   }
 }
 
@@ -2663,6 +3335,25 @@ tbody tr.is-followed td:first-child {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* El gesto de guardar el menu: lo que se anima es el menu, y nada mas.
+ 
+     EL CONTENIDO NO SE ANIMA, Y ESTA MEDIDO. Transicionar el `padding-left`
+     de `main` reflueye los nueve paneles —con sus graficos SVG y la tabla—
+     en cada cuadro: 12 fps y 6 de 6 cuadros perdidos. Animando solo el dock
+     y dejando que el contenido salte a su nuevo ancho: 49 fps. Cuatro veces.
+     Un panel que se desliza limpio sobre un contenido que ya se acomodo se
+     ve mejor que todo moviendose a doce cuadros por segundo.
+ 
+     El dock flota sobre el contenido, asi que el salto queda por debajo del
+     panel que se esta yendo y casi no se lee. */
+  .dock,
+  .dock-tab {
+    transition:
+      transform var(--duration-base) var(--ease),
+      opacity var(--duration-base) var(--ease),
+      width var(--duration-fast) var(--ease);
+  }
+
   @keyframes dock-destino {
     from {
       box-shadow:

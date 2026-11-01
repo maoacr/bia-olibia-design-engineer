@@ -38,6 +38,7 @@
   --zinc-750: #27272a;
   --zinc-700: #2a2a2a;
   --zinc-600: #404040;
+  --zinc-550: #4d4d4d;
   --zinc-control: #727272;
   --zinc-bar: #6a6a6a;
   --zinc-400: #a1a1aa;
@@ -138,6 +139,17 @@
   --surface-panel: var(--zinc-850);
   --surface-raised: var(--zinc-800);
   --surface-hover: var(--zinc-750);
+  /* La superficie de los CONTROLES, separada de la de las tarjetas.
+     Hasta ahora un boton se rellenaba con --surface-raised, que contra el
+     panel donde se apoya da 1.06:1: para el ojo, el mismo color. Toda la
+     condicion de boton colgaba de un borde de 1px, y por eso los controles
+     no se sentian pulsables. La escala de superficies de este tema es muy
+     cerrada a proposito —0a, 1a, 1f, 27— asi que ninguna de las que habia
+     servia de relleno: ni --surface-hover separa (1.17:1).
+     Con --zinc-600 el relleno pasa a 1.68:1 contra el panel y 1.91:1 contra
+     el fondo, y el texto encima se queda en 9.93:1. */
+  --surface-control: var(--zinc-600);
+  --surface-control-hover: var(--zinc-550);
   --surface-glass: var(--glass-soft);
   --border: var(--zinc-700);
   --border-strong: var(--zinc-600);
@@ -196,6 +208,8 @@
   --surface-panel: var(--paper-1);
   --surface-raised: var(--paper-2);
   --surface-hover: var(--paper-3);
+  --surface-control: var(--paper-3);
+  --surface-control-hover: var(--paper-4);
   --surface-glass: rgb(255 255 255 / 0.72);
   --border: var(--paper-3);
   --border-strong: var(--paper-4);
@@ -249,6 +263,8 @@
     --surface-panel: var(--paper-1);
     --surface-raised: var(--paper-2);
     --surface-hover: var(--paper-3);
+    --surface-control: var(--paper-3);
+    --surface-control-hover: var(--paper-4);
     --surface-glass: rgb(255 255 255 / 0.72);
     --border: var(--paper-3);
     --border-strong: var(--paper-4);

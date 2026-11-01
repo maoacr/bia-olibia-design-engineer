@@ -12,16 +12,95 @@
  * casi dos pantallas y media, con cinco respuestas apiladas y ninguna forma
  * de ir de una a otra que no sea rodar. El dock navega, no duplica.
  *
- * El sexto destino es la zona de exploracion —la unica que SI responde a los
- * filtros— y por eso es la que lleva el indicador de filtro activo: el aviso
- * vive donde el filtro tiene efecto.
+ * EL DOCK NO SABE NADA DE FILTROS. Llego a tener dos cosas que si: un boton
+ * para limpiarlos y un punto de aviso sobre el sexto destino. Las dos se
+ * fueron, y por motivos distintos.
+ *
+ * El boton era una ACCION sobre algo que esta en otra parte. Tenia una
+ * justificacion escrita —"lo unico que el dock hace y ningun bloque cubre"—
+ * que dejo de ser cierta cuando cada filtro puesto paso a tener su ficha
+ * removible dentro del panel que recorta. Un argumento que ya no se sostiene
+ * no deja un control huerfano: deja un duplicado, y encima el que ofrecia la
+ * salida mas lejos posible de donde el filtro tiene efecto.
+ *
+ * El punto parecia defendible como SEÑAL —"hay algo puesto alla abajo"—,
+ * pero no sobrevive a la pregunta de cuando se ve. Se ve mientras se miran
+ * los cinco bloques, y los cinco bloques NO responden a los filtros: avisaba
+ * de un estado que no afecta nada de lo que se esta mirando en el momento de
+ * verlo. Una marca de atencion sobre algo que no es un problema, y que
+ * ademas ya esta dicha —con nombre y valor, no con un punto— en el unico
+ * lugar donde si cambia lo que se ve.
+ *
+ * Queda un indice y nada mas, que es lo que este menu dice ser.
+ *
+ * De paso devuelve el dock a seis destinos, el limite con el que fue medido:
+ * con el septimo puesto, en 386px los items caian a 51px y el boton a 36,
+ * por debajo del piso tactil de 44px del proyecto.
  *
  * Es flotante en los dos tamaños: despegado del borde, sobre vidrio. El
  * sistema de tokens reserva el vidrio justo para capas que flotan sobre
  * contenido, que es exactamente lo que esto es.
+ *
+ * SE PUEDE GUARDAR, y nace abierto. Desde tablet se lleva una columna fija de
+ * 5.25rem mas su despeje —116px en todos los anchos— para seis destinos que
+ * se usan de a ratos; poder devolverle ese espacio al contenido vale, sobre
+ * todo en tablet, donde la tabla tiene seis columnas y el dialogo dos.
+ *
+ * Pero nace ABIERTO a proposito: es la unica orientacion de una pagina de
+ * 3900px, y arrancar escondido cambia "recuperas espacio cuando quieras" por
+ * "descubri como navegar". La eleccion se guarda, asi que quien lo cierra lo
+ * encuentra cerrado la proxima vez.
+ *
+ * Guardado, el menu queda ademas INERTE: sin `inert` el tabulador seguiria
+ * entrando a seis botones invisibles, que es peor que no tenerlos.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+const STORAGE_KEY = 'dock';
+
+/**
+ * Si el menu esta guardado. Mismo trato que el tema: se persiste, y si el
+ * almacenamiento esta bloqueado —modo privado— la eleccion vale para esta
+ * sesion y nada mas.
+ */
+export function useDockCollapsed() {
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) === 'collapsed';
+    } catch {
+      return false;
+    }
+  });
+
+  /**
+   * El estado se publica en la raiz del documento, igual que `data-theme`.
+   *
+   * No es ceremonia: la cabecera esta FUERA del armazon —es hermana suya, no
+   * hija— y tiene que alinearse con el mismo despeje que el contenido. Con
+   * una clase en el armazon no se puede alcanzar, y marcarla aparte seria
+   * mantener dos fuentes del mismo estado hasta que se desincronicen.
+   */
+  useEffect(() => {
+    const root = document.documentElement;
+    if (collapsed) root.setAttribute('data-dock', 'collapsed');
+    else root.removeAttribute('data-dock');
+  }, [collapsed]);
+
+  const toggle = useCallback(() => {
+    setCollapsed(previous => {
+      const next = !previous;
+      try {
+        localStorage.setItem(STORAGE_KEY, next ? 'collapsed' : 'open');
+      } catch {
+        /* sin almacenamiento, vale solo para esta sesion */
+      }
+      return next;
+    });
+  }, []);
+
+  return { collapsed, toggle };
+}
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useReducedMotion } from 'motion/react';
 
@@ -85,6 +164,14 @@ const IconExplorar = () => (
   </svg>
 );
 
+/* Un solo trazo en chevron. Gira 180 grados segun el estado en vez de haber
+   dos iconos: es el mismo objeto moviendose, no dos simbolos distintos. */
+const IconChevron = () => (
+  <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+    <polyline points="12,5 7,10 12,15" {...S} />
+  </svg>
+);
+
 const DESTINOS = [
   { id: 'q-meta', label: '¿Vamos a llegar?', short: 'Meta', Icon: IconMeta },
   { id: 'q-trabadas', label: '¿Qué se está cayendo?', short: 'Trabadas', Icon: IconTrabadas },
@@ -94,7 +181,7 @@ const DESTINOS = [
   { id: 'q-explorar', label: 'Explorar las oportunidades', short: 'Explorar', Icon: IconExplorar },
 ];
 
-export default function Dock({ filtersActive, onClear }) {
+export default function Dock({ collapsed, onToggle }) {
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(DESTINOS[0].id);
   const marca = useRef(0);
@@ -245,11 +332,28 @@ export default function Dock({ filtersActive, onClear }) {
 
   return (
     <Tooltip.Provider delayDuration={320} skipDelayDuration={500}>
-      <nav className="dock" aria-label="Las cinco preguntas">
+      {/* Fuera del `nav`: la lengueta no es un destino, y adentro quedaria
+          inerte justo cuando hace falta para volver a abrir. */}
+      <button
+        type="button"
+        className={`dock-tab${collapsed ? ' is-collapsed' : ''}`}
+        onClick={onToggle}
+        aria-expanded={!collapsed}
+        aria-controls="dock-nav"
+      >
+        <IconChevron />
+        <span className="sr-only">{collapsed ? 'Mostrar el menú' : 'Ocultar el menú'}</span>
+      </button>
+
+      <nav
+        id="dock-nav"
+        className={`dock${collapsed ? ' is-collapsed' : ''}`}
+        aria-label="Las cinco preguntas"
+        inert={collapsed}
+      >
         <ul className="dock__list">
           {DESTINOS.map(({ id, label, short, Icon }) => {
             const current = active === id;
-            const flagged = id === 'q-explorar' && filtersActive;
             return (
               <li key={id}>
                 <Tooltip.Root>
@@ -262,13 +366,9 @@ export default function Dock({ filtersActive, onClear }) {
                     >
                       <span className="dock__icon">
                         <Icon />
-                        {flagged && <span className="dock__dot" aria-hidden="true" />}
                       </span>
                       <span className="dock__short">{short}</span>
-                      <span className="sr-only">
-                        {label}
-                        {flagged ? ' · hay filtros aplicados' : ''}
-                      </span>
+                      <span className="sr-only">{label}</span>
                     </button>
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
@@ -279,7 +379,6 @@ export default function Dock({ filtersActive, onClear }) {
                       collisionPadding={12}
                     >
                       <strong>{label}</strong>
-                      {flagged && <span className="tip__note">Hay filtros aplicados.</span>}
                       <Tooltip.Arrow className="tip__arrow" width={11} height={5} />
                     </Tooltip.Content>
                   </Tooltip.Portal>
@@ -288,20 +387,6 @@ export default function Dock({ filtersActive, onClear }) {
             );
           })}
         </ul>
-
-        {/* Lo unico que el dock hace y ningun bloque cubre. Solo aparece
-            cuando hay algo que limpiar: un control permanentemente inerte
-            ocupa lugar y enseña a ignorarlo. */}
-        {filtersActive && (
-          <button type="button" className="dock__clear" onClick={onClear}>
-            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
-              <line x1="5.5" y1="5.5" x2="14.5" y2="14.5" {...S} />
-              <line x1="14.5" y1="5.5" x2="5.5" y2="14.5" {...S} />
-            </svg>
-            <span className="dock__short">Limpiar</span>
-            <span className="sr-only">Quitar todos los filtros</span>
-          </button>
-        )}
       </nav>
     </Tooltip.Provider>
   );

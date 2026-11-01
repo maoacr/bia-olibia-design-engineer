@@ -40,13 +40,34 @@ export function movementFor(opportunity, previousPeriod) {
 /** El periodo anterior a uno dado, o `null` si es el mas antiguo que tenemos. */
 export const previousPeriodOf = period => (period.previous ? periods[period.previous] : null);
 
-/** Las oportunidades del periodo, cada una con su movimiento ya resuelto. */
-export function opportunitiesWithMovement(period) {
+/** La etapa siguiente del embudo, o `null` si ya esta en la ultima. */
+export const nextStage = stage => STAGES[stageIndex(stage) + 1] ?? null;
+
+/**
+ * Las oportunidades del periodo, cada una con su movimiento ya resuelto.
+ *
+ * `overrides` es el UNICO punto por el que entra un cambio hecho a mano desde
+ * el detalle —`{ 'hotel-central': { stage, nextContact } }`— y por eso vale la
+ * pena que sea aqui y no en el componente: toda la pagina —los cinco bloques,
+ * la banda del pipeline, la tabla y el asistente— se deriva de lo que devuelve
+ * esta funcion. Cambiar la etapa en un solo lugar recalcula el embudo de los
+ * canales, los segmentos del equipo, el monto en juego de la meta y, sobre
+ * todo, EL MOVIMIENTO: adelantar la cuenta que estaba trabada hace que "Que se
+ * esta cayendo?" deje de marcarla, porque el movimiento se vuelve a comparar
+ * contra el mes previo con la etapa nueva. Y reagendar el proximo contacto
+ * actualiza su columna en la tabla. No hay nada que sincronizar a mano.
+ *
+ * Un solo mapa de parches y no uno por campo: lo que se edita de una
+ * oportunidad va a seguir creciendo, y dos mapas paralelos ya se
+ * desincronizan.
+ */
+export function opportunitiesWithMovement(period, overrides = {}) {
   const previous = previousPeriodOf(period);
-  return period.opportunities.map(opportunity => ({
-    ...opportunity,
-    movement: movementFor(opportunity, previous),
-  }));
+  return period.opportunities.map(opportunity => {
+    const patch = overrides[opportunity.id];
+    const current = patch ? { ...opportunity, ...patch } : opportunity;
+    return { ...current, movement: movementFor(current, previous) };
+  });
 }
 
 /**

@@ -87,6 +87,10 @@ const PAIRS = [
   ['accent', 'surface-panel', 4.5],
   ['accent-strong', 'surface-panel', 4.5],
   ['signal-good', 'surface-panel', 4.5],
+  // La banda del pipeline no tiene superficie propia: su variacion se apoya
+  // directamente sobre el fondo de la pagina, que nadie estaba midiendo.
+  ['signal-good', 'surface-base', 4.5],
+  ['signal-negative', 'surface-base', 4.5],
   ['signal-attention', 'surface-panel', 4.5],
   ['signal-negative', 'surface-panel', 4.5],
   ['signal-neutral', 'surface-panel', 4.5],
@@ -101,6 +105,20 @@ const PAIRS = [
   ['border-control', 'surface-base', 3],
   ['border-control', 'surface-panel', 3],
   ['border-control', 'surface-hover', 3],
+
+  // Superficie de los controles. Todo boton, desplegable y campo se rellena
+  // con ella, asi que su texto y su placeholder se apoyan ahi.
+  ['text-primary', 'surface-control', 4.5],
+  ['text-primary', 'surface-control-hover', 4.5],
+
+  // "Limpiar todo" es el unico control relleno de acento de la pagina: su
+  // texto se apoya sobre la marca, no sobre una superficie. El par no estaba
+  // medido por nadie hasta que ese boton existio.
+  ['text-on-accent', 'accent', 4.5],
+  ['text-on-accent', 'accent-strong', 4.5],
+  // La pildora de "vencido" es el unico relleno rojo de la tabla, y su texto
+  // se apoya sobre la señal, no sobre una superficie.
+  ['text-on-accent', 'signal-negative', 4.5],
 
   // Bloque "Vamos a llegar?". Los lugares de la meta son elementos graficos
   // portadores de informacion, no adorno: el punto lleno, el anillo punteado

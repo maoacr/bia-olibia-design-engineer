@@ -5,83 +5,30 @@ import { ADVANCED, NEW, REGRESSED, STALLED } from './movement.js';
  * Que cambio respecto del periodo anterior.
  *
  * El dashboard de partida mostraba cada periodo como una foto aislada aunque
- * los datos contenian el movimiento. Esto lo pone al frente y ademas lo vuelve
- * navegable: cada recuento filtra la tabla, de modo que el movimiento no es un
- * adorno informativo sino una forma de entrar a los datos.
+ * los datos contenian el movimiento. Esto lo pone al frente, en la tabla y en
+ * el detalle de cada oportunidad.
+ *
+ * AQUI VIVIA TAMBIEN `MovementBar`, la tira de cuatro recuentos que filtraba
+ * la tabla por movimiento. No la importaba nadie: el rediseño la saco de la
+ * pagina y se olvido de ella. Eran ochenta lineas inalcanzables, con cien de
+ * CSS detras, y dejaron al filtro `movimiento` sin un solo control en
+ * pantalla: se podia aplicar escribiendolo en la direccion, vaciar la tabla, y
+ * no habia donde sacarlo. La ficha de filtro puesto —ver Opportunities.jsx—
+ * es lo que ocupa ese lugar ahora, y de ahi sale este mapa de etiquetas.
  */
 
-/** El orden importa: primero lo que pide atencion, despues lo que va bien. */
-const KINDS = [
-  {
-    status: STALLED,
-    label: 'sin moverse',
-    detail: 'llevan un mes en la misma etapa',
-    tone: 'attention',
-  },
-  { status: NEW, label: 'entraron nuevas', detail: 'no estaban el mes pasado', tone: 'neutral' },
-  { status: ADVANCED, label: 'avanzaron', detail: 'subieron al menos una etapa', tone: 'good' },
-  { status: REGRESSED, label: 'retrocedieron', detail: 'bajaron de etapa', tone: 'negative' },
-];
+/**
+ * Como se nombra cada estado cuando es un FILTRO, o sea un conjunto: la
+ * ficha dice "Movimiento · sin moverse" sobre varias filas, no sobre una.
+ */
+export const MOVEMENT_FILTER_LABELS = {
+  [STALLED]: 'sin moverse',
+  [NEW]: 'entraron nuevas',
+  [ADVANCED]: 'avanzaron',
+  [REGRESSED]: 'retrocedieron',
+};
 
-export default function MovementBar({ summary, previousLabel, active, onSelect }) {
-  // Sin periodo anterior no hay nada que comparar, y eso es distinto de que
-  // nada se haya movido. Decirlo es mas honesto que mostrar cuatro ceros.
-  if (!previousLabel) {
-    return (
-      <section
-        className="panel panel--lead movement"
-        aria-label="Movimiento respecto al periodo anterior"
-      >
-        <h2>Movimiento</h2>
-        <p className="muted">
-          Este es el periodo más antiguo disponible, así que no hay un mes previo con el cual
-          compararlo.
-        </p>
-      </section>
-    );
-  }
-
-  const shown = KINDS.filter(kind => summary[kind.status] > 0 || kind.status !== REGRESSED);
-
-  return (
-    <section
-      className="panel panel--lead movement"
-      aria-label="Movimiento respecto al periodo anterior"
-    >
-      <div className="movement__head">
-        <h2>Qué cambió frente a {previousLabel}</h2>
-        {active && (
-          <button className="movement__clear" onClick={() => onSelect('')}>
-            Ver todas
-          </button>
-        )}
-      </div>
-
-      <div className="movement__tiles">
-        {shown.map(({ status, label, detail, tone }) => {
-          const count = summary[status];
-          const selected = active === status;
-          return (
-            <button
-              key={status}
-              type="button"
-              className={`movement__tile movement__tile--${tone}${selected ? ' is-selected' : ''}`}
-              aria-pressed={selected}
-              disabled={count === 0}
-              onClick={() => onSelect(selected ? '' : status)}
-            >
-              <span className="movement__count">{count}</span>
-              <span className="movement__label">{label}</span>
-              <span className="movement__detail">{detail}</span>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/** Tono y etiqueta de cada estado, compartidos por la tira y la tabla. */
+/** Tono y etiqueta de cada estado en una fila: ahi es una sola, y va en singular. */
 const TAGS = {
   [ADVANCED]: { label: 'avanzó', tone: 'good' },
   [STALLED]: { label: 'sin moverse', tone: 'attention' },

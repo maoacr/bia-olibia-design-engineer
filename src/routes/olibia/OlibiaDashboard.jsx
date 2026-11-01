@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CHANNELS, STAGE_SLUG, PERIOD_IDS, STAGES, TEAM, periods } from './data.js';
-import { EMPTY_FILTERS, filterOpportunities } from './filters.js';
-import { opportunitiesWithMovement, previousPeriodOf } from './movement.js';
+import { STAGES, periods } from './data.js';
+import { filterOpportunities, sortOpportunities } from './filters.js';
+import { dateFromISO, formatContact, overdueOf } from './contact.js';
+import { nextStage, opportunitiesWithMovement, previousPeriodOf } from './movement.js';
 import Goal from './Goal.jsx';
-import { MovementTag } from './Movement.jsx';
+import Opportunities from './Opportunities.jsx';
 import Pipeline from './Pipeline.jsx';
 import Assistant from './Assistant.jsx';
 import Stalled from './Stalled.jsx';
@@ -13,54 +14,85 @@ import Workload from './Workload.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useFilterParams } from './useFilterParams.js';
-import Dock from './Dock.jsx';
+import Dock, { useDockCollapsed } from './Dock.jsx';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
 export default function OlibiaDashboard() {
-  const { filters, update, reset } = useFilterParams();
-  const { period, query, stage, owner, channel, minimum, movement } = filters;
+  const { filters, sort, update, reset } = useFilterParams();
+  const { collapsed, toggle: toggleDock } = useDockCollapsed();
 
-  const [selected, setSelected] = useState(null),
-    [done, setDone] = useState({}),
-    [notice, setNotice] = useState(''),
-    // La cabecera llega transparente y toma su vidrio solo cuando hay algo
-    // pasandole por debajo. Ver el porque en la seccion .top de styles.css.
-    [stuck, setStuck] = useState(false);
-
+  /**
+   * Si la pagina esta desplazada. Lo consume el fundido de `.shell::before`.
+   *
+   * HACE FALTA, y lo descubri sacandolo. Esta maquinaria existia para
+   * encender el vidrio de la cabecera; al quitar el vidrio la borre como
+   * codigo muerto, y resulta que el fundido tiene la misma necesidad por
+   * otro motivo: en scroll 0 no hay nada subiendo bajo la cabecera, asi que
+   * el velo no tiene trabajo y lo unico que hace es apagar el primer
+   * titulo. Medido: entre el borde de la barra y "PIPELINE ABIERTO" hay 37px
+   * en escritorio y 28 en movil — no alcanza para un degradado, asi que
+   * acortarlo no era una opcion. Apagarlo arriba, si.
+   *
+   * Un centinela de 1px en el tope del documento y un observador por
+   * interseccion: mientras se vea, la pagina esta sin desplazar. No es un
+   * oyente de scroll, asi que no corre una vez por cuadro mientras se baja.
+   * Va en absoluto, asi que no ocupa lugar ni corre el contenido.
+   *
+   * No sirve que la cabecera se observe a si misma con `rootMargin`: nace
+   * pegada al tope, o sea que nace recortada, y la marca quedaria puesta
+   * desde el primer cuadro. Probado en su momento.
+   */
+  const [scrolled, setScrolled] = useState(false);
   const sentinel = useRef(null);
 
-  // Un centinela de 1px en el tope del documento: mientras se vea, la pagina
-  // esta sin desplazar. Es un observador y no un oyente de scroll, asi que no
-  // corre una vez por cuadro mientras se baja; y va posicionado en absoluto,
-  // asi que no ocupa lugar ni corre el contenido un pixel.
-  //
-  // No sirve que la cabecera se observe a si misma con `rootMargin`: nace
-  // pegada al tope, o sea que nace recortada, y la clase quedaria puesta
-  // desde el primer cuadro. Probado.
   useEffect(() => {
     const el = sentinel.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
 
-    const observer = new IntersectionObserver(([entry]) => setStuck(!entry.isIntersecting));
+    const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting));
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  const setQuery = value => update({ query: value }, { replace: true });
-  const setStage = value => update({ stage: value });
+  // Se publica en la raiz, junto a `data-theme` y `data-dock`: el velo vive
+  // en `.shell` y la cabecera tambien podria quererlo algun dia.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (scrolled) root.setAttribute('data-scrolled', '');
+    else root.removeAttribute('data-scrolled');
+  }, [scrolled]);
+  const { period, query, stage, owner, channel, minimum, movement } = filters;
+
+  const // El detalle se guarda por ID y no por objeto. Guardar el objeto lo
+    // congelaba en el momento del clic: al adelantar la etapa desde el propio
+    // detalle, la ficha seguia mostrando la etapa vieja mientras el resto de
+    // la pagina ya habia cambiado. Por id se relee de `all` en cada pintada.
+    [selectedId, setSelectedId] = useState(null),
+    // Lo editado a mano, por periodo:
+    //   { oct: { 'hotel-central': { stage, nextContact } } }
+    [overrides, setOverrides] = useState({}),
+    // Lo que fue pasando con cada oportunidad durante esta sesion.
+    [log, setLog] = useState({}),
+    // Dos regiones vivas, no una. Antes habia un solo `role="status"` al pie
+    // de la pagina para los dos avisos; el del periodo se opera en la banda
+    // de arriba, o sea a dos pantallas y media de su propio acuse de recibo.
+    // Cada aviso vive ahora en el bloque que lo provoca.
+    [periodNotice, setPeriodNotice] = useState(''),
+    [exportNotice, setExportNotice] = useState('');
+
   const setOwner = value => update({ owner: value });
   const setChannel = value => update({ channel: value });
-  const setMinimum = value => update({ minimum: value });
   const d = periods[period];
-  const all = opportunitiesWithMovement(d);
+  const all = opportunitiesWithMovement(d, overrides[period]);
+  const selected = selectedId ? all.find(o => o.id === selectedId) : null;
   const scoped = filterOpportunities(all, { query, stage, owner, channel, minimum });
-  const rows = filterOpportunities(scoped, { movement });
+  const rows = sortOpportunities(filterOpportunities(scoped, { movement }), sort, d);
   const previous = previousPeriodOf(d);
   const filtersActive = Boolean(query || stage || owner || channel || minimum || movement);
   const total = rows.reduce((sum, o) => sum + o.value, 0);
   const negotiation = rows.filter(o => o.stage === NEGOTIATION);
-  const key = selected ? `${period}:${selected.id}` : '';
+  const overdue = overdueOf(rows, d);
 
   // Cuando no queda nada visible, probar a soltar cada filtro por separado
   // dice cual es el responsable. Septiembre, por ejemplo, no tiene ninguna
@@ -95,6 +127,79 @@ export default function OlibiaDashboard() {
 
   const clearFilters = reset;
 
+  /**
+   * El movimiento no existe como dimension si el periodo no tiene uno
+   * anterior: no es que no haya resultados, es que la pregunta no aplica.
+   * Mantener el filtro dejaria la lista vacia por un motivo que la persona no
+   * puede ver ni deshacer.
+   */
+  function changePeriod(next) {
+    if (!periods[next].previous && movement) {
+      update({ period: next, movement: '' });
+      setPeriodNotice(
+        `Se quitó el filtro de movimiento: ${periods[next].label} no tiene un mes previo con el cual compararse.`,
+      );
+    } else {
+      update({ period: next });
+      setPeriodNotice('');
+    }
+  }
+
+  /** Anota un hecho de esta sesion en la bitacora de una oportunidad. */
+  function note(id, text, next = null) {
+    const at = new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+    const key = `${period}:${id}`;
+    setLog(previous => ({ ...previous, [key]: [{ at, text, next }, ...(previous[key] ?? [])] }));
+  }
+
+  /**
+   * Mueve una oportunidad a la etapa siguiente del embudo.
+   *
+   * Solo toca el mapa de etapas: la propagacion es gratis porque todo sale de
+   * `all`. Ver el porque en opportunitiesWithMovement.
+   */
+  /**
+   * Un clic en un encabezado ordena por esa columna; el segundo invierte el
+   * sentido; el tercero deja la tabla como estaba. Volver al orden original
+   * importa: es el unico que agrupa las cuentas como las trae el periodo, y
+   * sin tercer clic no habria forma de recuperarlo salvo recargar.
+   */
+  function sortBy(field) {
+    if (sort?.field !== field) return update({ sort: `${field}-asc` });
+    if (sort.direction === 'asc') return update({ sort: `${field}-desc` });
+    update({ sort: '' });
+  }
+
+  function patch(id, fields) {
+    setOverrides(previous => ({
+      ...previous,
+      [period]: { ...previous[period], [id]: { ...previous[period]?.[id], ...fields } },
+    }));
+  }
+
+  function promote(opportunity) {
+    const next = nextStage(opportunity.stage);
+    if (!next) return;
+    patch(opportunity.id, { stage: next });
+    note(opportunity.id, `Pasó de ${opportunity.stage} a ${next}.`);
+  }
+
+  /**
+   * Registrar un contacto reemplazo a "Marcar seguimiento realizado".
+   *
+   * Aquel boton dejaba un tilde junto al nombre y nada mas. Una cuenta
+   * recorre el embudo con muchos contactos encima, asi que un booleano no
+   * contesta lo unico que importa —cuanto insistir, cuando volver— y encima
+   * se borraba al recargar. Lo que si lo contesta es el registro: que se
+   * hablo y para cuando quedo el proximo. La fecha ademas no es decorativa,
+   * actualiza el campo del que sale la alerta de vencido.
+   */
+  function registerContact(opportunity, { notes, on }) {
+    const when = on ? formatContact(dateFromISO(on)) : null;
+    if (when) patch(opportunity.id, { nextContact: when });
+    note(opportunity.id, notes.trim(), when);
+  }
+
   function exportCSV() {
     const header = [
       'Empresa',
@@ -114,16 +219,27 @@ export default function OlibiaDashboard() {
     a.download = `olibia-${period}.csv`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setNotice('CSV exportado con las oportunidades filtradas.');
+    setExportNotice('CSV exportado con las oportunidades que muestra la tabla.');
   }
   return (
     <>
       <div ref={sentinel} className="top-sentinel" aria-hidden="true" />
-      <header className={`top${stuck ? ' is-stuck' : ''}`}>
-        {/* El nivel 1 del documento. Ver el porque en la seccion .brand. */}
-        <h1 className="brand">Olibia</h1>
-        <div className="top-actions">
-          <ThemeToggle />
+      {/* La cabecera ya no cambia de aspecto al desplazarse: el centinela de
+          arriba ya no enciende su vidrio —que se fue— sino el fundido del
+          contenido. Ver `.shell::before` en styles.css. */}
+      <header className="top">
+        {/* El vidrio de la barra va de borde a borde, pero su CONTENIDO se
+            alinea con el del resto de la pagina. Sin esta caja interior la
+            marca quedaba a 16px del borde mientras la columna de contenido
+            arrancaba a 116: cien pixeles de desfase, con la marca colgando
+            sola en el angulo. Repite el ancho maximo y el centrado de `main`
+            porque tiene que coincidir con el, no parecerse. */}
+        <div className="top__inner">
+          {/* El nivel 1 del documento. Ver el porque en la seccion .brand. */}
+          <h1 className="brand">Olibia</h1>
+          <div className="top-actions">
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -131,51 +247,38 @@ export default function OlibiaDashboard() {
         {/* En pantalla chica el menu se despliega sobre el contenido; al
             elegir una opcion se cierra solo, porque dejarlo abierto taparia
             justo lo que la persona acaba de pedir. */}
-        <Dock filtersActive={filtersActive} onClear={clearFilters} />
+        <Dock collapsed={collapsed} onToggle={toggleDock} />
         <main>
-          <div className="filters">
-            <label htmlFor="period">Periodo</label>
-            <select
-              id="period"
-              value={period}
-              onChange={e => {
-                const next = e.target.value;
-                // El movimiento no existe como dimension si el periodo no
-                // tiene uno anterior: no es que no haya resultados, es que la
-                // pregunta no aplica. Mantener el filtro dejaria la pantalla
-                // vacia y, peor, sin control visible para salir, porque la
-                // tira pasa a mostrar el mensaje en lugar de los recuentos.
-                if (!periods[next].previous && movement) {
-                  update({ period: next, movement: '' });
-                  setNotice(
-                    `Se quitó el filtro de movimiento: ${periods[next].label} no tiene un mes previo con el cual compararse.`,
-                  );
-                } else {
-                  update({ period: next });
-                  setNotice('');
-                }
-              }}
-            >
-              {PERIOD_IDS.map(id => (
-                <option key={id} value={id}>
-                  {periods[id].label}
-                </option>
-              ))}
-            </select>
-            <button onClick={exportCSV}>Exportar CSV</button>
-          </div>
-          {/* El total del periodo encabeza la lectura: es el denominador que
-              los cinco bloques descomponen, y hasta ahora la pagina lo
-              repartia sin declararlo nunca. Ver el porque del lugar y del
-              tamaño de su cifra en Pipeline.jsx. */}
-          <Pipeline period={d} previous={previous} opportunities={all} />
+          {/* La tira de filtros que habia aqui —el periodo y un boton de
+              exportar CSV— se repartio entre los dos bloques que de verdad le
+              corresponden: el periodo encabeza la banda del pipeline, que ya
+              escribia su etiqueta; exportar se fue al panel de la tabla, que
+              es lo que exporta. Ver el porque en cada uno. */}
+          <Pipeline
+            period={d}
+            periodId={period}
+            onChangePeriod={changePeriod}
+            previous={previous}
+            opportunities={all}
+          />
+          {/* Pegado a la banda: el unico aviso que anuncia una consecuencia
+              que la persona no pidio —cambiar de mes puede soltarle un
+              filtro— tiene que aparecer donde esta mirando al cambiarlo. */}
+          <p className="period-notice" role="status">
+            {periodNotice}
+          </p>
           {/* La primera pregunta de quien es dueño del numero va primero, y
               recibe `all` —el periodo completo— porque la meta es del equipo
               y no responde a los filtros. */}
-          <Goal period={d} opportunities={all} onSelect={setSelected} />
+          <Goal period={d} opportunities={all} onSelect={o => setSelectedId(o.id)} />
           {/* Segunda pregunta. Tambien sobre `all`: una alerta que un filtro
               puede silenciar no sirve de alerta. */}
-          <Stalled period={d} previous={previous} opportunities={all} onSelect={setSelected} />
+          <Stalled
+            period={d}
+            previous={previous}
+            opportunities={all}
+            onSelect={o => setSelectedId(o.id)}
+          />
           {/* Tercera pregunta. Tambien sin filtrar: los cierres por ejecutivo
               son del periodo, y la carga tiene que medirse con la misma vara
               o se estarian comparando dos cosas distintas. */}
@@ -194,65 +297,12 @@ export default function OlibiaDashboard() {
               —cuantas oportunidades y por cuanto— las decia tambien, palabra
               por palabra, el resumen de AI; y el titulo de la tabla dice la
               primera una tercera vez. El total del periodo, que es el dato que
-              ninguno de los tres daba, pasa a encabezar la pagina.
+              ninguno de los tres daba, encabeza la pagina.
 
               El resumen de AI tampoco vive ya aca: es la burbuja del
               asistente, al pie de la pantalla. Ver Assistant.jsx.
 
-              Y "q-explorar" se muda con el. Apuntaba al resumen, que estaba
-              justo encima de los filtros; ahora senala los filtros mismos, que
-              son la zona que de verdad responde a ellos. Por eso el dock
-              pone ahi su aviso de filtro activo: el aviso va donde el filtro
-              tiene efecto. */}
-          <section className="panel panel--control filter-panel" id="q-explorar">
-            <h2>Filtrar oportunidades abiertas</h2>
-            <div className="filter-grid">
-              <label>
-                Etapa
-                <select value={stage} onChange={e => setStage(e.target.value)}>
-                  <option value="">Todas las etapas</option>
-                  {STAGES.map(x => (
-                    <option key={x}>{x}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Responsable
-                <select value={owner} onChange={e => setOwner(e.target.value)}>
-                  <option value="">Todos los responsables</option>
-                  {TEAM.map(x => (
-                    <option key={x}>{x}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Canal
-                <select value={channel} onChange={e => setChannel(e.target.value)}>
-                  <option value="">Todos los canales</option>
-                  {CHANNELS.map(x => (
-                    <option key={x}>{x}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Valor mensual
-                <select value={minimum} onChange={e => setMinimum(e.target.value)}>
-                  <option value="">Todos los valores</option>
-                  <option value="30">Desde $30 M COP</option>
-                  <option value="50">Desde $50 M COP</option>
-                </select>
-              </label>
-              <button onClick={clearFilters}>Limpiar filtros</button>
-            </div>
-            {/* Decia que los filtros aplican "al pipeline y a las graficas de
-                oportunidades". Ninguna de las dos cosas era cierta: los cinco
-                bloques y la banda del pipeline reciben el periodo completo. */}
-            <p className="scope-note">
-              Aplican a la tabla y al asistente. El pipeline y los cinco bloques de arriba muestran
-              el periodo completo, sin filtrar.
-            </p>
-          </section>
-          {/* Los cuatro graficos del starter se fueron, cada uno por su
+              Los cuatro graficos del starter se fueron, cada uno por su
               motivo, y cada uno tiene arriba el bloque que lo contesta:
                 · "Cierres por mes" — dibujaba barras contra la meta sin decir
                   que esa meta no se alcanzo nunca  -> "Como venimos?"
@@ -262,100 +312,68 @@ export default function OlibiaDashboard() {
                   Outbound con Referidos  -> "De donde viene el valor?"
                 · "Oportunidades por etapa" — no contestaba ninguna de las
                   cinco preguntas, y el reparto por etapa ya se ve en el riel
-                  de "Que se esta cayendo?" y en el embudo de los canales. */}
-          <section className="panel">
-            <div className="tabletools">
-              <h2>Oportunidades abiertas</h2>
-              <input
-                type="search"
-                aria-label="Buscar empresa"
-                placeholder="Buscar empresa..."
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-              />
-            </div>
-            <div className="scroll">
-              <table>
-                <thead>
-                  <tr>
-                    {[
-                      'Empresa',
-                      'Etapa',
-                      'Movimiento',
-                      'Valor mensual · COP M',
-                      'Responsable',
-                      'Próximo contacto',
-                      'Detalle',
-                    ].map(x => (
-                      <th key={x}>{x}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map(o => {
-                    const followed = done[`${period}:${o.id}`];
-                    return (
-                      <tr key={o.id} className={followed ? 'is-followed' : undefined}>
-                        <td>
-                          {o.company}
-                          {followed && (
-                            <span className="followed-tag" title="Seguimiento realizado">
-                              <span aria-hidden="true">✓</span>
-                              <span className="sr-only">Seguimiento realizado</span>
-                            </span>
-                          )}
-                        </td>
-                        <td>
-                          <span className={`badge badge--${STAGE_SLUG[o.stage]}`}>{o.stage}</span>
-                        </td>
-                        <td>
-                          <MovementTag movement={o.movement} />
-                        </td>
-                        <td>${o.value} M</td>
-                        <td>{o.owner}</td>
-                        <td>{o.nextContact}</td>
-                        <td>
-                          <button aria-label={`Ver ${o.company}`} onClick={() => setSelected(o)}>
-                            Ver
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              {!rows.length && (
-                <div className="empty">
-                  <p className="empty__title">
-                    {cause
-                      ? `No hay oportunidades con ${cause.name} "${cause.value}" en ${d.label}.`
-                      : 'No hay oportunidades con esta combinación de filtros.'}
-                  </p>
-                  {cause ? (
-                    <button onClick={() => releaseFilter(cause.key)}>Quitar {cause.name}</button>
-                  ) : (
-                    <button onClick={clearFilters}>Limpiar todos los filtros</button>
-                  )}
-                </div>
-              )}
-            </div>
-          </section>
-          <p role="status">{notice}</p>
+                  de "Que se esta cayendo?" y en el embudo de los canales.
+
+              Y el panel de filtros se fue ADENTRO de la lista: era un tablero
+              aparente que solo alcanzaba a la tabla de abajo. Con el se fue
+              "q-explorar", que ahora es la seccion entera —controles y
+              filas—, o sea la zona que el dock promete al nombrarla. Ver
+              Opportunities.jsx. */}
+          <Opportunities
+            period={d}
+            rows={rows}
+            periodCount={all.length}
+            filters={filters}
+            sort={sort}
+            onSort={sortBy}
+            onChange={update}
+            onClear={clearFilters}
+            cause={cause}
+            onRelease={releaseFilter}
+            onSelect={o => setSelectedId(o.id)}
+            onExport={exportCSV}
+            notice={exportNotice}
+          />
           <footer className="foot">
             Datos ficticios para el ejercicio de diseño · Sin conexión a sistemas de Bia/Olibia
           </footer>
+
+          {/* La firma. Se queda DENTRO de `main` en movil —ahi el dock es la
+              barra de abajo y un pie fijo se le montaria encima— y recien
+              desde tablet se despega al borde inferior, cuando el dock se
+              fue a la columna izquierda y el angulo queda libre.
+
+              `rel="noopener noreferrer"` no es ceremonia: sin `noopener`, la
+              pestaña que se abre recibe una referencia a esta ventana por
+              `window.opener` y puede redirigirla. */}
+          <p className="sign">
+            Desarrollado con <span aria-hidden="true">💚</span>
+            <span className="sr-only">amor</span> por{' '}
+            <a href="https://linkedin.com/in/maoacr" target="_blank" rel="noopener noreferrer">
+              @maoacr
+            </a>
+          </p>
         </main>
       </div>
       {/* Fuera de `main`: flota sobre la pagina, no corre con ella. Comparte
           rincon con el dock, que desde 40rem se va a la columna izquierda. */}
-      <Assistant rows={rows} total={total} negotiation={negotiation} cause={cause} period={d} />
+      <Assistant
+        rows={rows}
+        total={total}
+        negotiation={negotiation}
+        overdue={overdue}
+        cause={cause}
+        period={d}
+      />
       {selected && (
         <OpportunityDetail
           opportunity={selected}
-          year={d.year}
-          done={done[key]}
-          onFollowUp={() => setDone({ ...done, [key]: true })}
-          onClose={() => setSelected(null)}
+          period={d}
+          previous={previous}
+          log={log[`${period}:${selected.id}`]}
+          onPromote={() => promote(selected)}
+          onRegister={entry => registerContact(selected, entry)}
+          onClose={() => setSelectedId(null)}
         />
       )}
     </>
