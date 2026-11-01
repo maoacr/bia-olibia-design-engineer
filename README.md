@@ -2,17 +2,17 @@
 
 Dos experiencias sobre un mismo sistema de diseño: el tablero comercial de **Olibia** y la vista de consumo energético de **Bia**.
 
-El enunciado pedía una vista. Lo que hay acá es el recorrido completo que esa vista necesitaba: **auditar el dato** antes de dibujar, **decidir qué preguntas** contesta el producto, **diseñar el sistema** que las sostiene y **escribirlo** con las garantías que lo hacen defendible. Cada decisión está argumentada en el código, no sólo implementada — si una razón dejó de ser cierta, el comentario dice por qué cambió.
+El enunciado pedía dos tareas y una vista cada una. Lo que hay acá es el recorrido completo que esas vistas necesitaban: **auditar el dato** antes de dibujar, **decidir qué preguntas** contesta el producto, **diseñar el sistema** que las sostiene y **escribirlo** con las garantías que lo hacen defendible. Cada decisión está argumentada en el código, no sólo implementada — si una razón dejó de ser cierta, el comentario dice por qué cambió.
 
-|                   |                                                                                                                                              |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Producto**      | El tablero diagnosticaba y no podía tratar. Hoy se avanza de etapa, se registra el contacto y el sistema avisa a quién le debés una llamada. |
-| **UX**            | Cada control vive dentro de lo que afecta. Ningún alcance se explica con un párrafo: se declara por contención.                              |
-| **Diseño**        | Tokens en dos capas, dos temas, y un gate que falla el build si un par baja de AA. Ningún color se eligió a ojo.                             |
-| **Ingeniería**    | Todo se deriva de un punto: cambiar una etapa recalcula el movimiento, el embudo, la carga del equipo y la alerta — sin sincronizar nada.    |
-| **Accesibilidad** | Piso táctil de 44px, foco encerrado en los diálogos, estado anunciado, y el color nunca como único canal.                                    |
+|                   | Olibia — tablero comercial                                                | Bia — consumo energético                                     |
+| ----------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Producto**      | Diagnosticaba y no podía tratar: hoy se avanza de etapa y se registra el contacto. | Una factura inflada, cinco minutos y ninguna experticia: contesta, no informa. |
+| **UX**            | Cada control vive dentro de lo que afecta; el alcance se declara por contención. | Sin filtros ni menús: una pregunta por bloque, y después explorar. |
+| **Diseño**        | Tokens en dos capas, dos temas, acento cian.                             | Los mismos tokens, acento teal, y una sola pieza expresiva.   |
+| **Ingeniería**    | Todo se deriva de un punto: cambiar una etapa recalcula el resto.          | Los totales se derivan de los tramos del día: no hay cifra escrita a mano. |
+| **Accesibilidad** | Piso táctil de 44px, foco encerrado en los diálogos, estado anunciado.     | Igual, y el punteado significa siempre "sin confirmar".        |
 
-**Demo:** https://bia-olibia-design-engineer.vercel.app/olibia
+**Demo:** [Olibia](https://bia-olibia-design-engineer.vercel.app/olibia) · [Bia](https://bia-olibia-design-engineer.vercel.app/bia)
 
 ![Carta del proyecto: dos experiencias sobre un mismo sistema de diseño](public/og-image.png)
 
@@ -37,7 +37,7 @@ Abre la URL que imprime Vite (por defecto `http://localhost:5173`).
 | `npm run check:contrast` | **Verifica el contraste WCAG de los tokens, en ambos temas**            |
 | `npm run make:images`    | Genera la carta social y los iconos, con Chrome headless                |
 
-Ese último no es decorativo: lee `src/tokens.css`, resuelve las variables y corre **72 comprobaciones** — 36 pares texto/superficie en los dos temas. Sale con código 1 si alguno baja del mínimo. Encontró cuatro errores reales antes de que llegaran a un commit.
+Ese último no es decorativo: lee `src/tokens.css`, resuelve las variables y corre **172 comprobaciones** — 43 pares texto/surface en las cuatro combinaciones que la aplicación puede pintar: dos marcas por dos temas. Sale con código 1 si alguno baja del mínimo. Encontró cuatro errores reales antes de que llegaran a un commit, y otros dos cuando se conectó el acento por marca: el cian brillante del tema oscuro se colaba en el tema claro, donde no llegaba a AA.
 
 Y tiene un techo que conviene decir: **compara token contra token, así que no ve nada translúcido.** Un lavado de color sobre una superficie compone un tercer color que no está en `tokens.css` y que ningún par cubre. Ese agujero dejó pasar un relleno proporcional que hundía la segunda línea de las fichas a 3.36:1; apareció midiendo el color compuesto en el navegador, no acá.
 
@@ -52,6 +52,8 @@ La paleta sale de la **identidad pública de Bia**, no de una invención: teal `
 El modo oscuro es el canónico porque **sus colores sólo existen sobre oscuro**: 15.21:1 contra 1.27:1 sobre blanco. El claro se deriva oscureciendo el acento hasta alcanzar AA.
 
 Los tokens van en **dos capas**: primitivas de marca y roles semánticos. Ningún componente nombra un color crudo, y por eso ni el cambio de tema ni la variación de identidad entre Olibia y Bia tocan un solo componente.
+
+**La marca aporta valores y el tema elige cuál usa.** Cada ruta declara la suya en `<html>` —Olibia es cian, Bia es teal— y el acento, su gradiente, su foco y su halo salen de ahí. La versión brillante es para el tema oscuro y la "ink" para el claro, así que es imposible que una termine en un fondo donde no llega a AA. Antes el mecanismo existía pero nadie lo aplicaba, y aplicarlo a pelo era peor: el bloque de marca pisaba al tema y dejaba el cian brillante sobre papel.
 
 ---
 
@@ -91,7 +93,15 @@ Ningún color se eligió a ojo. El acento marca sólo lo que se está interrogan
 
 ## Decisiones · Bia
 
-_(pendiente)_
+La segunda tarea pedía una vista, no un tablero: alguien que administra tres cafeterías tiene su factura inflada, pocos minutos y no es experta en energía. La decisión de fondo fue **no mostrar indicadores sino contestar**. La página va con cinco preguntas en orden —qué pasó, dónde, cuándo, por qué, qué hago— y cada una se apoya en la anterior.
+
+El primer dato es una corrección: la tarifa no cambió. El 100% del alza es consumo y el 0% es precio, y decirlo primero desarma la lectura fácil, que es "me encarecieron el kWh". La cascada enseña la multiplicación —7.500 kWh × $800— en vez de explicarla.
+
+El segundo es que el problema está en un lugar: una sede concentra el 80% del aumento. El tercero es el que cuesta: el consumo de madrugada es una **hipótesis**, no una causa. La página usa registros visuales distintos —tinta sólida contra contorno punteado— y dice en voz alta su límite: de los 1.200 kWh que subió la sede, 780 ocurrieron dentro del horario habitual, así que ninguna hipótesis cubre la parte más grande del problema.
+
+Por eso el paso que ofrece no es un arreglo sino una medición, y la alternativa que la gente quiere oír queda marcada como condicional.
+
+Se priorizó una sola pieza expresiva —la cascada— y calma en el resto. Sin selector de periodo: los dos meses conviven, porque comparar de un vistazo sirve más que cambiar de mes. El acento del sistema sigue a la marca.
 
 ---
 
@@ -113,6 +123,10 @@ El PDF pide esto explícitamente, y sale de los fallos que fueron apareciendo:
 
 **El asistente en un teléfono de verdad.** Su despeje sobre el dock sale de `--dock-height`, derivado de los tokens que dibujan el dock, y está verificado por geometría —58px de dock, burbuja a 82px, 12px libres— pero **no mirado en un teléfono real**: el redimensionado del navegador dejó de aplicar a mitad de la verificación. Y el botón de cerrar mide 36px, copiando al del detalle, que ya estaba por debajo del piso de 44.
 
+**La vista de Bia en un teléfono real.** La cascada tiene dos columnas y el tramo de acento quedó medido en 44px justos: en un ancho menor hay que comprobar que no se apelmice. Y los botones de orden de la tabla de Olibia miden 41px — por debajo del piso de 44 que el resto de la familia respeta, porque el encabezado de la tabla anula el mínimo a propósito. Conviene decidir si se acepta o se sube.
+
+**El movimiento reducido, de verdad.** La cifra de la factura cuenta hacia arriba en 700ms; con `prefers-reduced-motion` tiene que aparecer ya final. Se comprobó contando los valores intermedios en el navegador: con movimiento hay ocho cifras distintas, sin movimiento una sola.
+
 ---
 
 ## Herramientas y AI
@@ -127,6 +141,8 @@ El PDF pide esto explícitamente, y sale de los fallos que fueron apareciendo:
 ### Qué refiné personalmente
 
 Las decisiones de producto y de diseño, y la revisión visual completa. El marco de las cinco preguntas, el criterio de que el acento señale en vez de decorar, el ámbar reservado, qué bloque responde a los filtros y cuál no, el peso de la marca en la cabecera y el rediseño del detalle salieron de mirar la pantalla y decir "esto no está bien", no de aceptar la primera versión.
+
+En Bia, lo mismo: separar el hecho de la hipótesis con un punteado que no aparece en ningún otro lado, derivar el paso del dato y no del guion, y recortar la cascada dos veces porque las dos primeras se leían como dos cajas grises.
 
 ### Tiempo dedicado
 
@@ -143,6 +159,20 @@ src/
   shared/
     theme.jsx             tema claro/oscuro con preferencia del sistema
     useDocumentTitle.js   el título de la pestaña, según la ruta
+    useBrand.js           la marca en <html>, que decide el acento
+    useScrolled.js        el centinela del desplazamiento, para el velo
+  routes/bia/
+    BiaDashboard.jsx      arma la página y reparte el alcance de cada bloque
+    Veredicto.jsx        ¿Qué pasó? La cascada y la tarifa que no cambió
+    Sedes.jsx            ¿Dónde? Las tres sedes y su parte del aumento
+    Perfil.jsx           ¿Cuándo? El día por tramos de horario
+    Evidencia.jsx        ¿Por qué? Hechos e hipótesis, en registros distintos
+    Paso.jsx             ¿Qué hago? El paso y su alternativa condicional
+    Dialogo.jsx          el pedido del diagnóstico, con el foco encerrado
+    Estados.jsx          carga y error
+    data.js              el fixture; los totales se derivan de los tramos
+    format.js            pesos, kWh y porcentajes al estilo colombiano
+    bia.css              los estilos de esta experiencia, aparte
   routes/olibia/
     OlibiaDashboard.jsx   arma la página y reparte el alcance de cada bloque
     Goal.jsx              ¿Vamos a llegar?
@@ -174,7 +204,7 @@ El starter traía una base razonable (ARIA, HTML semántico, `focus-visible`, `p
 
 - 72 comprobaciones de contraste verificadas en ambos temas, automatizadas.
 - Foco encerrado en el diálogo, con retorno al disparador.
-- Un solo `h1` y ningún salto de nivel: `h1 Olibia` → siete `h2` en pantalla (la banda del pipeline, las cinco preguntas y la lista), y hasta nueve con el asistente o el detalle abiertos.
+- Un solo `h1` por página y ningún salto de nivel: `h1 Olibia` → siete `h2` en pantalla (la banda del pipeline, las cinco preguntas y la lista), y hasta nueve con el asistente o el detalle abiertos; `h1 Bia` → cinco `h2`, uno por pregunta.
 - `prefers-reduced-motion` por fin reduce algo — en el starter el media query existía pero no había una sola transición.
 - Nada se codifica sólo por color: el realce suma peso tipográfico, el movimiento suma un punto, las etapas llevan su nombre escrito.
 - Áreas táctiles de 44px como mínimo, **incluidos los desplegables y el buscador** — el piso estaba declarado sólo en `button` y seis controles quedaban por debajo.
