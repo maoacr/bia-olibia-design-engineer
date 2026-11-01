@@ -32,7 +32,12 @@ main.bia {
     padding-left: var(--space-5);
   }
 
-  .top__inner {
+  /* La cabecera de Bia sigue a SU contenido: mismo ancho maximo y mismo
+     relleno. El de Olobia es otra cosa: su cabecera se acomoda al dock,
+     que le cede la columna izquierda, y ese ajuste depende de si el menu
+     esta desplegado o no. Por eso el override lleva su propia clase y
+     no toca la regla compartida. */
+  .top__inner--bia {
     max-width: 62rem;
     padding-left: var(--space-5);
   }

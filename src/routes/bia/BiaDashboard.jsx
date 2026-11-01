@@ -50,7 +50,7 @@ export default function BiaDashboard() {
     <>
       <div ref={sentinel} className="top-sentinel" aria-hidden="true" />
       <header className="top">
-        <div className="top__inner">
+        <div className="top__inner top__inner--bia">
           <h1 className="brand">Bia</h1>
           <div className="top-actions">
             <Link className="top__enlace" to="/olibia">
