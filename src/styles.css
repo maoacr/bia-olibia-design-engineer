@@ -335,29 +335,6 @@ a:focus-visible {
   gap: var(--space-3);
 }
 
-/* El enlace a la otra experiencia. Vive en la barra de las dos: son dos
-   vistas sobre un mismo sistema de diseño y el evaluador tiene que
-   encontrarlas sin que se lasilogree nadie. */
-.top__enlace {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  text-decoration: none;
-  border: 1px solid var(--border-control);
-  border-radius: var(--radius-full);
-  padding: var(--space-2) var(--space-4);
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  transition:
-    color var(--duration-fast) var(--ease),
-    border-color var(--duration-fast) var(--ease);
-}
-
-.top__enlace:hover {
-  color: var(--text-primary);
-  border-color: var(--accent);
-}
-
 /* Solo icono, centrado. 44px es el minimo tactil; por debajo el dedo falla
    aunque en escritorio el raton no lo note. */
 .theme-toggle {

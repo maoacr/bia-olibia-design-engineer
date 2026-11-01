@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useBrand } from '../../shared/useBrand.js';
 import { useScrolled } from '../../shared/useScrolled.js';
 import { ThemeToggle } from '../../shared/theme.jsx';
@@ -53,9 +52,6 @@ export default function BiaDashboard() {
         <div className="top__inner top__inner--bia">
           <h1 className="brand">Bia</h1>
           <div className="top-actions">
-            <Link className="top__enlace" to="/olibia">
-              Ver Olobia
-            </Link>
             <ThemeToggle />
           </div>
         </div>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { STAGES, periods } from './data.js';
 import { filterOpportunities, sortOpportunities } from './filters.js';
 import { dateFromISO, formatContact, overdueOf } from './contact.js';
@@ -208,9 +207,6 @@ export default function OlibiaDashboard() {
           {/* El nivel 1 del documento. Ver el porque en la seccion .brand. */}
           <h1 className="brand">Olibia</h1>
           <div className="top-actions">
-            <Link className="top__enlace" to="/bia">
-              Ver Bia
-            </Link>
             <ThemeToggle />
           </div>
         </div>
