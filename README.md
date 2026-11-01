@@ -14,6 +14,8 @@ El enunciado pedía una vista. Lo que hay acá es el recorrido completo que esa 
 
 **Demo:** https://bia-olibia-design-engineer.vercel.app/olibia
 
+![Carta del proyecto: dos experiencias sobre un mismo sistema de diseño](public/og-image.png)
+
 ---
 
 ## Ejecutar
@@ -27,12 +29,13 @@ npm run dev
 
 Abre la URL que imprime Vite (por defecto `http://localhost:5173`).
 
-| Comando                  | Qué hace                                                     |
-| ------------------------ | ------------------------------------------------------------ |
-| `npm run dev`            | Servidor de desarrollo                                       |
-| `npm run build`          | Compilación de producción                                    |
-| `npm run preview`        | Sirve el build                                               |
-| `npm run check:contrast` | **Verifica el contraste WCAG de los tokens, en ambos temas** |
+| Comando                  | Qué hace                                                                |
+| ------------------------ | ----------------------------------------------------------------------- |
+| `npm run dev`            | Servidor de desarrollo                                                  |
+| `npm run build`          | Compilación de producción                                               |
+| `npm run preview`        | Sirve el build                                                          |
+| `npm run check:contrast` | **Verifica el contraste WCAG de los tokens, en ambos temas**            |
+| `npm run make:images`    | Genera la carta social y los iconos, con Chrome headless                |
 
 Ese último no es decorativo: lee `src/tokens.css`, resuelve las variables y corre **72 comprobaciones** — 36 pares texto/superficie en los dos temas. Sale con código 1 si alguno baja del mínimo. Encontró cuatro errores reales antes de que llegaran a un commit.
 
@@ -119,7 +122,7 @@ El PDF pide esto explícitamente, y sale de los fallos que fueron apareciendo:
 - **Prettier.** El starter venía en líneas de hasta 2.000 caracteres: el dashboard entero ocupaba 13 líneas.
 - **Claude Code** como par de trabajo, dirigido: yo tomé las decisiones de producto y diseño, y las empujé hasta que resistieran. Varias propuestas suyas las rechacé y se rehicieron. Dos ejemplos: esconder siete de las ocho filas del bloque de trabadas para ahorrar alto en móvil —que destruye la comparación que hace legible el bloque— y dar por bueno un truco de observador sobre la propia cabecera que resultó encenderse desde el primer cuadro.
 - **Chrome DevTools vía CDP**, manejando un Chrome propio para medir y capturar en ambos temas y a distintos anchos. Ahí aparecieron los bugs que el código no delata, y los números que están en este README.
-- **Scripts de medición propios**, para contraste, geometría y composición de color. Uno quedó versionado como `check:contrast`.
+- **Scripts de medición propios**, para contraste, geometría y composición de color. Dos quedaron versionados: `check:contrast` y `make:images`, que renderiza la carta social y los iconos con Chrome headless desde los mismos tokens que la aplicación — la miniatura de un enlace compartido es diseño, no un archivo que alguien subiu una vez.
 
 ### Qué refiné personalmente
 
@@ -139,6 +142,7 @@ src/
   styles.css              estilos, escritos mobile-first
   shared/
     theme.jsx             tema claro/oscuro con preferencia del sistema
+    useDocumentTitle.js   el título de la pestaña, según la ruta
   routes/olibia/
     OlibiaDashboard.jsx   arma la página y reparte el alcance de cada bloque
     Goal.jsx              ¿Vamos a llegar?
@@ -155,6 +159,13 @@ src/
     useFilterParams.js    los filtros viven en la URL
 scripts/
   check-contrast.mjs      72 comprobaciones WCAG, falla el proceso si algo baja
+  make-images.mjs         renderiza la carta social y los iconos
+  og-card.html            la carta, en HTML, saliendo de los tokens
+public/
+  og-image.png            1200x630 — previsualización al compartir el enlace
+  social-preview.png      1280x640 — carta del repositorio
+  apple-touch-icon.png    180x180 — icono de iOS
+  icon-512.png            512x512 — icono del navegador
 ```
 
 ### Accesibilidad

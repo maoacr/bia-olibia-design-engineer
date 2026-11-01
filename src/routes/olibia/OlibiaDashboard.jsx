@@ -13,12 +13,15 @@ import Origin from './Origin.jsx';
 import Workload from './Workload.jsx';
 import OpportunityDetail from './OpportunityDetail.jsx';
 import { ThemeToggle } from '../../shared/theme.jsx';
+import { useDocumentTitle } from '../../shared/useDocumentTitle.js';
 import { useFilterParams } from './useFilterParams.js';
 import Dock, { useDockCollapsed } from './Dock.jsx';
 
 const NEGOTIATION = STAGES[STAGES.length - 1];
 
 export default function OlibiaDashboard() {
+  useDocumentTitle('Olibia · Tablero comercial · Prueba Design Engineer');
+
   const { filters, sort, update, reset } = useFilterParams();
   const { collapsed, toggle: toggleDock } = useDockCollapsed();
 

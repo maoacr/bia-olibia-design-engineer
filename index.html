@@ -3,8 +3,89 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+      META DE LA PAGINA
+      =================
+      Hay dos audiences distintos y no se pueden servir con los mismos tags:
+
+      1. Quien abre el enlace en un chat, en WhatsApp o en LinkedIn. Ve la
+         previsualizacion que leen los tags `og:*` y `twitter:*`. Sin una
+         imagen, el enlace se ve como una linea de texto gris: por eso
+         `public/og-image.png` existe y lo genera `npm run make:images`.
+
+      2. Un buscador. Ve el `title` y la `description`. Por eso la descripcion
+         dice QUE es esto --una prueba de Design Engineer para Bia-- y no
+         repite el nombre de la marca, que ya esta en el titulo.
+
+      Las imagenes van con URL ABSOLUTA: un crawler que no resuelve rutas
+      relativas no encuentra la previsualizacion y muestra el texto pelado.
+      -->
+
+    <title>Bia · Olobia — Prueba de Design Engineer</title>
+    <meta
+      name="description"
+      content="El tablero comercial de Olibia y la vista de consumo energético de Bia, sobre un mismo sistema de diseño. Prueba de Design Engineer para Bia Energy, Colombia."
+    />
+    <meta name="author" content="@maoacr" />
+    <link rel="canonical" href="https://bia-olibia-design-engineer.vercel.app/olibia" />
+    <meta name="robots" content="index, follow" />
+    <!-- Google ignora `keywords` desde 2009; queda por los buscadores que
+         todavia lo leen, y para dejar escrito de que trata el repo. -->
+    <meta
+      name="keywords"
+      content="prueba design engineer, bia energy, olibia, dashboard react, consumo energético, diseño de producto, design system, vite, colombia"
+    />
+
+    <!-- El tema del sistema decide el color de la barra del navegador. -->
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafafa" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
+    <meta name="application-name" content="Bia · Olibia" />
+
+    <!-- Open Graph: la previsualizacion al compartir el enlace. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Bia · Olobia" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:url" content="https://bia-olibia-design-engineer.vercel.app/olibia" />
+    <meta property="og:title" content="Bia · Olobia — Prueba de Design Engineer" />
+    <meta
+      property="og:description"
+      content="Dos experiencias de producto sobre un mismo sistema de diseño: el tablero comercial de Olibia y la vista de consumo energético de Bia. React 19, Vite, tokens en dos capas, dos temas y microinteracciones. Prueba de Design Engineer para Bia Energy, Colombia."
+    />
+    <meta property="og:image" content="https://bia-olibia-design-engineer.vercel.app/og-image.png" />
+    <meta
+      property="og:image:secure_url"
+      content="https://bia-olibia-design-engineer.vercel.app/og-image.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Carta del proyecto: el logotipo de Bia y el titular «Dos experiencias sobre un mismo sistema de diseño»."
+    />
+
+    <!-- Twitter/X usa su propio juego de tags, pero hereda los de Open Graph
+         cuando faltan los suyos. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bia · Olibia — Prueba de Design Engineer" />
+    <meta
+      name="twitter:description"
+      content="Dos experiencias de producto sobre un mismo sistema de diseño: el tablero comercial de Olibia y la vista de consumo energético de Bia. React 19, Vite, tokens en dos capas, dos temas y microinteracciones. Prueba de Design Engineer para Bia Energy, Colombia."
+    />
+    <meta name="twitter:image" content="https://bia-olibia-design-engineer.vercel.app/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Carta del proyecto: el logotipo de Bia y el titular «Dos experiencias sobre un mismo sistema de diseño»."
+    />
+
+    <!-- Iconos: el .ico que ya estaba, el PNG para los navegadores que lo
+         prefieren y el de iOS, que exige 180x180 y fondo opaco. -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
-    <title>Olibia · Gestión comercial</title>
+    <link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
     <script>
       // Aplica el tema guardado antes del primer render. Sin esto, la pagina
       // pinta el tema por defecto y recien despues corrige: un parpadeo visible.
