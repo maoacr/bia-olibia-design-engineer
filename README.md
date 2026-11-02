@@ -59,47 +59,28 @@ Los tokens van en **dos capas**: primitivas de marca y roles semánticos. Ningú
 
 ## Decisiones · Olibia
 
-El starter mostraba indicadores. La decisión de fondo fue cambiar la pregunta: **el sitio no muestra números, contesta las cinco que se hace quien es dueño de la meta.** ¿Vamos a llegar? ¿Qué se está cayendo? ¿Dónde me meto? ¿De dónde viene el valor? ¿Cómo venimos?
+El starter mostraba indicadores. La decisión de fondo fue cambiar la pregunta: **el sitio no muestra números, contesta las cinco que se hace quien es dueño de la meta**.
 
-Cada bloque reemplaza un gráfico que engañaba. "Cierres por ejecutivo" hacía ver a Mateo como el que menos trabaja: cerró 1, el que menos — **pero carga $96 M, el pipeline más pesado del equipo**. Van hoy en la misma fila.
+Antes de dibujar audité el dato, y ahí apareció lo que ninguna cifra decorativa iba a decir: **la meta de 10 no se alcanzó ni una vez en siete meses** (máximo: 8), el canal de una empresa **cambiaba entre periodos** porque venía del índice de la fila en un array, y los referidos valen el doble que el outbound ($64,7 M contra $31,3 M).
 
-Auditar los datos antes de diseñar definió la dirección. Ahí apareció que **la meta de 10 no se alcanzó ni una vez en siete meses** (máximo: 8), que el canal de una empresa **cambiaba entre periodos** porque se derivaba del índice de la fila en un array, y que los referidos valen el doble que el outbound: $64,7 M contra $31,3 M.
+El total del pipeline ya se calculaba para sacar porcentajes y **nunca se mostraba**: hoy encabeza la lectura como banda, un escalón por debajo de la meta, porque dos números del mismo peso se leerían como una contradicción.
 
-Septiembre no tiene ninguna oportunidad en Negociación. No lo traté como caso borde a cubrir: con la misma estructura, los lugares vacíos se quedan sin candidatos y **el estado vacío es la pantalla más informativa de las dos**.
+El resumen de IA pasó de panel a conversación, y **no entró como séptimo destino del dock** —se decidió midiendo: con los filtros, los siete destinos caen a 41,9px, bajo el piso táctil de 44px—. El panel abierto es opaco: sobre el vidrio del dock, sus etiquetas caían a 2,84:1.
 
-El alcance de cada bloque es una decisión, no un detalle. La meta y las alertas **no responden a los filtros**: una alerta que un filtro puede silenciar no sirve de alerta.
+El tablero diagnosticaba y no podía tratar: la única acción era «ya lo miré». Adelantar de etapa y registrar el contacto —qué se habló y para cuándo quedó el próximo— lo vuelven un producto que se usa.
 
-Las cinco respuestas descomponen un total que la página nunca declaraba: `Origin` lo calculaba para sacar sus porcentajes y no lo mostraba. Hoy encabeza la lectura como banda, sin tarjeta y sin filtrar — y su cifra va **un escalón por debajo** de la de "¿Vamos a llegar?" a propósito, porque el monto en juego es una porción de ese total y dos cifras del mismo peso se leerían como una contradicción: en septiembre serían $238 M arriba de $0 M.
-
-El resumen AI dejó de ser un panel en medio de la página y es una conversación: la misma cifra, pero con lugar para seguir preguntando. **No entró como séptimo destino del dock**, y eso se decidió midiendo: con los filtros puestos aparece además el botón de limpiar, y en 375px los siete destinos caen a 41,9px de ancho, por debajo del piso táctil de 44px. Se apila encima, con el mismo vidrio. El panel abierto, en cambio, es opaco — el vidrio sirve para una barra de iconos, no para una superficie de lectura.
-
-El tablero diagnosticaba y no podía tratar. Señalaba que Hotel Central lleva un mes sin moverse y la única acción de todo el producto era un booleano: «ya lo miré». **Adelantar de etapa cierra ese circuito**, y la parte que vale es que no sincroniza nada: la etapa entra por `opportunitiesWithMovement`, el punto del que se deriva todo lo que la página dibuja. Mover la cuenta trabada recalcula su movimiento contra el mes previo, y «¿Qué se está cayendo?» pasa de la alerta ámbar a **«Nada quedó parado: todas las cuentas se movieron»** — un estado vacío que ya existía en el código y que hasta ahora ninguna interacción podía alcanzar.
-
-**«Marcar seguimiento realizado» se fue, y con él la columna «Movimiento».** El botón dejaba un tilde junto al nombre y nada más: una cuenta recibe muchos contactos a lo largo del embudo, así que un booleano no contesta cuánto insistir ni cuándo volver — y se borraba al recargar, o sea que dependía de la sesión y no del cliente. La columna decía si la cuenta avanzó contra el mes anterior, que es una medida de **reporte**, no de trabajo; y lo decía por tercera vez, porque el riel de «¿Qué se está cayendo?» dibuja el recorrido completo con más contexto y el historial lo repite en palabras. El dato sigue vivo: alimenta ese bloque y el filtro.
-
-En su lugar, **registrar un contacto**: qué se habló y para cuándo quedó el próximo. Es lo que un asesor hace de verdad y lo que el booleano fingía. La nota encabeza el historial y la fecha **actualiza `nextContact`**, de donde sale la alerta de vencido — se ve al instante en la ficha, en la fila de la tabla y en el asistente. El botón se habilita con la nota, no con la fecha: reagendar sin contar nada no es un contacto, y una fecha nueva sin motivo no se puede auditar.
-
-**La alerta de vencido necesitó declarar un «hoy».** Un tablero de datos ficticios no tiene uno: la fecha del sistema dejaría los siete meses de historia vencidos para siempre y marcaría las ocho cuentas a la vez — una alerta que suena en el 100% de las filas no es una alerta. Cada periodo declara el día desde el que se lo mira (el 29), y así los tres estados existen de verdad: **3 vencidos, 3 para hoy, 2 por venir**. «Hoy» se nombra sin teñirse de alarma; si todo lo que pide atención grita, nada la pide.
-
-El historial **no inventa conversaciones**. Fuera de lo que se registra en la sesión, cada línea sale de un dato que el sistema ya tenía: en qué etapa estaba el mes pasado, quién la lleva, cuándo toca el próximo contacto, cómo se movió.
-
-Ningún color se eligió a ojo. El acento marca sólo lo que se está interrogando, y con el teal reservado el ámbar queda libre para lo que pide atención.
-
-**La tabla es una lista de trabajo, no un reporte.** Por eso se ordena por empresa o por fecha desde el encabezado —tres clics: ascendente, descendente, orden original— y por eso se fue la columna «Movimiento»: decir si una cuenta avanzó contra el mes pasado es una medida de reporte, y el riel de «¿Qué se está cayendo?» ya la dibuja con más contexto. En su lugar está lo que sí es de trabajo: vencido en rojo, hoy en ámbar.
-
-**El menú se guarda y devuelve 92px al contenido.** Nace abierto —es la única orientación de una página de 3900px— y la elección se recuerda. Animar el contenido junto al menú daba 12 fps con 6 de 6 cuadros perdidos: reflueye nueve paneles con SVG por cuadro. Animando sólo el menú, 49. El contenido salta y el panel se desliza limpio.
-
----
+La alerta de vencido necesitó declarar un «hoy»: un tablero ficticio no tiene fecha, y una alerta que suena en el 100% de las filas no es una alerta.
 
 ## Decisiones · Bia
 
 La segunda tarea pedía una vista para alguien que administra tres cafeterías: un objetivo clarísimo —entender qué está pasando con el consumo— que solo se logra comparando. La decisión de fondo fue que la comparación sea la protagonista y que **los meses sean el marco**: la página abre con dos columnas, la de referencia y la que se mira, con la cifra debajo de cada una. Un "+25%" suelto no quiere decir nada; con los meses al lado, sí.
 
-La segunda: una tira de diez meses que es a la vez el control y la respuesta. Se tocan dos y el gráfico compara ese par con cualquier otro; el salto de octubre se ve sin leer una línea, y al tocar una fila, la tira cuenta la historia de esa fila.
+La segunda: una tira de diez meses que es a la vez el control y la respuesta. Los meses se eligen arriba, en desplegables, o se tocan dos en la tira; el gráfico compara ese par con cualquiera y el salto de octubre se ve sin leer una línea.
 
 Una sola regla de color: el teal es el mes que mirás, el gris el de referencia, el rojo solo cuando el cambio es malo y el punteado solo "sin confirmar".
 
 Los hechos van con tinta sólida y las hipótesis con contorno punteado, y el límite se dice de frente: 780 de los 1.200 kWh fueron de día, así que ninguna hipótesis cubre la parte más grande del problema. Por eso el paso que se ofrece es una medición y no un arreglo. El asistente responde con reglas sobre el fixture, sin modelo de AI, y calcula lo mismo que la gráfica.
+
 ## Qué deberíamos probar
 
 El PDF pide esto explícitamente, y sale de los fallos que fueron apareciendo:
