@@ -41,7 +41,11 @@ export default function Evidencia({ sede }) {
 
       <div className="evidencia__hipotesis">
         <p className="evidencia__etiqueta">Hipótesis · sin confirmar</p>
-        <p className="evidencia__texto">{HYPOTHESIS.candidatos.map(c => c.claim).join(' · ')}</p>
+        <ul className="evidencia__candidatos">
+          {HYPOTHESIS.candidatos.map(c => (
+            <li key={c.id}>{c.claim}</li>
+          ))}
+        </ul>
         <p className="evidencia__texto evidencia__texto--mudo">{HYPOTHESIS.limite}</p>
 
         {!abierto && (

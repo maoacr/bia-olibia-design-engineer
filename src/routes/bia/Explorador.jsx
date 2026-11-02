@@ -196,7 +196,10 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
             referencia. Tocá el otro mes.
           </>
         ) : (
-          <>Mostrando {mira ? `la ${mira.nombre}` : 'las tres sedes'}.</>
+          <>
+            Comparando <strong>{c.a.label}</strong> contra <strong>{c.b.label}</strong>
+            {mira ? `, de ${mira.nombre}` : ', de las tres sedes'}.
+          </>
         )}
       </p>
 
@@ -294,11 +297,7 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
         ))}
       </div>
 
-      <p className="explorador__nota">
-        La barra es {mesFinal ? mesFinal.label.toLowerCase() : 'el segundo mes'}; la línea, dónde
-        estaba {mesInicial ? mesInicial.label.toLowerCase() : 'el primero'}. Tocá una fila para ver
-        su historia mes a mes.
-      </p>
+      <p className="explorador__nota">Tocá una fila para ver su historia mes a mes.</p>
     </section>
   );
 }
