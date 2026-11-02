@@ -598,10 +598,16 @@ main.bia {
   font-size: var(--text-xs);
 }
 
-/* El mes de referencia en gris, el que se mira en acento. Y el peso: el
-   teal va en negrita, asi que el color nunca es el unico canal. */
+/* EL MES DE REFERENCIA.
+   Los dos meses que se comparan estan ENCENDIDOS: el que se mira en
+   acento y el de referencia con mas contraste contra el fondo. Los meses
+   que no estan en la comparacion se apagan, para que se vea de un golpe
+   cuales son los dos. Que el de referencia sea un gris y no un color
+   propio es a proposito: la leyenda lo asocia con la barrita de las
+   barras. */
 .tira__mes.es-a .tira__barra {
-  background: var(--text-muted);
+  background: var(--text-secondary);
+  opacity: 1;
 }
 
 .tira__mes.es-b .tira__barra {
@@ -610,7 +616,8 @@ main.bia {
 }
 
 .tira__mes.es-pendiente .tira__barra {
-  background: var(--text-muted);
+  background: var(--text-secondary);
+  opacity: 1;
 }
 
 .tira__mes.es-pendiente .tira__corto {
