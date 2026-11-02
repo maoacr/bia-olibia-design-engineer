@@ -7,7 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "check:contrast": "node scripts/check-contrast.mjs",
-    "make:images": "node scripts/make-images.mjs"
+    "make:images": "node scripts/make-images.mjs",
+    "measure": "node scripts/measure.mjs"
   },
   "keywords": [
     "design-engineer",

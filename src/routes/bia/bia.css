@@ -18,10 +18,12 @@
 /* ─── El cuerpo de la pagina ──────────────────────────────────────── */
 
 main.bia {
-  /* Mas angosto que el de Olibia. El recibo se lee en una columna con
-     aire; estirado a 1680px, que es lo que usa el tablero, las cifras
-     quedan perdidas en el aire. */
-  max-width: 62rem;
+  /* El contenedor es el del sitio: el mismo token que el de Olibia. Si cada
+     vista tiene el suyo, las dos se desincronizan — y ya se
+     desincronizaron (Olibia 1680px, Bia 992px).
+
+     Lo que hacebia angosto era el CONTENIDO, y eso se resuelve con topes
+     internos, no con un contenedor mas angosto. */
   padding-bottom: var(--space-7);
 }
 
@@ -32,13 +34,12 @@ main.bia {
     padding-left: var(--space-5);
   }
 
-  /* La cabecera de Bia sigue a SU contenido: mismo ancho maximo y mismo
-     relleno. El de Olobia es otra cosa: su cabecera se acomoda al dock,
-     que le cede la columna izquierda, y ese ajuste depende de si el menu
-     esta desplegado o no. Por eso el override lleva su propia clase y
-     no toca la regla compartida. */
+  /* La cabecera comparte el ancho del sitio —la marca no puede saltar de
+     una vista a otra— pero no la columna del dock, que Bia no tiene. */
   .top__inner--bia {
-    max-width: 62rem;
+    /* Bia no tiene dock: la marca arranca en el borde del contenido. El
+       `padding-left` de `main` reemplaza su relleno propio, asi que el de
+       la cabecera tiene que ser el mismo y no la suma. */
     padding-left: var(--space-5);
   }
 }
@@ -83,6 +84,9 @@ main.bia {
    mas grande de la pagina despues de las cifras, porque sin ellos un
    "+25%" no quiere decir nada. */
 .veredicto__marco {
+  /* El marco de dos meses se mantiene junto: a 1680px, dos columnas
+     separadas por 800px dejan de leerse como una comparacion. */
+  max-width: 58rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4) var(--space-6);
@@ -151,6 +155,9 @@ main.bia {
 /* ─── El hecho y las hipotesis ────────────────────────────────────── */
 
 .evidencia__dato {
+  /* La prosa lleva su propia medida: el ancho del contenedor no es la
+     medida de lectura. */
+  max-width: 68ch;
   padding: var(--space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -197,6 +204,7 @@ main.bia {
 /* EL PUNTEADO. En toda la pagina, el contorno punteado significa "esto es
    una hipotesis y no esta confirmado". Un hecho va con tinta solida. */
 .evidencia__hipotesis {
+  max-width: 68ch;
   margin-top: var(--space-3);
   padding: var(--space-4);
   border: 1px dashed var(--border-strong);
@@ -266,6 +274,7 @@ main.bia {
 /* ─── 4 · El paso ─────────────────────────────────────────────────── */
 
 .paso__fila {
+  max-width: 68ch;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -298,6 +307,7 @@ main.bia {
 }
 
 .paso__alternativa {
+  max-width: 68ch;
   margin: var(--space-4) 0 0;
   font-size: var(--text-sm);
   line-height: 1.45;
@@ -549,6 +559,9 @@ main.bia {
 /* ─── La tira de meses ─────────────────────────────────────────────── */
 
 .tira {
+  /* La tira es una serie de diez columnas: estirada a 1680px quedan diez
+     tiras perdidas. Ocupa la medida del grafico, no la del sitio. */
+  max-width: 62rem;
   display: flex;
   align-items: flex-end;
   gap: 3px;
@@ -615,8 +628,12 @@ main.bia {
   opacity: 1;
 }
 
+/* EL MES QUE ACABAS DE TOCAR.
+   Se enciende al instante, en el mismo acento que el mes que mirás: el
+   feedback tiene que ser inmediato, no una consecuencia de completar el
+   par. Su etiqueta en negrita reinforces que todavia no tiene rol. */
 .tira__mes.es-pendiente .tira__barra {
-  background: var(--text-secondary);
+  background: var(--chart-bar-on);
   opacity: 1;
 }
 
@@ -706,7 +723,9 @@ main.bia {
 
 .fila {
   display: grid;
-  grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr) minmax(12rem, auto);
+  /* La barra no crece hasta el infinito: una barra de 1400px no se lee
+     como una comparacion. */
+  grid-template-columns: minmax(7rem, 10rem) minmax(0, 52rem) minmax(12rem, auto);
   align-items: center;
   gap: var(--space-3) var(--space-4);
   width: 100%;

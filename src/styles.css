@@ -270,7 +270,7 @@ a:focus-visible {
   justify-content: center;
   gap: var(--space-3);
   width: 100%;
-  max-width: 1680px;
+  max-width: var(--content-width);
   margin-inline: auto;
   padding: var(--space-3) var(--space-4);
 }
@@ -436,7 +436,7 @@ main {
   padding: var(--space-4);
   /* Deja aire para que el dock no tape el pie. */
   padding-bottom: calc(var(--space-8) + 4.5rem);
-  max-width: 1680px;
+  max-width: var(--content-width);
   margin-inline: auto;
 }
 
@@ -1341,7 +1341,10 @@ td:nth-child(4) {
     justify-content: space-between;
     /* El MISMO relleno que `main`: asi la marca arranca en la misma vertical
        que "PIPELINE ABIERTO" y no 100px mas a la izquierda, colgada sobre la
-       columna que ocupa el dock. */
+       columna que ocupa el dock.
+
+       Ojo con la cuenta: el `padding-left` de `main` REEMPLAZA su relleno
+       propio de 24px, no se suma. Por eso los dos tienen 116px y no 140. */
     padding: var(--space-4) var(--space-5);
     padding-left: calc(5.25rem + var(--space-6));
   }

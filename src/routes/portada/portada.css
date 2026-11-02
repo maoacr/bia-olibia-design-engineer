@@ -100,6 +100,12 @@
   justify-content: center;
   gap: var(--space-4);
   padding-block: var(--space-5);
+  /* El `main` del proyecto deja 24px de relleno y, desde 40rem, 116px para
+     la columna que le cede el dock a Olibia. La portada NO tiene dock, asi que
+     ese relleno la descentraba: su centro caia 46px a la derecha del de la
+     pagina, y su contenido no arrancaba en la misma vertical que su propia
+     cabecera ni que su pie. El relleno de la portada lo pone `.portada`. */
+  padding-inline: 0;
 }
 
 .portada__sello {

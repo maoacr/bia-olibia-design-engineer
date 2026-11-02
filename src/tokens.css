@@ -118,6 +118,18 @@
 
   --header-height: 69px;
 
+  /* EL ANCHO DEL CONTENIDO, PARA TODO EL SITIO.
+     No se decide por pagina: si cada vista tiene el suyo, las dos se
+     desincronizan — y ya se desincronizaron (Olibia 1680px, Bia 992px).
+     Lo fija el contenido MAS denso: la tabla de Olobia, que pide 1250px
+     naturales, mas la columna que le cede el dock (116px) y los rellenos
+     (48px) dan unos 1414px; 1680px lo cubre con aire.
+
+     Y ojo: el ancho del contenedor NO es la medida de lectura. Dentro,
+     cada bloque de prosa lleva su propia tope (~65 caracteres); sin eso, a
+     1680px las lineas se van a 150 caracteres y no se leen. */
+  --content-width: 1440px;
+
   /* EL AIRE QUE QUEDA ENTRE LA CABECERA Y LA SECCION A LA QUE SE SALTA.
      Lo comparten el dock —que desplaza con JavaScript, no con anclas— y el
      `scroll-margin-top` de los destinos. Estando en un solo token, los dos
