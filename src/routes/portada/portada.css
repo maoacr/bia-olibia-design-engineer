@@ -1,0 +1,335 @@
+/**
+ * LA PORTADA — escrita mobile-first, igual que el resto.
+ *
+ * Las reglas base son las de un telefono de 360px y la pagina crece desde
+ * ahi con `min-width`: una sola columna, titular que ya entra, puertas
+ * apiladas. Nada que deshacer mas arriba.
+ *
+ * NINGUN COLOR VIVE ACA. Todo sale de los roles semanticos de `tokens.css`,
+ * incluido el acento de cada puerta: la tarjeta declara `data-brand` y el
+ * token elige la version que corresponde al tema. Ver el bloque "acento por
+ * marca" en `tokens.css`.
+ *
+ * LA ESCALA TIPOGRAFICA DE LA PORTADA NO ES LA DEL TABLERO. Los tokens de
+ * texto BAJAN un escalon en escritorio a proposito, porque un tablero con
+ * una tabla de seis columnas gana densidad. Una portada no tiene nada que
+ * densificar: es un titular, dos frases y dos puertas. Por eso el titular y
+ * la bajada usan `clamp()` propio en vez de `--text-*`.
+ */
+
+.portada {
+  position: relative;
+  /* `svh` es el alto visible REAL en un telefono: `vh` cuenta la barra de
+     direcciones como si no estuviera, y el pie de la portada terminaba
+     escondido detras de ella. La linea de `vh` queda primero como respaldo
+     para quien no entienda la unidad nueva. */
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: var(--space-4);
+}
+
+/* UN SOLO FOCO DE LUZ, el mismo de la carta social: el acento entra por
+   arriba a la derecha y se apaga antes de llegar al contenido. Va `fixed`
+   y no `absolute` para que cubra la ventana aunque la pagina crezca mas
+   que ella, y detras de todo con `z-index: -1`.
+
+   El color sale de `--accent`, no de un teal escrito a mano: en tema claro
+   el acento ya es la version "ink", asi que el halo se vuelve un tinte
+   suave en vez de un neon imposible sobre papel. */
+.portada::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    110% 85% at 86% -12%,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+/* ─── La barra ──────────────────────────────────────────────────────── */
+
+.portada__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.portada__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+/* El rayo es lo unico de la marca que lleva color: la palabra se queda en
+   el color del texto, como en el logotipo real. */
+.portada__rayo {
+  color: var(--accent);
+  flex: none;
+}
+
+.portada__marca-sep,
+.portada__marca-otra {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ─── El centro ─────────────────────────────────────────────────────── */
+
+.portada__centro {
+  /* Se queda con el sobrante y centra su contenido: en un telefono alto la
+     portada no se amontona arriba dejando medio lienzo vacio abajo. */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-4);
+  padding-block: var(--space-5);
+}
+
+.portada__sello {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 620;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.portada__titular {
+  margin: 0;
+  font-size: clamp(2rem, 1.25rem + 3.6vw, 3.75rem);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.032em;
+  /* La medida corta es la que hace que el titular se quiebre donde quiebra
+     en la carta social, en vez de estirarse hasta el borde de la pantalla
+     grande y perder el ritmo de dos lineas. */
+  max-width: 17ch;
+  text-wrap: balance;
+}
+
+.portada__bajada {
+  margin: 0;
+  font-size: clamp(1rem, 0.95rem + 0.4vw, 1.25rem);
+  line-height: 1.45;
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+
+/* ─── Las dos puertas ───────────────────────────────────────────────── */
+
+.portada__puertas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.portada__puerta {
+  /* Las cuatro filas estan declaradas y la tercera se estira: asi la linea
+     de accion queda a la MISMA altura en las dos tarjetas aunque los textos
+     midan distinto. Sin esto, "Ver el tablero" y "Ver el consumo" bailan
+     entre si y la pareja deja de leerse como pareja. */
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: var(--space-2);
+  position: relative;
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-panel);
+  color: var(--text-primary);
+  text-decoration: none;
+  overflow: hidden;
+  transition:
+    border-color var(--duration-base) var(--ease),
+    background-color var(--duration-base) var(--ease),
+    box-shadow var(--duration-base) var(--ease),
+    transform var(--duration-base) var(--ease);
+}
+
+/* El filo de arriba lleva el gradiente de LA MARCA DE ESA PUERTA. Es la
+   unica pieza que diferencia las dos tarjetas de un vistazo, y la que
+   adelanta de que color va a ser la pagina que hay detras. */
+.portada__puerta::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--accent-gradient);
+}
+
+/* `hover: hover` deja afuera al dedo: en tactil el estado de hover se queda
+   pegado despues de tocar y la tarjeta se ve elegida sin estarlo. */
+@media (hover: hover) {
+  .portada__puerta:hover {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    background: var(--surface-raised);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px -20px color-mix(in srgb, var(--accent) 80%, transparent);
+  }
+}
+
+.portada__puerta:active {
+  transform: translateY(0);
+}
+
+.portada__puerta-nombre {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--accent);
+}
+
+.portada__puerta-que {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.portada__puerta-detalle {
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.portada__puerta-ir {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: var(--text-md);
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.portada__flecha {
+  flex: none;
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .portada__puerta:hover .portada__flecha {
+    transform: translateX(3px);
+  }
+}
+
+/* ─── El pie ────────────────────────────────────────────────────────── */
+
+.portada__pie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.portada__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.portada__regla {
+  flex: none;
+  width: 56px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent-gradient);
+}
+
+.portada__firma {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+}
+
+.portada__autor {
+  color: var(--accent);
+  font-weight: 650;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+
+.portada__autor:hover {
+  border-bottom-color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Desde 40rem (640px) hay ancho para las dos puertas lado a lado.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 40rem) {
+  .portada {
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .portada__puertas {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  .portada__pie {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Desde 53rem (848px) la portada deja de ser una pagina apretada y pasa
+   a ser una carta: mas aire alrededor y mas separacion entre bloques.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 53rem) {
+  .portada {
+    gap: var(--space-7);
+    padding: var(--space-7) var(--space-8);
+  }
+
+  .portada__centro {
+    gap: var(--space-5);
+  }
+
+  .portada__puertas {
+    margin-top: var(--space-4);
+    gap: var(--space-5);
+  }
+
+  .portada__puerta {
+    padding: var(--space-6);
+  }
+}
+
+/* Sin movimiento, el desplazamiento de la tarjeta y de la flecha no se
+   neutralizan solos: la regla global apaga las TRANSICIONES, no el valor
+   final del `transform`. */
+@media (prefers-reduced-motion: reduce) {
+  .portada__puerta:hover,
+  .portada__puerta:hover .portada__flecha {
+    transform: none;
+  }
+}

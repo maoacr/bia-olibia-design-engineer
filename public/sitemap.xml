@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Una sola URL. La raiz redirige a /olibia, asi que listar las dos seria
-  pedirle al buscador que indexe un redirect.
+  Una sola URL, y ahora es la raiz: la portada dejo de ser un redirect y
+  paso a ser la pagina canonica, la que presenta el proyecto y lleva a las
+  dos experiencias.
+
+  /olibia y /bia NO se listan, y no es un olvido: el crawler no ejecuta
+  React, asi que las tres rutas le entregan exactamente el mismo HTML.
+  Listarlas seria pedirle que indexe tres veces la misma pagina.
 
   Sin `lastmod` a proposito: un sitemap estatico con una fecha escrita a
   mano envejece en silencio. O se actualiza en cada deploy, o no se pone.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://bia-olibia-design-engineer.vercel.app/olibia</loc>
+    <loc>https://bia-olibia-design-engineer.vercel.app/</loc>
   </url>
 </urlset>
