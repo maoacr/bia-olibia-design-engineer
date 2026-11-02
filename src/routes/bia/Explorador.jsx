@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { BUCKETS, OUTSIDE } from './data.js';
 import { numero, pesos, porcentaje } from './format.js';
@@ -49,6 +49,9 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
   const [unidad, setUnidad] = useState('kwh');
   const [desglose, setDesglose] = useState('sede');
   const [elegida, setElegida] = useState(null);
+  // En movil la tira se desplaza, asi que el mes que se esta mirando puede
+  // quedar fuera de la pantalla. Al abrir, la tira se acomoda en el.
+  const tiraRef = useRef(null);
 
   /** Convierte un consumo en kWh a la unidad elegida. */
   const convertir = (consumo, mes) => {
@@ -132,6 +135,11 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
    * hay que adivinar no sirve.
    */
   function tocarMes(id) {
+    // Si la tira esta desplazada, el mes que se toco puede quedar fuera de
+    // la pantalla: se trae a la vista.
+    const boton = document.querySelector(`[data-mes="${id}"]`);
+    boton?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
     if (pendiente === id) {
       setPendiente(null);
       return;
@@ -143,6 +151,11 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
     onCambiarMeses(pendiente, id);
     setPendiente(null);
   }
+
+  useEffect(() => {
+    const boton = tiraRef.current?.querySelector('[data-mes=\"' + c.b.id + '\"]');
+    boton?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [c.b.id]);
 
   const mesInicial = c.a;
   const mesFinal = c.b;
@@ -158,12 +171,13 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
 
       {/* ─── La tira: el control y la respuesta ────────────────────── */}
       <Tooltip.Provider delayDuration={200} skipDelayDuration={400}>
-        <div className="tira">
+        <div className="tira" ref={tiraRef}>
           {tira.map(mes => (
             <Tooltip.Root key={mes.id}>
               <Tooltip.Trigger asChild>
                 <button
                   type="button"
+                  data-mes={mes.id}
                   className={`tira__mes${mes.esA ? ' es-a' : ''}${mes.esB ? ' es-b' : ''}${
                     mes.esPendiente ? ' es-pendiente' : ''
                   }`}
@@ -203,37 +217,48 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
         )}
       </p>
 
-      {/* ─── Los dos controles que quedan ───────────────────────────── */}
+      {/* ─── Los dos controles que quedan ───────────────────────────────
+          EN ORDEN, Y CON SU TITULO A LA VISTA. La unidad va arriba de
+          todo: es la que cambia como se lee CADA numero, y el desglose es
+          el que decide QUE se esta mirando. Sin titulo, cinco botones
+          sueltos no dicen nada. */}
       <div className="explorador__controles">
-        <div className="explorador__grupo" role="group" aria-label="Desglosar por">
-          {DESGLOSES.map(item => (
-            <button
-              type="button"
-              key={item.id}
-              className="explorador__chip"
-              aria-pressed={desglose === item.id}
-              onClick={() => {
-                setDesglose(item.id);
-                setElegida(null);
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <div className="explorador__grupo explorador__grupo--fin" role="group" aria-label="Unidad">
-          {METRICAS.map(item => (
-            <button
-              type="button"
-              key={item.id}
-              className="explorador__chip"
-              aria-pressed={unidad === item.id}
-              onClick={() => setUnidad(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+        <fieldset className="explorador__grupo">
+          <legend className="explorador__grupo-titulo">Unidad</legend>
+          <div className="explorador__opciones">
+            {METRICAS.map(item => (
+              <button
+                type="button"
+                key={item.id}
+                className="explorador__chip"
+                aria-pressed={unidad === item.id}
+                onClick={() => setUnidad(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="explorador__grupo">
+          <legend className="explorador__grupo-titulo">Desglosar por</legend>
+          <div className="explorador__opciones">
+            {DESGLOSES.map(item => (
+              <button
+                type="button"
+                key={item.id}
+                className="explorador__chip"
+                aria-pressed={desglose === item.id}
+                onClick={() => {
+                  setDesglose(item.id);
+                  setElegida(null);
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
       </div>
 
       {/* ─── La comparacion ─────────────────────────────────────────── */}

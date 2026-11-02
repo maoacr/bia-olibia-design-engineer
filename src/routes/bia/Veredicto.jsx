@@ -9,10 +9,15 @@ import { kwh, pesos, porcentaje } from './format.js';
  * Por eso la comparacion se abre como una factura: dos columnas, la de
  * referencia y la que se mira, con su mes ARRIBA de cada numero.
  *
- * Y la ultima frase corrige la lectura equivocada: la tarifa no cambio, de
+ * Y los meses son DESPLEGABLES. La tira de meses mas abajo invite a tocar
+ * dos, pero no todos leen esa dinamica igual: para quien no la entiende,
+ * el nombre del mes tiene que ser un control, no una etiqueta. Se eligen
+ * aca y la tira se actualiza; se tocan alla y estos dos se actualizan.
+ *
+ * La ultima frase corrige la lectura equivocada: la tarifa no cambio, de
  * modo que lo que subio fue consumo.
  */
-export default function Veredicto({ comparacion: c, tarifa }) {
+export default function Veredicto({ comparacion: c, meses, tarifa, onCambiarMeses }) {
   return (
     <section className="bloque veredicto" id="q-que-paso" aria-labelledby="veredicto-titulo">
       <header className="bloque__head">
@@ -22,13 +27,31 @@ export default function Veredicto({ comparacion: c, tarifa }) {
 
       <div className="veredicto__marco">
         <div className="veredicto__columna">
-          <p className="veredicto__mes">{c.a.label}</p>
+          <label className="veredicto__mes">
+            <span className="sr-only">Mes de referencia</span>
+            <select value={c.a.id} onChange={event => onCambiarMeses(event.target.value, c.b.id)}>
+              {meses.map(mes => (
+                <option key={mes.id} value={mes.id}>
+                  {mes.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <p className="veredicto__numero veredicto__numero--antes">{pesos(c.billA)}</p>
           <p className="veredicto__kwh">{kwh(c.kwhA)}</p>
         </div>
 
         <div className="veredicto__columna veredicto__columna--ahora">
-          <p className="veredicto__mes">{c.b.label}</p>
+          <label className="veredicto__mes">
+            <span className="sr-only">Mes con el que se compara</span>
+            <select value={c.b.id} onChange={event => onCambiarMeses(c.a.id, event.target.value)}>
+              {meses.map(mes => (
+                <option key={mes.id} value={mes.id}>
+                  {mes.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <p className="veredicto__numero">{pesos(c.billB)}</p>
           <p className="veredicto__kwh">{kwh(c.kwhB)}</p>
           <p className="veredicto__delta">

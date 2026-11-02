@@ -66,7 +66,15 @@ export default function BiaDashboard() {
 
           {status === 'listo' && diagnostico && (
             <>
-              <Veredicto comparacion={c} tarifa={report.tariff} />
+              <Veredicto
+                comparacion={c}
+                meses={report.meses}
+                tarifa={report.tariff}
+                onCambiarMeses={(a, b) => {
+                  setMesA(a);
+                  setMesB(b);
+                }}
+              />
               <Explorador
                 report={report}
                 comparacion={c}
