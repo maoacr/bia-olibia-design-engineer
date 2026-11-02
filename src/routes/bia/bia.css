@@ -244,152 +244,6 @@ main.bia {
 
 /* ─── 2 · Las sedes ────────────────────────────────────────────────── */
 
-.sedes__lista {
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1px solid var(--border);
-}
-
-.sede {
-  display: block;
-  cursor: pointer;
-}
-
-.sede__fila {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--space-2) var(--space-3);
-  align-items: start;
-  padding: var(--space-4) var(--space-2);
-  border-top: 1px solid var(--border);
-  min-height: 44px;
-  transition: background-color var(--duration-fast) var(--ease);
-}
-
-.sede:hover .sede__fila {
-  background: var(--surface-hover);
-}
-
-.sede:has(input:checked) .sede__fila {
-  background: var(--surface-raised);
-}
-
-/* El radio real esta escondido; el circulito de al lado es el que se ve.
-   Se marca con relleno Y con el anillo, para que no dependa del color. */
-.sede__radio {
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-control);
-  background: transparent;
-}
-
-.sede:has(input:checked) .sede__radio {
-  border-color: var(--accent);
-  background: var(--accent);
-  box-shadow: inset 0 0 0 4px var(--surface-raised);
-}
-
-.sede:has(input:focus-visible) .sede__fila {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: -2px;
-}
-
-.sede__cuerpo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.sede__nombre {
-  font-weight: 600;
-  font-size: var(--text-md);
-}
-
-.sede:has(input:checked) .sede__nombre {
-  font-weight: 700;
-}
-
-.sede__nota {
-  color: var(--text-muted);
-  font-size: var(--text-xs);
-}
-
-.sede__cifras {
-  grid-column: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
-  font-variant-numeric: tabular-nums;
-  font-size: var(--text-sm);
-}
-
-.sede__consumo {
-  color: var(--text-secondary);
-}
-
-.sede__delta {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.sede__participacion {
-  grid-column: 2;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-1);
-}
-
-/* La barra crece DENTRO de una pista de ancho fijo y el porcentaje va
-   despues, en el flujo. Antes la barra era un porcentaje de la columna, y
-   al 80% empujaba la etiqueta hasta encima de la linea de la madrugada. */
-.sede__pista {
-  display: block;
-  width: 5.5rem;
-  flex: none;
-}
-
-.sede__barra {
-  display: block;
-  width: calc(var(--parte) * 100%);
-  min-width: 2px;
-  height: 10px;
-  border-radius: var(--radius-full);
-  background: var(--accent);
-}
-
-.sede__participacion-valor {
-  color: var(--text-muted);
-  font-size: var(--text-xs);
-  white-space: nowrap;
-}
-
-.sede__fuera {
-  grid-column: 2;
-  margin-top: var(--space-1);
-  color: var(--text-muted);
-  font-size: var(--text-xs);
-}
-
-/* La sede que se movio: se dice con el dato, con la flecha y con el
-   peso. El color acompaña, no reemplaza. */
-.sede__fuera--movida {
-  color: var(--text-secondary);
-  font-weight: 600;
-}
-
-.sedes__conclusion {
-  margin: var(--space-5) 0 0;
-  font-size: 1.125rem;
-  line-height: 1.4;
-  color: var(--text-primary);
-  max-width: 44ch;
-  text-wrap: balance;
-}
-
 @media (min-width: 53rem) {
   .sede__fila {
     /* Las cinco columnas tienen que caber sin pisarse: la barra de
@@ -416,97 +270,6 @@ main.bia {
 }
 
 /* ─── 3 · El dia por tramos ───────────────────────────────────────── */
-
-.perfil__filas {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.perfil__fila {
-  display: grid;
-  grid-template-columns: minmax(7rem, 10rem) 1fr;
-  gap: var(--space-2) var(--space-4);
-  align-items: center;
-}
-
-.perfil__rotulo {
-  display: flex;
-  flex-direction: column;
-}
-
-.perfil__nombre {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.perfil__horas {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.perfil__pista {
-  display: flex;
-  height: 20px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-raised);
-  overflow: hidden;
-}
-
-.perfil__prev {
-  display: block;
-  width: calc(var(--parte) * 100%);
-  background: var(--chart-bar);
-}
-
-.perfil__delta {
-  display: block;
-  width: calc(var(--parte) * 100%);
-  background: var(--signal-negative);
-}
-
-/* La franja de madrugada es la que sostiene la hipotesis: se la marca con
-   un filo de acento, no con el punteado. El punteado es para lo que no
-   esta confirmado, y el dato de la madrugada SI lo esta. */
-.perfil__fila--fuera .perfil__nombre {
-  color: var(--text-primary);
-}
-
-.perfil__fila--fuera .perfil__rotulo {
-  border-left: 2px solid var(--accent);
-  padding-left: var(--space-3);
-}
-
-.perfil__cifras {
-  grid-column: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
-  font-variant-numeric: tabular-nums;
-  font-size: var(--text-sm);
-}
-
-.perfil__consumo {
-  color: var(--text-secondary);
-}
-
-.perfil__cambio {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.perfil__cambio-pct {
-  font-weight: 400;
-  color: var(--text-muted);
-}
-
-.perfil__pie {
-  margin: var(--space-5) 0 0;
-  color: var(--text-muted);
-  font-size: var(--text-sm);
-}
 
 @media (min-width: 53rem) {
   .perfil__fila {
@@ -943,4 +706,424 @@ main.bia {
 
 .bia__estados-boton:hover {
   color: var(--text-secondary);
+}
+
+/* ═══ El explorador ═══════════════════════════════════════════════════
+   La herramienta de comparar. Ocupa la pantalla entera: es la superficie
+   grande del sitio, no un panel mas. Los filtros van arriba y se quedan
+   pegados; abajo, la comparacion y el contexto de diez meses.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.explorador {
+  /* Sin alto minimo a proposito: la seccion se mide por su contenido. Con
+     `min-height: 100vh` el bloque ocupaba la pantalla y dejaba un vacio de
+     400px debajo de la grafica, que se leia como un error de maquetado y
+     no como aire. */
+}
+
+.explorador__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-5);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.explorador__grupo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.explorador__grupo-titulo {
+  padding: 0;
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.explorador__opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.explorador__opciones--par {
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* La misma idea de la casa: el estado lleno y la accion vacia se
+   distinguen por el relleno, no por el color solo. */
+.explorador__chip {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--surface-control);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+
+.explorador__chip:hover {
+  color: var(--text-primary);
+}
+
+.explorador__chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+
+/* El tramo de madrugada se marca con el filo de acento: es el que sostiene
+   la hipotesis. El punteado, en esta pagina, es para lo sin confirmar. */
+.explorador__chip--fuera {
+  border-left: 3px solid var(--accent);
+}
+
+.explorador__select select {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--surface-control);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.explorador__flecha {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ─── Los numeros ───────────────────────────────────────────────────── */
+
+.explorador__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-5) 0;
+}
+
+.explorador__kpi {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-panel);
+}
+
+.explorador__kpi-clave {
+  margin: 0;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.explorador__kpi-valor {
+  margin: var(--space-1) 0 0;
+  font-size: 1.375rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.explorador__kpi-valor--chico {
+  font-size: 1.0625rem;
+}
+
+.explorador__kpi-valor--sube {
+  color: var(--signal-negative);
+}
+
+.explorador__kpi-valor--baja {
+  color: var(--signal-good);
+}
+
+.explorador__kpi-nota {
+  margin: 2px 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── La comparacion ────────────────────────────────────────────────── */
+
+.explorador__panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 17rem);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 52.99rem) {
+  .explorador__panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+.explorador__titulos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.explorador__leyenda {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* La marca del mes inicial: una linea, como la referencia de una barra. */
+.explorador__marca--a {
+  width: 14px;
+  height: 2px;
+  background: var(--chart-bar);
+}
+
+.explorador__marca--b {
+  width: 14px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--chart-bar-on);
+}
+
+.explorador__filas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.explorador__fila {
+  display: grid;
+  grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr) minmax(11rem, auto);
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+@media (max-width: 40rem) {
+  .explorador__fila {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+}
+
+.explorador__rotulo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.explorador__nombre {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.explorador__nota {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* La pista es un boton: el tooltip tiene que ser alcanzable con teclado.
+   Por eso el boton no trae borde: el relleno lo dibuja la barra. */
+.explorador__pista {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* La barra ES el valor del mes final; la linea vertical marca donde
+   estaba el inicial. Asi la comparacion se lee sin restar nada, y
+   funciona igual cuando el valor final es MENOR que el inicial. */
+.explorador__barra {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 100%;
+  width: calc(var(--parte) * 100%);
+  background: var(--chart-bar-on);
+  border-radius: var(--radius-sm);
+}
+
+.explorador__referencia {
+  position: absolute;
+  left: calc(var(--parte) * 100%);
+  bottom: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--text-primary);
+  opacity: 0.7;
+}
+
+.explorador__cifras {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.explorador__cifra--a {
+  color: var(--text-muted);
+}
+
+.explorador__cifra--b {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.explorador__cambio {
+  font-weight: 650;
+}
+
+.explorador__cambio--sube {
+  color: var(--signal-negative);
+}
+
+.explorador__cambio--baja {
+  color: var(--signal-good);
+}
+
+.explorador__cambio--igual {
+  color: var(--text-muted);
+}
+
+/* ─── La tendencia ──────────────────────────────────────────────────── */
+
+.explorador__tendencia {
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-panel);
+}
+
+.explorador__tendencia-titulo {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.explorador__meses {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-1);
+  height: 15rem;
+}
+
+.explorador__mes {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-1);
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.explorador__mes-barra {
+  display: block;
+  width: 100%;
+  height: calc(var(--parte) * 88%);
+  min-height: 3px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--chart-bar);
+}
+
+.explorador__mes-corto {
+  font-size: var(--text-xs);
+}
+
+/* Los dos meses que se comparan: el inicial con su marca, el final con
+   el acento. El color solo no alcanza: el final va en negrita. */
+.explorador__mes.es-a .explorador__mes-barra {
+  background: var(--text-muted);
+}
+
+.explorador__mes.es-b .explorador__mes-barra {
+  background: var(--accent);
+}
+
+.explorador__mes.es-b .explorador__mes-corto {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* ─── El estado vacio ───────────────────────────────────────────────── */
+
+.explorador__vacio {
+  padding: var(--space-6) var(--space-5);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.explorador__vacio-titulo {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.explorador__vacio-texto {
+  margin: var(--space-2) 0 0;
+  max-width: 52ch;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ─── El asistente ──────────────────────────────────────────────────── */
+
+/* Las preguntas que el administrador haria de verdad. Se ofrecen como
+   botones porque escribir "de noche" en una caja vacia es mas dificil
+   que tocar una pregunta. */
+.bia__sugeridas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.bia__sugerida {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--surface-control);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+
+.bia__sugerida:hover {
+  background: var(--surface-control-hover);
+  color: var(--text-primary);
 }

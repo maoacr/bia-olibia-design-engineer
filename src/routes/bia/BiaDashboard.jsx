@@ -6,8 +6,8 @@ import { useDocumentTitle } from '../../shared/useDocumentTitle.js';
 import { useBiaData } from './useBiaData.js';
 import { Cargando, Error } from './Estados.jsx';
 import Veredicto from './Veredicto.jsx';
-import Sedes from './Sedes.jsx';
-import Perfil from './Perfil.jsx';
+import Explorador from './Explorador.jsx';
+import Asistente from './Asistente.jsx';
 import Evidencia from './Evidencia.jsx';
 import Paso from './Paso.jsx';
 import Dialogo from './Dialogo.jsx';
@@ -32,13 +32,8 @@ export default function BiaDashboard() {
   const { status, report, error, recargar } = useBiaData();
   const sentinel = useScrolled();
 
-  const [sedeId, setSedeId] = useState(null);
   const [pedido, setPedido] = useState(false);
   const [enviado, setEnviado] = useState(false);
-
-  // Antes de que elija, la sede que se muestra es la del problema: nadie
-  // llega aqui para estudiar la que no paso nada.
-  const sede = report ? (report.sedes.find(item => item.id === sedeId) ?? report.mainSede) : null;
 
   // La sede a la que hay que pedirle un diagnostico: la que concentra el
   // aumento. No es la que se este mirando en este momento, y por eso el
@@ -63,14 +58,13 @@ export default function BiaDashboard() {
 
           {status === 'error' && <Error mensaje={error} onReintentar={() => recargar()} />}
 
-          {status === 'listo' && sede && (
+          {status === 'listo' && diagnostico && (
             <>
               <Veredicto report={report} />
-              <Sedes report={report} selected={sede.id} onSelect={setSedeId} />
-              <Perfil sede={sede} />
-              <Evidencia sede={sede} />
+              <Explorador report={report} />
+              <Evidencia sede={diagnostico} />
               <Paso
-                sede={sede}
+                sede={diagnostico}
                 diagnostico={diagnostico}
                 enviado={enviado}
                 onPedir={() => setPedido(true)}
@@ -97,6 +91,8 @@ export default function BiaDashboard() {
           </footer>
         </main>
       </div>
+
+      {status === 'listo' && report && <Asistente report={report} />}
 
       {pedido && diagnostico && (
         <Dialogo

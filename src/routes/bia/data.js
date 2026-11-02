@@ -2,12 +2,12 @@
  * Datos ficticios del consumo energetico de tres cafeterias.
  *
  * El escenario viene del enunciado: la factura paso de $4,8 a $6 millones
- * (+25%), el consumo de 6.000 a 7.500 kWh, la tarifa se mantuvo en
+ * COP (+25%), el consumo de 6.000 a 7.500 kWh, la tarifa se mantuvo en
  * $800/kWh, una sede concentro 1.200 de los 1.500 kWh adicionales, y hay
  * consumo fuera del horario habitual con la causa SIN CONFIRMAR.
  *
  * TRES REGLAS DE ESTE ARCHIVO
- * --------------------------
+ * ---------------------------
  * 1. **Los totales no se escriben: se derivan.** Cada sede declara sus
  *    cinco tramos del dia y el total sale de sumarlos. Si un dia alguien
  *    cambia un tramo, el total, la factura, el porcentaje y el delta se
@@ -21,19 +21,23 @@
  *
  * 3. **Un hecho y una hipotesis no se guardan igual.** Los tramos son
  *    hechos: pasaron. La causa del consumo fuera de horario NO esta
- *    confirmada, y vive separada, en HIPOTHESIS, con lo que la sostiene y
+ *    confirmada, y vive separada, en HYPOTHESIS, con lo que la sostiene y
  *    lo que falta. Mezclarlas en el mismo objeto es como se termina
  *    presentando una suposicion como un dato.
+ *
+ * LA HISTORIA
+ * -----------
+ * Diez meses, de enero a octubre de 2026. Los dos ultimos son los del
+ * enunciado, exactos. Los ocho primeros los anade yo, y estan ahi para una
+ * razon: con dos meses no se puede contestar la pregunta que mas importa
+ * para quien administra —"esto es de este mes o es siempre asi?"—. Con la
+ * historia se ve que la Sede Centro venia creciendo despacio y de golpe
+ * salto, y que su consumo de madrugada estuvo entre 10% y 11% todo el ano
+ * hasta que en octubre fue 18%.
  */
 
 /** La tarifa. No cambio entre los dos meses: es el hecho del que sale todo. */
 export const TARIFF = 800;
-
-/** Los dos meses que se comparan. */
-export const MONTHS = {
-  previous: { id: 'sep', label: 'Septiembre', full: 'Septiembre de 2026' },
-  current: { id: 'oct', label: 'Octubre', full: 'Octubre de 2026' },
-};
 
 /**
  * Los tramos del dia.
@@ -53,37 +57,80 @@ export const BUCKETS = [
 /** El id del tramo que cae fuera del horario habitual. */
 export const OUTSIDE = 'fuera';
 
+/** Los meses, en orden. Los dos ultimos son los del enunciado. */
+export const MONTHS = {
+  previous: { id: 'sep', label: 'Septiembre', full: 'Septiembre de 2026', corto: 'Sep' },
+  current: { id: 'oct', label: 'Octubre', full: 'Octubre de 2026', corto: 'Oct' },
+};
+
 /**
- * Las tres sedes.
+ * LA HISTORIA, written a mano.
  *
- * Los tramos estan en kWh del mes. La Sede Centro es la del enunciado:
- * concentra 1.200 de los 1.500 kWh que el conjunto consumio, y su
- * madrugada es la unica que se movio.
- */ export const SEDES = [
-  {
-    id: 'centro',
-    name: 'Sede Centro',
-    note: 'La de mayor consumo',
-    previous: { apertura: 400, manana: 900, tarde: 700, cierre: 500, fuera: 300 },
-    current: { apertura: 480, manana: 1340, tarde: 900, cierre: 560, fuera: 720 },
-  },
-  {
-    id: 'norte',
-    name: 'Sede Norte',
-    note: 'La de horario más parejo',
-    previous: { apertura: 250, manana: 600, tarde: 480, cierre: 390, fuera: 180 },
-    current: { apertura: 265, manana: 645, tarde: 520, cierre: 425, fuera: 195 },
-  },
-  {
-    id: 'parque',
-    name: 'Sede Parque',
-    note: 'La más chica',
-    previous: { apertura: 170, manana: 420, tarde: 330, cierre: 260, fuera: 120 },
-    current: { apertura: 185, manana: 460, tarde: 370, cierre: 305, fuera: 130 },
-  },
+ * Los ocho primeros meses son anadidos: el enunciado solo da dos. Son
+ * coherentes con esos dos y contados de la misma forma —la suma de los
+ * cinco tramos—, para que el total se siga derivando y no escribiendo.
+ */
+const HISTORIA = {
+  centro: [
+    { mes: 'Ene', trams: { apertura: 340, manana: 770, tarde: 610, cierre: 445, fuera: 255 } },
+    { mes: 'Feb', trams: { apertura: 355, manana: 805, tarde: 620, cierre: 430, fuera: 260 } },
+    { mes: 'Mar', trams: { apertura: 360, manana: 813, tarde: 630, cierre: 445, fuera: 262 } },
+    { mes: 'Abr', trams: { apertura: 355, manana: 854, tarde: 620, cierre: 450, fuera: 266 } },
+    { mes: 'May', trams: { apertura: 370, manana: 830, tarde: 650, cierre: 465, fuera: 270 } },
+    { mes: 'Jun', trams: { apertura: 385, manana: 806, tarde: 675, cierre: 480, fuera: 274 } },
+    { mes: 'Jul', trams: { apertura: 375, manana: 857, tarde: 665, cierre: 485, fuera: 278 } },
+    { mes: 'Ago', trams: { apertura: 380, manana: 877, tarde: 695, cierre: 475, fuera: 283 } },
+    { mes: 'Sep', trams: { apertura: 400, manana: 900, tarde: 700, cierre: 500, fuera: 300 } },
+    { mes: 'Oct', trams: { apertura: 480, manana: 1340, tarde: 900, cierre: 560, fuera: 720 } },
+  ],
+  norte: [
+    { mes: 'Ene', trams: { apertura: 255, manana: 572, tarde: 470, cierre: 395, fuera: 178 } },
+    { mes: 'Feb', trams: { apertura: 245, manana: 606, tarde: 470, cierre: 385, fuera: 179 } },
+    { mes: 'Mar', trams: { apertura: 240, manana: 582, tarde: 480, cierre: 395, fuera: 178 } },
+    { mes: 'Abr', trams: { apertura: 240, manana: 610, tarde: 470, cierre: 390, fuera: 180 } },
+    { mes: 'May', trams: { apertura: 240, manana: 615, tarde: 475, cierre: 385, fuera: 180 } },
+    { mes: 'Jun', trams: { apertura: 245, manana: 591, tarde: 480, cierre: 385, fuera: 179 } },
+    { mes: 'Jul', trams: { apertura: 255, manana: 594, tarde: 490, cierre: 385, fuera: 181 } },
+    { mes: 'Ago', trams: { apertura: 250, manana: 585, tarde: 480, cierre: 395, fuera: 180 } },
+    { mes: 'Sep', trams: { apertura: 250, manana: 600, tarde: 480, cierre: 390, fuera: 180 } },
+    { mes: 'Oct', trams: { apertura: 265, manana: 645, tarde: 520, cierre: 425, fuera: 195 } },
+  ],
+  parque: [
+    { mes: 'Ene', trams: { apertura: 165, manana: 422, tarde: 320, cierre: 255, fuera: 118 } },
+    { mes: 'Feb', trams: { apertura: 170, manana: 416, tarde: 325, cierre: 265, fuera: 119 } },
+    { mes: 'Mar', trams: { apertura: 165, manana: 407, tarde: 335, cierre: 260, fuera: 118 } },
+    { mes: 'Abr', trams: { apertura: 165, manana: 430, tarde: 320, cierre: 265, fuera: 120 } },
+    { mes: 'May', trams: { apertura: 170, manana: 411, tarde: 325, cierre: 265, fuera: 119 } },
+    { mes: 'Jun', trams: { apertura: 170, manana: 415, tarde: 340, cierre: 260, fuera: 120 } },
+    { mes: 'Jul', trams: { apertura: 165, manana: 417, tarde: 320, cierre: 265, fuera: 118 } },
+    { mes: 'Ago', trams: { apertura: 165, manana: 411, tarde: 335, cierre: 265, fuera: 119 } },
+    { mes: 'Sep', trams: { apertura: 170, manana: 420, tarde: 330, cierre: 260, fuera: 120 } },
+    { mes: 'Oct', trams: { apertura: 185, manana: 460, tarde: 370, cierre: 305, fuera: 130 } },
+  ],
+};
+
+/** Las tres sedes. */
+export const SEDES = [
+  { id: 'centro', name: 'Sede Centro', note: 'La de mayor consumo', historia: HISTORIA.centro },
+  { id: 'norte', name: 'Sede Norte', note: 'La de horario más parejo', historia: HISTORIA.norte },
+  { id: 'parque', name: 'Sede Parque', note: 'La más chica', historia: HISTORIA.parque },
 ];
 
 const suma = valores => Object.values(valores).reduce((total, valor) => total + valor, 0);
+
+/** Los meses de la historia, en orden, con su etiqueta larga. */
+const LARGOS = {
+  Ene: 'Enero',
+  Feb: 'Febrero',
+  Mar: 'Marzo',
+  Abr: 'Abril',
+  May: 'Mayo',
+  Jun: 'Junio',
+  Jul: 'Julio',
+  Ago: 'Agosto',
+  Sep: 'Septiembre',
+  Oct: 'Octubre',
+};
 
 /**
  * EL INFORME.
@@ -94,33 +141,57 @@ const suma = valores => Object.values(valores).reduce((total, valor) => total + 
  * la misma cuenta.
  */
 export const REPORT = (() => {
+  const meses = SEDES[0].historia.map((entrada, indice) => ({
+    id: entrada.mes.toLowerCase(),
+    corto: entrada.mes,
+    label: LARGOS[entrada.mes],
+    full: `${LARGOS[entrada.mes]} de 2026`,
+    indice,
+  }));
+
   const sedes = SEDES.map(sede => {
-    const previousTotal = suma(sede.previous);
-    const currentTotal = suma(sede.current);
-    const delta = currentTotal - previousTotal;
-    const previousOutside = sede.previous[OUTSIDE];
-    const currentOutside = sede.current[OUTSIDE];
+    const serie = sede.historia.map((entrada, indice) => {
+      const total = suma(entrada.trams);
+      const fuera = entrada.trams[OUTSIDE];
+      return {
+        ...meses[indice],
+        trams: entrada.trams,
+        total,
+        fuera,
+        fueraShare: fuera / total,
+      };
+    });
+
+    const anterior = serie[serie.length - 2];
+    const actual = serie[serie.length - 1];
+    const delta = actual.total - anterior.total;
 
     return {
-      ...sede,
-      previousTotal,
-      currentTotal,
+      id: sede.id,
+      name: sede.name,
+      note: sede.note,
+      serie,
+      anterior,
+      actual,
+      previousTotal: anterior.total,
+      currentTotal: actual.total,
       delta,
-      previousBill: previousTotal * TARIFF,
-      currentBill: currentTotal * TARIFF,
+      previousBill: anterior.total * TARIFF,
+      currentBill: actual.total * TARIFF,
       deltaBill: delta * TARIFF,
-      deltaPercent: delta / previousTotal,
-      previousOutside,
-      currentOutside,
-      previousOutsideShare: previousOutside / previousTotal,
-      currentOutsideShare: currentOutside / currentTotal,
-      outsideDelta: currentOutside - previousOutside,
-      outsideDeltaPercent: (currentOutside - previousOutside) / previousOutside,
+      deltaPercent: delta / anterior.total,
+      previousOutside: anterior.fuera,
+      currentOutside: actual.fuera,
+      previousOutsideShare: anterior.fueraShare,
+      currentOutsideShare: actual.fueraShare,
+      outsideDelta: actual.fuera - anterior.fuera,
+      outsideDeltaPercent: (actual.fuera - anterior.fuera) / anterior.fuera,
+      /** El tramo del mes actual, con su comparacion contra el anterior. */
       buckets: BUCKETS.map(bucket => ({
         ...bucket,
-        previous: sede.previous[bucket.id],
-        current: sede.current[bucket.id],
-        delta: sede.current[bucket.id] - sede.previous[bucket.id],
+        previous: anterior.trams[bucket.id],
+        current: actual.trams[bucket.id],
+        delta: actual.trams[bucket.id] - anterior.trams[bucket.id],
       })),
     };
   });
@@ -136,6 +207,7 @@ export const REPORT = (() => {
 
   return {
     tariff: TARIFF,
+    meses,
     previousKwh,
     currentKwh,
     deltaKwh,
@@ -178,6 +250,7 @@ export const HYPOTHESIS = {
       aFavor: [
         'La madrugada subió 420 kWh y nada más en toda la cadena.',
         'Las otras dos sedes movieron su madrugada apenas: +15 y +10 kWh.',
+        'En los ocho meses anteriores, esa sede estuvo siempre entre 10% y 11% de madrugada. El 18% de octubre no tiene antecedente.',
       ],
       enContra: [
         'No hay medición por circuito: no se sabe qué equipo está consumiendo.',
@@ -195,7 +268,7 @@ export const HYPOTHESIS = {
     },
   ],
 
-  /** Lo que haria falta para confirmar o descartar. */
+  /** Lo que haría falta para confirmar o descartar. */
   falta: [
     'Medición por circuito en la Sede Centro durante una semana.',
     'El registro de equipos instalados o modificados este mes.',

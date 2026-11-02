@@ -93,18 +93,13 @@ Ningún color se eligió a ojo. El acento marca sólo lo que se está interrogan
 
 ## Decisiones · Bia
 
-La segunda tarea pedía una vista, no un tablero: alguien que administra tres cafeterías tiene su factura inflada, pocos minutos y no es experta en energía. La decisión de fondo fue **no mostrar indicadores sino contestar**. La página va con cinco preguntas en orden —qué pasó, dónde, cuándo, por qué, qué hago— y cada una se apoya en la anterior.
+La segunda tarea pedía una vista para alguien que administra tres cafeterías: tiene un objetivo clarísimo —entender qué está pasando con el consumo— y para lograrlo hay que comparar. La decisión de fondo fue que la comparación sea la protagonista y no un dato más: cuatro preguntas en orden y un explorador que reacciona a los filtros —sede, tramo del día, mes, unidad— y redibuja la comparación en vivo.
 
-El primer dato es una corrección: la tarifa no cambió. El 100% del alza es consumo y el 0% es precio, y decirlo primero desarma la lectura fácil, que es "me encarecieron el kWh". La cascada enseña la multiplicación —7.500 kWh × $800— en vez de explicarla.
+La comparación va primero porque es lo que el caso pide: la tarifa no cambió, así que el 100% del alza es consumo; el 80% está en una sede; y de los 1.200 kWh que subió esa sede, 420 fueron de madrugada. Diez meses de historia —añadidos; el enunciado solo da dos— permiten contestar lo que más importa: no es un mes raro, es un salto sin antecedente.
 
-El segundo es que el problema está en un lugar: una sede concentra el 80% del aumento. El tercero es el que cuesta: el consumo de madrugada es una **hipótesis**, no una causa. La página usa registros visuales distintos —tinta sólida contra contorno punteado— y dice en voz alta su límite: de los 1.200 kWh que subió la sede, 780 ocurrieron dentro del horario habitual, así que ninguna hipótesis cubre la parte más grande del problema.
+Los hechos y las hipótesis van en registros visuales distintos, tinta sólida contra contorno punteado, y el límite se dice de frente: 780 de los 1.200 kWh ocurrieron dentro del horario habitual, así que ninguna hipótesis cubre la parte más grande del problema. Por eso el paso que se ofrece es una medición y no un arreglo.
 
-Por eso el paso que ofrece no es un arreglo sino una medición, y la alternativa que la gente quiere oír queda marcada como condicional.
-
-Se priorizó una sola pieza expresiva —la cascada— y calma en el resto. Sin selector de periodo: los dos meses conviven, porque comparar de un vistazo sirve más que cambiar de mes. El acento del sistema sigue a la marca.
-
----
-
+Sin librería de gráficas: el vocabulario del sitio ya tenía los tres patrones que hacen falta, y Tremor exige Tailwind, es decir un segundo sistema de estilos en un proyecto de tokens propios. El asistente responde con reglas sobre el fixture, sin modelo de AI conectado, y calcula lo mismo que la gráfica de arriba.
 ## Qué deberíamos probar
 
 El PDF pide esto explícitamente, y sale de los fallos que fueron apareciendo:
@@ -166,13 +161,14 @@ src/
   routes/bia/
     BiaDashboard.jsx      arma la página y reparte el alcance de cada bloque
     Veredicto.jsx        ¿Qué pasó? La cascada y la tarifa que no cambió
-    Sedes.jsx            ¿Dónde? Las tres sedes y su parte del aumento
-    Perfil.jsx           ¿Cuándo? El día por tramos de horario
+    Explorador.jsx       ¿Explorar? Filtros y gráfica comparativa en vivo
     Evidencia.jsx        ¿Por qué? Hechos e hipótesis, en registros distintos
     Paso.jsx             ¿Qué hago? El paso y su alternativa condicional
     Dialogo.jsx          el pedido del diagnóstico, con el foco encerrado
+    Asistente.jsx        la burbuja que responde con reglas sobre el dato
     Estados.jsx          carga y error
-    data.js              el fixture; los totales se derivan de los tramos
+    useBiaData.js        la carga simulada
+    data.js              diez meses por sede; los totales se derivan
     format.js            pesos, kWh y porcentajes al estilo colombiano
     bia.css              los estilos de esta experiencia, aparte
   routes/olibia/
