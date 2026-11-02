@@ -75,13 +75,18 @@ export default function BiaDashboard() {
                   setMesB(b);
                 }}
               />
-              <Evidencia sede={diagnostico} />
-              <Paso
-                sede={diagnostico}
-                diagnostico={diagnostico}
-                enviado={enviado}
-                onPedir={() => setPedido(true)}
-              />
+              {/* La lectura y el paso, en dos columnas desde 69rem: el ancho
+                  del sitio se usa para DOS cosas a la vez en vez de dejar
+                  una franja vacia a la derecha. */}
+              <div className="bia__cierre">
+                <Evidencia sede={diagnostico} />
+                <Paso
+                  sede={diagnostico}
+                  diagnostico={diagnostico}
+                  enviado={enviado}
+                  onPedir={() => setPedido(true)}
+                />
+              </div>
             </>
           )}
 
