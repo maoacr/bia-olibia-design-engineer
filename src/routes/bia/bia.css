@@ -18,7 +18,21 @@
 /* ─── El cuerpo de la pagina ──────────────────────────────────────── */
 
 main.bia {
-  /* El contenedor es el del sitio: el mismo token que el de Olibia. Si cada
+  /* LA ESCALA DE ESTA PAGINA, UN PASO ARRIBA.
+     La del proyecto esta hecha para el tablero de Olobia, que es denso: 11,
+     12, 13 y 14 pixeles. En una pagina de lectura, con aire alrededor,
+     esos numeros quedan chicos y la pagina se ve como un documento
+     pequeno flotando en una pantalla grande. El ancho del sitio se gasta
+     en jerarquia: mas grande el texto, no mas vacio.
+
+     `main.bia` gana al `:root` del proyecto por especificidad, asi que el
+     escalon de escritorio (53rem) tambien queda cubierto. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.875rem;
+  --text-body: 0.9375rem;
+
+  /* El contenedor es el del sitio: el mismo token que el de Olobia. Si cada
      vista tiene el suyo, las dos se desincronizan — y ya se
      desincronizaron (Olibia 1680px, Bia 992px).
 
