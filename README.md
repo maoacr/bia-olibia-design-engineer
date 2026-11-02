@@ -143,7 +143,21 @@ En Bia, lo mismo: separar el hecho de la hipótesis con un punteado que no apare
 
 ### Tiempo dedicado
 
-_(a completar)_
+**21,6 horas**, en cinco días.
+
+El método, porque un número sin método no es un dato: el historial de commits es la única evidencia de cuándo hubo trabajo. Un hueco largo entre dos commits **no** es trabajo — los de 15,8 h, 18,8 h, 22,6 h y 8,6 h son noches y un día entero, y los de 2,5 h y 2,6 h una tarde. Los de 40 a 56 minutos sí lo son: es el patrón de commit, medir en el navegador y volver a commitear.
+
+Con ese corte de dos horas, el trabajo cae en **8 sesiones**. Lo medido dentro de las sesiones son 16,5 horas; sumándole el trabajo previo a cada primer commit —que no se ve en el historial, y se estima con la mediana de los huecos internos: 38 minutos— dan 21,6 horas. El rango honesto es **17 a 22 horas**.
+
+| Día | Trabajo |
+| --- | --- |
+| Jueves 29/10 | 8,3 h |
+| Viernes 30/10 | 4,0 h |
+| Sábado 31/10 | 4,9 h |
+| Domingo 1/11 | 2,5 h |
+| Lunes 2/11 | 1,8 h |
+
+De calendario fueron 95 horas entre el primer y el último commit. Las otras 73 fueron sueño y familia.
 
 ---
 
