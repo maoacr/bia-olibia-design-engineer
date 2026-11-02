@@ -392,20 +392,59 @@
    (oscuro) o `--brand-accent-ink` (claro), con el teal de Bia como
    respaldo, asi que **es imposible que la version brillante de una marca
    termine en un fondo claro**.
+
+   POR QUE EL SELECTOR YA NO EXIGE `:root`
+   ---------------------------------------
+   La portada muestra las dos marcas A LA VEZ: cada tarjeta adelanta el
+   acento de la experiencia que hay detras. Eso es imposible con la marca
+   atada a <html>, que solo admite una.
+
+   Pero soltar el `:root` no alcanza. `--accent` se resuelve DONDE se
+   declara, y se declara en el bloque de tema, o sea en <html>: los
+   descendientes heredan el valor YA CALCULADO, asi que redefinirles
+   `--brand-accent` no les cambia nada. Hay que volver a declarar
+   `--accent` en el elemento con marca — y repetir ahi la eleccion que
+   hace el tema, o volveria el bug de arriba por la puerta de atras.
+
+   Los tres bloques de abajo son esa eleccion, en el mismo orden que los
+   temas: oscuro por defecto, claro explicito, claro del sistema. Van con
+   `:where()` para que su especificidad sea cero y no puedan pisar al
+   tema cuando el elemento con marca es <html>.
    ═══════════════════════════════════════════════════════════════════ */
 
-:root[data-brand='olibia'] {
+[data-brand='olibia'] {
   --brand-accent: var(--support-cyan);
   --brand-accent-strong: var(--support-cyan-strong);
   --brand-accent-ink: var(--support-cyan-ink);
   --brand-accent-strong-ink: var(--support-cyan-strong-ink);
 }
 
-:root[data-brand='bia'] {
+[data-brand='bia'] {
   --brand-accent: var(--bia-teal);
   --brand-accent-strong: var(--bia-sheen);
   --brand-accent-ink: var(--bia-teal-ink);
   --brand-accent-strong-ink: var(--bia-sheen-ink);
+}
+
+:where([data-brand]) {
+  --accent: var(--brand-accent, var(--bia-teal));
+  --accent-strong: var(--brand-accent-strong, var(--bia-sheen));
+  --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  --focus-ring: var(--accent-strong);
+}
+
+:root[data-theme='light'] :where([data-brand]) {
+  --accent: var(--brand-accent-ink, var(--bia-teal-ink));
+  --accent-strong: var(--brand-accent-strong-ink, var(--bia-sheen-ink));
+  --focus-ring: var(--accent);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) :where([data-brand]) {
+    --accent: var(--brand-accent-ink, var(--bia-teal-ink));
+    --accent-strong: var(--brand-accent-strong-ink, var(--bia-sheen-ink));
+    --focus-ring: var(--accent);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

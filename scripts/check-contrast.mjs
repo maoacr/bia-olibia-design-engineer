@@ -20,10 +20,31 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CSS = fs.readFileSync(path.join(ROOT, 'src/tokens.css'), 'utf8');
 
-/** Extrae las declaraciones del primer bloque que empieza en el patron dado. */
+/**
+ * Extrae las declaraciones del primer bloque que empieza en el patron dado.
+ *
+ * SI NO ENCUENTRA EL BLOQUE, REVIENTA. Antes devolvia `{}` y eso convertia
+ * este gate en un adorno: al renombrar el selector de marca de
+ * `:root[data-brand='bia']` a `[data-brand='bia']` —para que la portada
+ * pudiera poner la marca en una tarjeta y no en <html>— los dos bloques de
+ * marca dejaron de matchear, los tokens de marca quedaron vacios, y el
+ * acento se cayo al teal de Bia en las CUATRO combinaciones. El gate
+ * imprimio 172 comprobaciones en verde y la frase "en las dos marcas"
+ * mientras medía Bia dos veces.
+ *
+ * Un verificador que no encuentra lo que busca tiene que fallar, no
+ * aprobar. Todos los patrones de abajo apuntan a bloques que EXISTEN: que
+ * falte uno es siempre un error, nunca un caso valido.
+ */
 function block(pattern) {
   const start = CSS.search(pattern);
-  if (start < 0) return {};
+  if (start < 0) {
+    throw new Error(
+      `No se encontro el bloque ${pattern} en src/tokens.css. ` +
+        'Si el selector cambio, actualiza el patron: medir un bloque vacio ' +
+        'da verde sin haber medido nada.',
+    );
+  }
   const rest = CSS.slice(start);
   let depth = 0;
   let open = false;
@@ -61,8 +82,8 @@ const themes = {
  * contra los dos temas, y el gate no pasa si alguna combinacion baja.
  */
 const brands = {
-  bia: block(/^:root\[data-brand='bia'\] \{/m),
-  olibia: block(/^:root\[data-brand='olibia'\] \{/m),
+  bia: block(/^\[data-brand='bia'\] \{/m),
+  olibia: block(/^\[data-brand='olibia'\] \{/m),
 };
 
 function resolve(value, scope, depth = 0) {
