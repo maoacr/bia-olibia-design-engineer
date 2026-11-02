@@ -41,9 +41,7 @@ const DESGLOSES = [
   { id: 'tramo', label: 'Tramo del día' },
 ];
 
-export default function Explorador({ report }) {
-  const [mesA, setMesA] = useState('sep');
-  const [mesB, setMesB] = useState('oct');
+export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
   // El mes que se toco primero de un par nuevo. Mientras esta pendiente, la
   // grafica sigue comparando el par anterior: comparar a medias no es
   // comparar, y una grafica sin comparacion no tiene sentido.
@@ -51,9 +49,6 @@ export default function Explorador({ report }) {
   const [unidad, setUnidad] = useState('kwh');
   const [desglose, setDesglose] = useState('sede');
   const [elegida, setElegida] = useState(null);
-
-  const mesA_ = report.meses.find(m => m.id === mesA);
-  const mesB_ = report.meses.find(m => m.id === mesB);
 
   /** Convierte un consumo en kWh a la unidad elegida. */
   const convertir = (consumo, mes) => {
@@ -110,8 +105,8 @@ export default function Explorador({ report }) {
 
   /** Las filas de la comparacion: el mes de referencia contra el que se mira. */
   const filas = destinos.map(destino => {
-    const a = valor(destino, mesA_);
-    const b = valor(destino, mesB_);
+    const a = valor(destino, c.a);
+    const b = valor(destino, c.b);
     return { ...destino, a, b, delta: b - a };
   });
 
@@ -119,7 +114,7 @@ export default function Explorador({ report }) {
   const mira = destinos.find(d => d.id === elegida) ?? null;
   const tira = report.meses.map(mes => {
     const v = valor(mira, mes);
-    return { ...mes, valor: v, esA: mes.id === mesA, esB: mes.id === mesB };
+    return { ...mes, valor: v, esA: mes.id === c.a.id, esB: mes.id === c.b.id };
   });
 
   const maximoFila = Math.max(1, ...filas.map(f => Math.max(f.a, f.b)));
@@ -145,13 +140,12 @@ export default function Explorador({ report }) {
       setPendiente(id);
       return;
     }
-    setMesA(pendiente);
-    setMesB(id);
+    onCambiarMeses(pendiente, id);
     setPendiente(null);
   }
 
-  const mesInicial = report.meses.find(m => m.id === mesA);
-  const mesFinal = report.meses.find(m => m.id === mesB);
+  const mesInicial = c.a;
+  const mesFinal = c.b;
 
   return (
     <section className="bloque explorador" id="q-explorar" aria-labelledby="explorador-titulo">
@@ -202,12 +196,7 @@ export default function Explorador({ report }) {
             referencia. Tocá el otro mes.
           </>
         ) : (
-          <>
-            <strong>
-              {mesInicial.label} → {mesFinal.label}
-            </strong>
-            {mira ? ` de ${mira.nombre}` : ' de las tres sedes'}
-          </>
+          <>Mostrando {mira ? `la ${mira.nombre}` : 'las tres sedes'}.</>
         )}
       </p>
 
@@ -245,6 +234,17 @@ export default function Explorador({ report }) {
       </div>
 
       {/* ─── La comparacion ─────────────────────────────────────────── */}
+      {/* El encabezado repite los meses sobre las filas: los numeros de las
+          barras ("2.800 → 4.000") no dicen de que meses son, y una tabla
+          sin encabezados es una lista. */}
+      <div className="encabezado" aria-hidden="true">
+        <span />
+        <span />
+        <span className="encabezado__meses">
+          {c.a.label} <span className="encabezado__flecha">→</span> {c.b.label}
+        </span>
+      </div>
+
       <div className="explorador__filas">
         {filas.map(fila => (
           <button

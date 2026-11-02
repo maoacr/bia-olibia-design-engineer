@@ -53,8 +53,8 @@ function lecturaInicial(report) {
         {porcentaje(deltaPercent)}) que en septiembre.
       </p>
       <p>
-        No fue por el precio: la tarifa se mantuvo en {pesos(report.tariff)} el kWh. Subió el consumo, y
-        el {porcentaje(mainSede.share)} de ese aumento está en la {mainSede.name}.
+        No fue por el precio: la tarifa se mantuvo en {pesos(report.tariff)} el kWh. Subió el
+        consumo, y el {porcentaje(mainSede.share)} de ese aumento está en la {mainSede.name}.
       </p>
       <p>
         <strong>La causa no está confirmada.</strong> Hay dos hipótesis y ninguna comprobada.

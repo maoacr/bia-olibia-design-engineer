@@ -79,18 +79,51 @@ main.bia {
 
 /* ─── 1 · El veredicto ────────────────────────────────────────────── */
 
-.veredicto__total {
+/* EL MARCO: dos columnas, cada una con su mes ARRIBA. Los meses son lo
+   mas grande de la pagina despues de las cifras, porque sin ellos un
+   "+25%" no quiere decir nada. */
+.veredicto__marco {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4) var(--space-6);
+  align-items: start;
+}
+
+.veredicto__columna--ahora {
+  border-left: 1px solid var(--border);
+  padding-left: var(--space-4);
+}
+
+.veredicto__mes {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* El mes que se mira es el que lleva el acento. El de referencia, gris. */
+.veredicto__columna--ahora .veredicto__mes {
+  color: var(--accent);
+}
+
+.veredicto__numero {
   margin: 0;
-  font-size: clamp(2.75rem, 7vw, 3.75rem);
+  font-size: clamp(1.875rem, 5.2vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-.veredicto__comparacion {
-  margin: var(--space-2) 0 0;
+.veredicto__numero--antes {
   color: var(--text-secondary);
+}
+
+.veredicto__kwh {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
   font-size: var(--text-md);
   font-variant-numeric: tabular-nums;
 }
@@ -98,8 +131,10 @@ main.bia {
 /* El rojo aparece SOLO cuando el cambio es malo. En el resto de la pagina
    no significa nada mas. */
 .veredicto__delta {
+  margin: var(--space-3) 0 0;
   color: var(--signal-negative);
   font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 
 .veredicto__plano {
@@ -594,6 +629,28 @@ main.bia {
 
 /* ─── La comparacion ────────────────────────────────────────────────── */
 
+/* El encabezado de la tabla de comparacion: los meses, arriba de las
+   filas que los usan. */
+.encabezado {
+  display: grid;
+  grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr) minmax(12rem, auto);
+  gap: var(--space-3) var(--space-4);
+  padding: 0 var(--space-2) var(--space-2);
+}
+
+.encabezado__meses {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.encabezado__flecha {
+  color: var(--text-muted);
+}
+
 .explorador__filas {
   display: flex;
   flex-direction: column;
@@ -706,6 +763,14 @@ main.bia {
 }
 
 @media (max-width: 40rem) {
+  .encabezado {
+    grid-template-columns: 1fr;
+  }
+
+  .encabezado__meses {
+    text-align: left;
+  }
+
   .fila {
     grid-template-columns: 1fr;
     gap: var(--space-2);

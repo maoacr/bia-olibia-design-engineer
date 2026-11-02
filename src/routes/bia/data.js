@@ -222,6 +222,36 @@ export const REPORT = (() => {
 })();
 
 /**
+ * LA COMPARACION DE UN PAR DE MESES.
+ *
+ * Los meses que se comparan son el marco de toda la pagina, no una nota al
+ * pie: sin ellos, un "+25%" no dice nada. Esta funcion calcula los
+ * agregados de un par y la usan el veredicto, el explorador y el
+ * asistente, para que los tres hablen de la misma comparacion y no se
+ * contradigan.
+ */
+export function comparacion(report, idA, idB) {
+  const a = report.meses.find(m => m.id === idA) ?? report.meses[report.meses.length - 2];
+  const b = report.meses.find(m => m.id === idB) ?? report.meses[report.meses.length - 1];
+
+  const kwhDe = (sede, mes) => sede.serie.find(m => m.id === mes.id).total;
+  const kwhA = report.sedes.reduce((suma, sede) => suma + kwhDe(sede, a), 0);
+  const kwhB = report.sedes.reduce((suma, sede) => suma + kwhDe(sede, b), 0);
+
+  return {
+    a,
+    b,
+    kwhA,
+    kwhB,
+    deltaKwh: kwhB - kwhA,
+    billA: kwhA * TARIFF,
+    billB: kwhB * TARIFF,
+    deltaBill: (kwhB - kwhA) * TARIFF,
+    deltaPercent: (kwhB - kwhA) / kwhA,
+  };
+}
+
+/**
  * LO QUE SE SABE Y LO QUE SE SOSPECHA.
  *
  * La causa del consumo fuera de horario NO esta confirmada. Lo que esta

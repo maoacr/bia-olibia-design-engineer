@@ -18,7 +18,8 @@ export default function Paso({ sede, enviado, onPedir }) {
       {enviado ? (
         <div className="paso__enviado" role="status">
           <p className="paso__texto">
-            <strong>Solicitud enviada.</strong> Bia revisa la {sede.name} y responde en un día hábil.
+            <strong>Solicitud enviada.</strong> Bia revisa la {sede.name} y responde en un día
+            hábil.
           </p>
         </div>
       ) : (

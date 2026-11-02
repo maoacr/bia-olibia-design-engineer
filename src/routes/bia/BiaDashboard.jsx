@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useBrand } from '../../shared/useBrand.js';
 import { useScrolled } from '../../shared/useScrolled.js';
 import { ThemeToggle } from '../../shared/theme.jsx';
 import { useDocumentTitle } from '../../shared/useDocumentTitle.js';
 import { useBiaData } from './useBiaData.js';
 import { Cargando, Error } from './Estados.jsx';
+import { comparacion } from './data.js';
 import Veredicto from './Veredicto.jsx';
 import Explorador from './Explorador.jsx';
 import Asistente from './Asistente.jsx';
@@ -32,6 +33,10 @@ export default function BiaDashboard() {
   const { status, report, error, recargar } = useBiaData();
   const sentinel = useScrolled();
 
+  // El par de meses es el marco de la pagina entera: lo usan el veredicto,
+  // el grafico y el asistente, asi que no pueden contradecirse.
+  const [mesA, setMesA] = useState('sep');
+  const [mesB, setMesB] = useState('oct');
   const [pedido, setPedido] = useState(false);
   const [enviado, setEnviado] = useState(false);
 
@@ -39,6 +44,7 @@ export default function BiaDashboard() {
   // aumento. No es la que se este mirando en este momento, y por eso el
   // paso final la nombra siempre.
   const diagnostico = report ? report.mainSede : null;
+  const c = useMemo(() => (report ? comparacion(report, mesA, mesB) : null), [report, mesA, mesB]);
 
   return (
     <>
@@ -60,8 +66,15 @@ export default function BiaDashboard() {
 
           {status === 'listo' && diagnostico && (
             <>
-              <Veredicto report={report} />
-              <Explorador report={report} />
+              <Veredicto comparacion={c} tarifa={report.tariff} />
+              <Explorador
+                report={report}
+                comparacion={c}
+                onCambiarMeses={(a, b) => {
+                  setMesA(a);
+                  setMesB(b);
+                }}
+              />
               <Evidencia sede={diagnostico} />
               <Paso
                 sede={diagnostico}
@@ -92,7 +105,7 @@ export default function BiaDashboard() {
         </main>
       </div>
 
-      {status === 'listo' && report && <Asistente report={report} />}
+      {status === 'listo' && report && <Asistente report={report} comparacion={c} />}
 
       {pedido && diagnostico && (
         <Dialogo

@@ -93,13 +93,13 @@ Ningún color se eligió a ojo. El acento marca sólo lo que se está interrogan
 
 ## Decisiones · Bia
 
-La segunda tarea pedía una vista para alguien que administra tres cafeterías: un objetivo clarísimo —entender qué está pasando con el consumo— que solo se logra comparando. La decisión de fondo fue que la comparación sea la protagonista: una tira de diez meses que es a la vez el control y la respuesta. Se tocan dos meses y el gráfico compara ese par con cualquier otro; el salto de octubre se ve sin leer una línea.
+La segunda tarea pedía una vista para alguien que administra tres cafeterías: un objetivo clarísimo —entender qué está pasando con el consumo— que solo se logra comparando. La decisión de fondo fue que la comparación sea la protagonista y que **los meses sean el marco**: la página abre con dos columnas, la de referencia y la que se mira, con la cifra debajo de cada una. Un "+25%" suelto no quiere decir nada; con los meses al lado, sí.
 
-La regla de color es una sola: el teal es el mes que mirás, el gris el de referencia, el rojo solo cuando el cambio es malo y el punteado solo "sin confirmar". Antes el teal era acento y "octubre" a la vez, y el gris eran tres cosas distintas; con una regla, la página se lee sola.
+La segunda: una tira de diez meses que es a la vez el control y la respuesta. Se tocan dos y el gráfico compara ese par con cualquier otro; el salto de octubre se ve sin leer una línea, y al tocar una fila, la tira cuenta la historia de esa fila.
 
-El primer dato es una corrección: la tarifa no cambió, así que el 100% del alza es consumo, y el 80% está en una sede. Diez meses de historia —añadidos— contestan lo que más importa: no es un mes raro, es un salto sin antecedente.
+Una sola regla de color: el teal es el mes que mirás, el gris el de referencia, el rojo solo cuando el cambio es malo y el punteado solo "sin confirmar".
 
-Los hechos van con tinta sólida y las hipótesis con contorno punteado, y el límite se dice: 780 de los 1.200 kWh fueron de día, así que ninguna hipótesis cubre la parte más grande del problema. Por eso el paso que se ofrece es una medición y no un arreglo. El asistente responde con reglas sobre el fixture, sin modelo de AI, y calcula lo mismo que la gráfica.
+Los hechos van con tinta sólida y las hipótesis con contorno punteado, y el límite se dice de frente: 780 de los 1.200 kWh fueron de día, así que ninguna hipótesis cubre la parte más grande del problema. Por eso el paso que se ofrece es una medición y no un arreglo. El asistente responde con reglas sobre el fixture, sin modelo de AI, y calcula lo mismo que la gráfica.
 ## Qué deberíamos probar
 
 El PDF pide esto explícitamente, y sale de los fallos que fueron apareciendo:
