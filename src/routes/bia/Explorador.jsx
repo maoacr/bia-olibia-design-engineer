@@ -234,14 +234,23 @@ export default function Explorador({ report, comparacion: c, onCambiarMeses }) {
       </div>
 
       {/* ─── La comparacion ─────────────────────────────────────────── */}
-      {/* El encabezado repite los meses sobre las filas: los numeros de las
-          barras ("2.800 → 4.000") no dicen de que meses son, y una tabla
-          sin encabezados es una lista. */}
-      <div className="encabezado" aria-hidden="true">
+      {/* La leyenda va arriba de las filas y usa las MISMAS marcas que el
+          grafico: el punto del color de la barra es el mes que se mira, la
+          barrita es el de referencia. Los numeros de las barras ("2.800 →
+          4.000") no dicen de que meses son, y una tabla sin encabezados es
+          una lista. */}
+      <div className="encabezado">
         <span />
         <span />
-        <span className="encabezado__meses">
-          {c.a.label} <span className="encabezado__flecha">→</span> {c.b.label}
+        <span className="encabezado__meses leyenda">
+          <span className="leyenda__item">
+            <span className="leyenda__punto" aria-hidden="true" />
+            {c.b.label} <span className="leyenda__rol">— el que mirás</span>
+          </span>
+          <span className="leyenda__item">
+            <span className="leyenda__linea" aria-hidden="true" />
+            {c.a.label} <span className="leyenda__rol">— el de referencia</span>
+          </span>
         </span>
       </div>
 

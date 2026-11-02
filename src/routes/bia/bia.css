@@ -586,7 +586,10 @@ main.bia {
   height: calc(var(--parte) * 84%);
   min-height: 3px;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  /* Los meses que NO estan en la comparacion se apagan. Un dato atenuado
+     sigue siendo dato, pero deja de competir con los dos que importan. */
   background: var(--chart-bar);
+  opacity: 0.45;
 }
 
 .tira__corto {
@@ -601,6 +604,7 @@ main.bia {
 
 .tira__mes.es-b .tira__barra {
   background: var(--chart-bar-on);
+  opacity: 1;
 }
 
 .tira__mes.es-pendiente .tira__barra {
@@ -618,13 +622,56 @@ main.bia {
 }
 
 .tira__pie {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-sm);
-  color: var(--text-muted);
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-body);
+  color: var(--text-secondary);
 }
 
+/* El mes que quedo elegido va en el color del texto principal: el pie
+   dice "<mes> sera el de referencia" y ese nombre es el unico dato de la
+   frase. Sin esta regla hereda el secundario del parrafo y el dato pesa
+   igual que la instruccion que lo rodea. */
 .tira__pie strong {
   color: var(--text-primary);
+}
+
+/* LA LEYENDA: las mismas marcas que usa el grafico, con los meses al
+   lado. Un punto del color de la barra es el mes que se mira; una barrita
+   es el de referencia. Sin esto habia que adivinar que significaba la
+   linea dentro de las barras. */
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+}
+
+.leyenda__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.leyenda__punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--chart-bar-on);
+}
+
+.leyenda__linea {
+  width: 3px;
+  height: 16px;
+  border-radius: 1px;
+  background: var(--text-primary);
+  opacity: 0.8;
+}
+
+.leyenda__rol {
+  font-weight: 400;
+  color: var(--text-muted);
 }
 
 /* ─── La comparacion ────────────────────────────────────────────────── */
@@ -639,16 +686,8 @@ main.bia {
 }
 
 .encabezado__meses {
-  font-size: var(--text-xs);
-  font-weight: 650;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-align: right;
-}
-
-.encabezado__flecha {
-  color: var(--text-muted);
+  justify-content: flex-end;
+  padding-bottom: var(--space-2);
 }
 
 .explorador__filas {
