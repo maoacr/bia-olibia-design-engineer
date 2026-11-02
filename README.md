@@ -93,13 +93,13 @@ Ningún color se eligió a ojo. El acento marca sólo lo que se está interrogan
 
 ## Decisiones · Bia
 
-La segunda tarea pedía una vista para alguien que administra tres cafeterías: tiene un objetivo clarísimo —entender qué está pasando con el consumo— y para lograrlo hay que comparar. La decisión de fondo fue que la comparación sea la protagonista y no un dato más: cuatro preguntas en orden y un explorador que reacciona a los filtros —sede, tramo del día, mes, unidad— y redibuja la comparación en vivo.
+La segunda tarea pedía una vista para alguien que administra tres cafeterías: un objetivo clarísimo —entender qué está pasando con el consumo— que solo se logra comparando. La decisión de fondo fue que la comparación sea la protagonista: una tira de diez meses que es a la vez el control y la respuesta. Se tocan dos meses y el gráfico compara ese par con cualquier otro; el salto de octubre se ve sin leer una línea.
 
-La comparación va primero porque es lo que el caso pide: la tarifa no cambió, así que el 100% del alza es consumo; el 80% está en una sede; y de los 1.200 kWh que subió esa sede, 420 fueron de madrugada. Diez meses de historia —añadidos; el enunciado solo da dos— permiten contestar lo que más importa: no es un mes raro, es un salto sin antecedente.
+La regla de color es una sola: el teal es el mes que mirás, el gris el de referencia, el rojo solo cuando el cambio es malo y el punteado solo "sin confirmar". Antes el teal era acento y "octubre" a la vez, y el gris eran tres cosas distintas; con una regla, la página se lee sola.
 
-Los hechos y las hipótesis van en registros visuales distintos, tinta sólida contra contorno punteado, y el límite se dice de frente: 780 de los 1.200 kWh ocurrieron dentro del horario habitual, así que ninguna hipótesis cubre la parte más grande del problema. Por eso el paso que se ofrece es una medición y no un arreglo.
+El primer dato es una corrección: la tarifa no cambió, así que el 100% del alza es consumo, y el 80% está en una sede. Diez meses de historia —añadidos— contestan lo que más importa: no es un mes raro, es un salto sin antecedente.
 
-Sin librería de gráficas: el vocabulario del sitio ya tenía los tres patrones que hacen falta, y Tremor exige Tailwind, es decir un segundo sistema de estilos en un proyecto de tokens propios. El asistente responde con reglas sobre el fixture, sin modelo de AI conectado, y calcula lo mismo que la gráfica de arriba.
+Los hechos van con tinta sólida y las hipótesis con contorno punteado, y el límite se dice: 780 de los 1.200 kWh fueron de día, así que ninguna hipótesis cubre la parte más grande del problema. Por eso el paso que se ofrece es una medición y no un arreglo. El asistente responde con reglas sobre el fixture, sin modelo de AI, y calcula lo mismo que la gráfica.
 ## Qué deberíamos probar
 
 El PDF pide esto explícitamente, y sale de los fallos que fueron apareciendo:
@@ -160,8 +160,8 @@ src/
     useScrolled.js        el centinela del desplazamiento, para el velo
   routes/bia/
     BiaDashboard.jsx      arma la página y reparte el alcance de cada bloque
-    Veredicto.jsx        ¿Qué pasó? La cascada y la tarifa que no cambió
-    Explorador.jsx       ¿Explorar? Filtros y gráfica comparativa en vivo
+    Veredicto.jsx        ¿Qué pasó? La cifra y la frase que la corrige
+    Explorador.jsx       Comparar: la tira de meses y la gráfica en vivo
     Evidencia.jsx        ¿Por qué? Hechos e hipótesis, en registros distintos
     Paso.jsx             ¿Qué hago? El paso y su alternativa condicional
     Dialogo.jsx          el pedido del diagnóstico, con el foco encerrado

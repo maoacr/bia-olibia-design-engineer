@@ -46,24 +46,18 @@ const SUGERIDAS = ['¿Cuánto gasté?', '¿Qué sede subió más?', '¿De noche?
  */
 function lecturaInicial(report) {
   const { currentBill, previousBill, deltaBill, deltaPercent, mainSede } = report;
-  const fuera = mainSede.currentOutside;
-  const share = mainSede.currentOutsideShare;
   return (
     <>
       <p>
-        Tu factura de octubre es de <strong>{pesos(currentBill)}</strong>. Subió{' '}
-        <strong>{pesos(deltaBill)}</strong> ({porcentaje(deltaPercent)}) contra septiembre, y no fue
-        por el precio: la tarifa se mantuvo en {pesos(report.tariff)} el kWh.
+        Tu factura de octubre es de <strong>{pesos(currentBill)}</strong>: {pesos(deltaBill)} más (
+        {porcentaje(deltaPercent)}) que en septiembre.
       </p>
       <p>
-        El <strong>{porcentaje(mainSede.share)}</strong> de ese aumento está en la {mainSede.name}.
-        De sus {numero(mainSede.delta)} kWh extra, <strong>{numero(fuera)}</strong> fueron de
-        madrugada — pasó del {porcentaje(mainSede.previousOutsideShare)} al {porcentaje(share)} de
-        lo que gasta la sede.
+        No fue por el precio: la tarifa se mantuvo en {pesos(report.tariff)} el kWh. Subió el consumo, y
+        el {porcentaje(mainSede.share)} de ese aumento está en la {mainSede.name}.
       </p>
       <p>
-        <strong>La causa no está confirmada.</strong> Hay dos hipótesis y ninguna comprobada. Lo que
-        sí se puede pedir es una medición: eso es el siguiente paso.
+        <strong>La causa no está confirmada.</strong> Hay dos hipótesis y ninguna comprobada.
       </p>
     </>
   );
